@@ -1,0 +1,20 @@
+:root {
+  --color-bg: 17 26 34;
+  --color-bg-secondary: 23 37 48;
+  --color-canvas: 15 24 32;
+  --color-surface: 27 42 54;
+  --color-surface-strong: 34 53 68;
+  --color-border: 255 255 255;
+  --color-primary: 168 216 255;
+  --color-primary-hover: 191 230 255;
+  --color-success: 89 214 179;
+  --color-warning: 248 201 106;
+  --color-danger: 243 107 127;
+  --color-text: 245 250 255;
+  --color-text-secondary: 201 217 231;
+  --color-text-muted: 143 163 182;
+  --radius-panel: 24px;
+  --radius-button: 12px;
+  --blur-panel: 18px;
+  --transition-fast: 120ms ease-out;
+}
