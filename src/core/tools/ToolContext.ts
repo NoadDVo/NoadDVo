@@ -23,6 +23,7 @@ export type ToolPointerEvent = ToolModifierKeys & {
 export type ToolContext = {
   readonly activeTool: GeometryToolId;
   readonly gridSize: number;
+  readonly hoveredObjectId: string | null;
   readonly objects: GeometryObjectRecord;
   readonly pointerWorld: Point2D;
   readonly selectedObjectIds: readonly string[];
@@ -32,7 +33,9 @@ export type ToolContext = {
   readonly clearSelection: () => void;
   readonly deleteObject: (objectId: string) => void;
   readonly selectObject: (objectId: string, additive?: boolean) => void;
+  readonly setHoveredObject: (objectId: string | null) => void;
   readonly setActiveTool: (toolId: GeometryToolId) => void;
+  readonly setSelectedObjects: (objectIds: readonly string[]) => void;
   readonly setObjects: (objects: GeometryObjectRecord | readonly GeometryObject[]) => boolean;
   readonly updateObject: (
     objectId: string,
@@ -58,11 +61,14 @@ export function createToolContext(): ToolContext {
     clearSelection: geometryState.clearSelection,
     deleteObject: geometryState.deleteObject,
     gridSize: viewportState.gridSize,
+    hoveredObjectId: geometryState.hoveredObjectId,
     objects: geometryState.objects,
     pointerWorld: viewportState.pointerWorld,
     selectObject: geometryState.selectObject,
     selectedObjectIds: geometryState.selectedObjectIds,
+    setHoveredObject: geometryState.setHoveredObject,
     setActiveTool: geometryState.setActiveTool,
+    setSelectedObjects: geometryState.setSelectedObjects,
     setObjects: geometryState.setObjects,
     snapEnabled: viewportState.snapEnabled,
     snapPoint: (point) =>

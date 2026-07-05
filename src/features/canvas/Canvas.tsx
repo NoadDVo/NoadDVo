@@ -101,29 +101,59 @@ export function Canvas() {
         useViewportStore.getState().setSpacePressed(false);
       }
     };
+    const handleBlur = () => {
+      toolManager.cancel();
+      useViewportStore.getState().endPan();
+    };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("blur", toolManager.cancel);
+    window.addEventListener("blur", handleBlur);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("blur", toolManager.cancel);
+      window.removeEventListener("blur", handleBlur);
     };
   }, []);
 
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
+    const handleKeyboardCommands = (event: KeyboardEvent) => {
+      toolManager.keyDown(event);
+
       if (event.key === "Escape") {
+        useGeometryStore.getState().clearSelection();
         toolManager.cancel();
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        const { objects, setSelectedObjects } = useGeometryStore.getState();
+
+        setSelectedObjects(
+          Object.values(objects)
+            .filter((object) => object.visible)
+            .map((object) => object.id),
+        );
+      }
+
+      if (event.key === "Delete") {
+        const { deleteObject, objects, selectedObjectIds } = useGeometryStore.getState();
+
+        selectedObjectIds.forEach((objectId) => {
+          const object = objects[objectId];
+
+          if (object && !object.locked) {
+            deleteObject(objectId);
+          }
+        });
       }
     };
 
-    window.addEventListener("keydown", handleEscape);
+    window.addEventListener("keydown", handleKeyboardCommands);
 
     return () => {
-      window.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("keydown", handleKeyboardCommands);
     };
   }, []);
 

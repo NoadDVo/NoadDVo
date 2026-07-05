@@ -5,6 +5,7 @@ import {
   pointsAlmostEqual,
   polygonArea,
 } from "./math";
+import { validateDependencyGraph } from "./dependency";
 import type {
   AngleObject,
   CircleObject,
@@ -279,6 +280,12 @@ export function validateGeometryObject(
 export function validateGeometryObjects(
   objects: GeometryObjectRecord,
 ): ValidationResult {
+  const dependencyError = validateDependencyGraph(objects);
+
+  if (dependencyError) {
+    return { error: dependencyError, valid: false };
+  }
+
   for (const object of Object.values(objects)) {
     const result = validateGeometryObject(object, objects);
 

@@ -36,6 +36,7 @@ export const PolygonRenderer: GeometryRenderer<PolygonObject> = {
       .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
       .join(" ")} Z`;
     const isSelected = context.selectedObjectIds.includes(object.id);
+    const isHovered = context.hoveredObjectId === object.id && !isSelected;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -48,6 +49,17 @@ export const PolygonRenderer: GeometryRenderer<PolygonObject> = {
             strokeLinejoin="round"
             strokeOpacity={0.38}
             strokeWidth={object.style.strokeWidth + 8}
+          />
+        )}
+        {isHovered && (
+          <path
+            d={path}
+            fill="#a8f0ff"
+            fillOpacity={0.05}
+            stroke="#a8f0ff"
+            strokeLinejoin="round"
+            strokeOpacity={0.22}
+            strokeWidth={object.style.strokeWidth + 6}
           />
         )}
         <path

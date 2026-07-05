@@ -33,6 +33,7 @@ export const SegmentRenderer: GeometryRenderer<SegmentObject> = {
     const startScreen = worldToScreen(start, context.viewport);
     const endScreen = worldToScreen(end, context.viewport);
     const isSelected = context.selectedObjectIds.includes(object.id);
+    const isHovered = context.hoveredObjectId === object.id && !isSelected;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -46,6 +47,18 @@ export const SegmentRenderer: GeometryRenderer<SegmentObject> = {
             strokeLinecap="round"
             strokeOpacity={0.38}
             strokeWidth={object.style.strokeWidth + 8}
+          />
+        )}
+        {isHovered && (
+          <line
+            x1={startScreen.x}
+            x2={endScreen.x}
+            y1={startScreen.y}
+            y2={endScreen.y}
+            stroke="#a8f0ff"
+            strokeLinecap="round"
+            strokeOpacity={0.24}
+            strokeWidth={object.style.strokeWidth + 6}
           />
         )}
         <line

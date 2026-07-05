@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+import { toolManager } from "../../../core/tools/ToolManager";
+import { createToolContext } from "../../../core/tools/ToolContext";
 import { snapToGrid } from "../../../core/geometry/snap";
 import { worldToScreen, type Viewport } from "../../../core/geometry/viewport";
 import type { Point2D } from "../../../core/geometry/types";
@@ -17,6 +19,7 @@ export const PreviewLayer = memo(function PreviewLayer({
 }: PreviewLayerProps) {
   const snapped = snapToGrid(pointerWorld, gridSize);
   const screen = worldToScreen(snapped, viewport);
+  const toolPreview = toolManager.renderPreview(createToolContext());
 
   return (
     <g data-layer="preview">
@@ -29,6 +32,7 @@ export const PreviewLayer = memo(function PreviewLayer({
         strokeDasharray="3 3"
         strokeWidth={1.5}
       />
+      {toolPreview}
     </g>
   );
 });

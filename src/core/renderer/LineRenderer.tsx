@@ -90,6 +90,7 @@ export const LineRenderer: GeometryRenderer<LineObject> = {
     const start = worldToScreen(clippedLine[0], context.viewport);
     const end = worldToScreen(clippedLine[1], context.viewport);
     const isSelected = context.selectedObjectIds.includes(object.id);
+    const isHovered = context.hoveredObjectId === object.id && !isSelected;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -103,6 +104,18 @@ export const LineRenderer: GeometryRenderer<LineObject> = {
             strokeLinecap="round"
             strokeOpacity={0.32}
             strokeWidth={object.style.strokeWidth + 8}
+          />
+        )}
+        {isHovered && (
+          <line
+            x1={start.x}
+            x2={end.x}
+            y1={start.y}
+            y2={end.y}
+            stroke="#a8f0ff"
+            strokeLinecap="round"
+            strokeOpacity={0.2}
+            strokeWidth={object.style.strokeWidth + 6}
           />
         )}
         <line

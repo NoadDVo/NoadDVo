@@ -18,6 +18,7 @@ export type GeometryRendererContext = {
   readonly viewport: Viewport;
   readonly objects: GeometryObjectRecord;
   readonly selectedObjectIds: readonly string[];
+  readonly hoveredObjectId: string | null;
 };
 
 export type GeometryRenderer<TObject extends GeometryObject = GeometryObject> = {

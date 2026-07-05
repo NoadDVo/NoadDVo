@@ -1,6 +1,7 @@
 import {
   DEFAULT_GEOMETRY_STYLE,
   type GeometryObjectRecord,
+  type Point2D,
   type PointObject,
 } from "../geometry";
 import { BaseTool } from "./BaseTool";
@@ -34,8 +35,11 @@ function createPointId(name: string): string {
   return `point-${name.toLowerCase()}-${Date.now().toString(36)}-${pointIdCounter}`;
 }
 
-function createFreePoint(event: ToolPointerEvent, context: ToolContext): PointObject {
-  const name = getNextPointName(context.objects);
+export function createNamedFreePoint(
+  point: Point2D,
+  objects: GeometryObjectRecord,
+): PointObject {
+  const name = getNextPointName(objects);
   const now = Date.now();
 
   return {
@@ -56,8 +60,8 @@ function createFreePoint(event: ToolPointerEvent, context: ToolContext): PointOb
     type: "point",
     updatedAt: now,
     visible: true,
-    x: event.snappedWorldPoint.x,
-    y: event.snappedWorldPoint.y,
+    x: point.x,
+    y: point.y,
   };
 }
 
@@ -76,14 +80,18 @@ export class PointTool extends BaseTool {
       return;
     }
 
-    const point = createFreePoint(event, context);
+    const point = createNamedFreePoint(event.snappedWorldPoint, context.objects);
 
     if (context.addObject(point)) {
       context.selectObject(point.id);
+      this.transitionState("completed", "complete");
+      this.transitionState("waitingInput", "await-input");
     }
   }
 
-  cancel(_context: ToolContext): void {}
+  cancel(context: ToolContext): void {
+    super.cancel(context);
+  }
 }
 
 export const pointTool = new PointTool();

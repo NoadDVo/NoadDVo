@@ -6,6 +6,7 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
   render: (object, context) => {
     const point = worldToScreen(object, context.viewport);
     const isSelected = context.selectedObjectIds.includes(object.id);
+    const isHovered = context.hoveredObjectId === object.id && !isSelected;
     const radius = object.style.pointSize;
 
     return (
@@ -20,6 +21,17 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
             stroke="#7ddcff"
             strokeOpacity={0.42}
             strokeWidth={3}
+          />
+        )}
+        {isHovered && (
+          <circle
+            cx={point.x}
+            cy={point.y}
+            fill="none"
+            r={radius + 5}
+            stroke="#a8f0ff"
+            strokeOpacity={0.28}
+            strokeWidth={2}
           />
         )}
         <circle

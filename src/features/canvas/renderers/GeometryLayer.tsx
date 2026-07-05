@@ -24,6 +24,7 @@ export const GeometryLayer = memo(function GeometryLayer({
 }: GeometryLayerProps) {
   const objects = useGeometryStore((state) => state.objects);
   const selectedObjectIds = useGeometryStore((state) => state.selectedObjectIds);
+  const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
   const orderedObjects = Object.values(objects).sort(
     (a, b) => RENDER_ORDER[a.type] - RENDER_ORDER[b.type],
   );
@@ -58,6 +59,7 @@ export const GeometryLayer = memo(function GeometryLayer({
         <Fragment key={object.id}>
           {geometryRendererRegistry.renderObject(object, {
             objects,
+            hoveredObjectId,
             selectedObjectIds,
             viewport,
           })}

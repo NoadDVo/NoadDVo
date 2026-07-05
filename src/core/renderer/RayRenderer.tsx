@@ -107,6 +107,7 @@ export const RayRenderer: GeometryRenderer<RayObject> = {
     const startScreen = worldToScreen(clippedRay[0], context.viewport);
     const endScreen = worldToScreen(clippedRay[1], context.viewport);
     const isSelected = context.selectedObjectIds.includes(object.id);
+    const isHovered = context.hoveredObjectId === object.id && !isSelected;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -120,6 +121,18 @@ export const RayRenderer: GeometryRenderer<RayObject> = {
             strokeLinecap="round"
             strokeOpacity={0.32}
             strokeWidth={object.style.strokeWidth + 8}
+          />
+        )}
+        {isHovered && (
+          <line
+            x1={startScreen.x}
+            x2={endScreen.x}
+            y1={startScreen.y}
+            y2={endScreen.y}
+            stroke="#a8f0ff"
+            strokeLinecap="round"
+            strokeOpacity={0.2}
+            strokeWidth={object.style.strokeWidth + 6}
           />
         )}
         <line

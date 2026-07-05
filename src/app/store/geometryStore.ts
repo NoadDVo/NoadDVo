@@ -2,7 +2,9 @@ import { create } from "zustand";
 
 import {
   DEFAULT_GEOMETRY_STYLE,
-  validateGeometryObject,
+  DependencyGraph,
+  normalizeDependencyMetadata,
+  propagateGeometryUpdates,
   validateGeometryObjects,
   type BaseGeometryObject,
   type GeometryError,
@@ -19,6 +21,7 @@ type GeometryObjectUpdater =
 type GeometryState = {
   readonly objects: GeometryObjectRecord;
   readonly selectedObjectIds: readonly string[];
+  readonly hoveredObjectId: string | null;
   readonly activeTool: GeometryToolId;
   readonly lastError: GeometryError | null;
   readonly addObject: (object: GeometryObject) => boolean;
@@ -28,6 +31,8 @@ type GeometryState = {
   ) => boolean;
   readonly deleteObject: (objectId: string) => void;
   readonly selectObject: (objectId: string, additive?: boolean) => void;
+  readonly setSelectedObjects: (objectIds: readonly string[]) => void;
+  readonly setHoveredObject: (objectId: string | null) => void;
   readonly clearSelection: () => void;
   readonly setActiveTool: (toolId: GeometryToolId) => void;
   readonly setObjects: (objects: SetObjectsInput) => boolean;
@@ -48,6 +53,19 @@ function selectedIdsWithout(
   objectId: string,
 ): readonly string[] {
   return selectedObjectIds.filter((selectedObjectId) => selectedObjectId !== objectId);
+}
+
+function prepareObjectsForCommit(
+  objects: GeometryObjectRecord,
+): { readonly valid: true; readonly objects: GeometryObjectRecord } | { readonly valid: false; readonly error: GeometryError } {
+  const normalizedObjects = normalizeDependencyMetadata(objects);
+  const result = validateGeometryObjects(normalizedObjects);
+
+  if (!result.valid) {
+    return { error: result.error, valid: false };
+  }
+
+  return { objects: normalizedObjects, valid: true };
 }
 
 const sampleSceneObjects = [
@@ -174,24 +192,24 @@ const initialObjects = normalizeObjects(sampleSceneObjects);
 export const useGeometryStore = create<GeometryState>((set, get) => ({
   objects: initialObjects,
   selectedObjectIds: ["triangle-abc"],
+  hoveredObjectId: null,
   activeTool: "select",
   lastError: null,
   addObject: (object) => {
-    const nextObjects = {
+    const prepared = prepareObjectsForCommit({
       ...get().objects,
       [object.id]: object,
-    };
-    const result = validateGeometryObject(object, nextObjects);
+    });
 
-    if (!result.valid) {
-      set({ lastError: result.error });
+    if (!prepared.valid) {
+      set({ lastError: prepared.error });
 
       return false;
     }
 
     set({
       lastError: null,
-      objects: nextObjects,
+      objects: prepared.objects,
     });
 
     return true;
@@ -228,34 +246,76 @@ export const useGeometryStore = create<GeometryState>((set, get) => ({
       return false;
     }
 
-    const nextObjects = {
+    const prepared = prepareObjectsForCommit({
       ...get().objects,
       [objectId]: nextObject,
-    };
-    const result = validateGeometryObject(nextObject, nextObjects);
+    });
 
-    if (!result.valid) {
-      set({ lastError: result.error });
+    if (!prepared.valid) {
+      set({ lastError: prepared.error });
+
+      return false;
+    }
+
+    const propagated = propagateGeometryUpdates(prepared.objects, objectId);
+
+    if (!propagated.valid) {
+      set({ lastError: propagated.error });
 
       return false;
     }
 
     set({
       lastError: null,
-      objects: nextObjects,
+      objects: propagated.objects,
     });
 
     return true;
   },
   deleteObject: (objectId) => {
-    const remainingObjects = { ...get().objects };
+    const normalizedObjects = normalizeDependencyMetadata(get().objects);
+    const graphResult = DependencyGraph.fromObjects(normalizedObjects);
 
-    delete remainingObjects[objectId];
+    if (!graphResult.valid) {
+      set({
+        lastError: {
+          code: graphResult.error.code,
+          message: graphResult.error.message,
+          ...(graphResult.error.objectId ? { objectId: graphResult.error.objectId } : {}),
+          severity: "error",
+        },
+      });
+
+      return;
+    }
+
+    const objectIdsToDelete = new Set([
+      objectId,
+      ...graphResult.value.getDependentIds(objectId),
+    ]);
+    const remainingObjects = { ...normalizedObjects };
+
+    objectIdsToDelete.forEach((deletedObjectId) => {
+      delete remainingObjects[deletedObjectId];
+    });
+    const prepared = prepareObjectsForCommit(remainingObjects);
+
+    if (!prepared.valid) {
+      set({ lastError: prepared.error });
+
+      return;
+    }
 
     set((state) => ({
+      hoveredObjectId:
+        state.hoveredObjectId && objectIdsToDelete.has(state.hoveredObjectId)
+          ? null
+          : state.hoveredObjectId,
       lastError: null,
-      objects: remainingObjects,
-      selectedObjectIds: selectedIdsWithout(state.selectedObjectIds, objectId),
+      objects: prepared.objects,
+      selectedObjectIds: state.selectedObjectIds.filter(
+        (selectedObjectId) => !objectIdsToDelete.has(selectedObjectId),
+      ),
     }));
   },
   selectObject: (objectId, additive = false) => {
@@ -277,6 +337,18 @@ export const useGeometryStore = create<GeometryState>((set, get) => ({
       };
     });
   },
+  setSelectedObjects: (objectIds) => {
+    set((state) => ({
+      selectedObjectIds: Array.from(
+        new Set(objectIds.filter((objectId) => state.objects[objectId])),
+      ),
+    }));
+  },
+  setHoveredObject: (objectId) => {
+    set((state) => ({
+      hoveredObjectId: objectId && state.objects[objectId] ? objectId : null,
+    }));
+  },
   clearSelection: () => {
     set({ selectedObjectIds: [] });
   },
@@ -284,20 +356,19 @@ export const useGeometryStore = create<GeometryState>((set, get) => ({
     set({ activeTool: toolId });
   },
   setObjects: (input) => {
-    const objects = normalizeObjects(input);
-    const result = validateGeometryObjects(objects);
+    const prepared = prepareObjectsForCommit(normalizeObjects(input));
 
-    if (!result.valid) {
-      set({ lastError: result.error });
+    if (!prepared.valid) {
+      set({ lastError: prepared.error });
 
       return false;
     }
 
     set((state) => ({
       lastError: null,
-      objects,
+      objects: prepared.objects,
       selectedObjectIds: state.selectedObjectIds.filter(
-        (objectId) => objects[objectId],
+        (objectId) => prepared.objects[objectId],
       ),
     }));
 

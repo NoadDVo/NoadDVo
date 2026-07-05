@@ -1,6 +1,12 @@
 import type { GeometryToolId } from "../geometry";
 import { BaseTool } from "./BaseTool";
+import { circleTool } from "./CircleTool";
+import { lineTool } from "./LineTool";
+import { moveTool } from "./MoveTool";
 import { pointTool } from "./PointTool";
+import { polygonTool } from "./PolygonTool";
+import { segmentTool } from "./SegmentTool";
+import { selectTool } from "./SelectTool";
 import type { Tool } from "./Tool";
 import {
   createToolContext,
@@ -9,15 +15,15 @@ import {
 } from "./ToolContext";
 
 const defaultTools = [
-  new BaseTool({ cursor: "default", id: "select", name: "Select", shortcut: "V" }),
-  new BaseTool({ cursor: "grab", id: "move", name: "Move", shortcut: "M" }),
+  selectTool,
+  moveTool,
   pointTool,
-  new BaseTool({ id: "segment", name: "Segment", shortcut: "S" }),
-  new BaseTool({ id: "line", name: "Line", shortcut: "L" }),
+  segmentTool,
+  lineTool,
   new BaseTool({ id: "ray", name: "Ray", shortcut: "R" }),
   new BaseTool({ id: "vector", name: "Vector", shortcut: "X" }),
-  new BaseTool({ id: "circle", name: "Circle", shortcut: "C" }),
-  new BaseTool({ id: "polygon", name: "Polygon", shortcut: "G" }),
+  circleTool,
+  polygonTool,
   new BaseTool({ id: "angle", name: "Angle", shortcut: "A" }),
 ] satisfies readonly Tool[];
 
@@ -79,6 +85,12 @@ export class ToolManager {
     const context = createToolContext();
 
     this.getActiveTool(context).pointerUp(event, context);
+  }
+
+  keyDown(event: KeyboardEvent): void {
+    const context = createToolContext();
+
+    this.getActiveTool(context).keyDown(event, context);
   }
 
   cancel(): void {
