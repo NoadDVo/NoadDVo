@@ -42,7 +42,11 @@ export type GeometryToolId =
   | "vector"
   | "circle"
   | "polygon"
-  | "angle";
+  | "angle"
+  | "midpoint"
+  | "intersection"
+  | "parallel"
+  | "perpendicular";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
 
@@ -66,10 +70,11 @@ export type GeometryStyle = {
   readonly pointSize: number;
   readonly labelVisible: boolean;
   readonly labelPosition: LabelPosition;
+  readonly labelSize: number;
 };
 
 export const DEFAULT_GEOMETRY_STYLE: GeometryStyle = {
-  stroke: "#DDEEFF",
+  stroke: "#0b0f14",
   strokeWidth: 2,
   strokeOpacity: 1,
   fill: "transparent",
@@ -78,6 +83,7 @@ export const DEFAULT_GEOMETRY_STYLE: GeometryStyle = {
   pointSize: 5,
   labelVisible: true,
   labelPosition: "above-right",
+  labelSize: 12,
 };
 
 export type BaseGeometryObject = {
@@ -95,11 +101,35 @@ export type BaseGeometryObject = {
   readonly updatedAt: number;
 };
 
+export type ConstructionDefinition =
+  | {
+      readonly type: "midpoint";
+      readonly pointAId: string;
+      readonly pointBId: string;
+    }
+  | {
+      readonly type: "intersection";
+      readonly sourceAId: string;
+      readonly sourceBId: string;
+      readonly index: number;
+    }
+  | {
+      readonly type: "parallel-line-point";
+      readonly pointId: string;
+      readonly lineId: string;
+    }
+  | {
+      readonly type: "perpendicular-line-point";
+      readonly pointId: string;
+      readonly lineId: string;
+    };
+
 export type PointObject = BaseGeometryObject & {
   readonly type: "point";
   readonly x: number;
   readonly y: number;
   readonly pointKind: "free" | "derived";
+  readonly construction?: ConstructionDefinition;
 };
 
 export type SegmentObject = BaseGeometryObject & {

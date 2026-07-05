@@ -6,6 +6,7 @@ import type {
   GeometryObjectType,
 } from "../geometry";
 import type { Viewport } from "../geometry/viewport";
+import { AngleRenderer } from "./AngleRenderer";
 import { CircleRenderer } from "./CircleRenderer";
 import { LineRenderer } from "./LineRenderer";
 import { PointRenderer } from "./PointRenderer";
@@ -60,4 +61,5 @@ geometryRendererRegistry.register(LineRenderer);
 geometryRendererRegistry.register(RayRenderer);
 geometryRendererRegistry.register(SegmentRenderer);
 geometryRendererRegistry.register(VectorRenderer);
+geometryRendererRegistry.register(AngleRenderer);
 geometryRendererRegistry.register(PointRenderer);

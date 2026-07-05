@@ -111,3 +111,24 @@ export function polygonArea(points: readonly Point2D[]): number {
 
   return sum / 2;
 }
+
+export function angleRadians(pointA: Point2D, vertex: Point2D, pointC: Point2D): number {
+  const vectorA = vectorFromPoints(vertex, pointA);
+  const vectorC = vectorFromPoints(vertex, pointC);
+  const unsigned = Math.atan2(Math.abs(cross(vectorA, vectorC)), dot(vectorA, vectorC));
+
+  return unsigned < 0 ? unsigned + Math.PI * 2 : unsigned;
+}
+
+export function angleDegrees(pointA: Point2D, vertex: Point2D, pointC: Point2D): number {
+  return (angleRadians(pointA, vertex, pointC) * 180) / Math.PI;
+}
+
+export function isRightAngle(
+  pointA: Point2D,
+  vertex: Point2D,
+  pointC: Point2D,
+  toleranceDegrees = 1,
+): boolean {
+  return Math.abs(angleDegrees(pointA, vertex, pointC) - 90) <= toleranceDegrees;
+}

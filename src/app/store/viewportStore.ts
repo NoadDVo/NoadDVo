@@ -14,6 +14,7 @@ type ViewportState = {
   readonly viewport: Viewport;
   readonly gridSize: number;
   readonly snapEnabled: boolean;
+  readonly snapTemporarilyDisabled: boolean;
   readonly showGrid: boolean;
   readonly showAxes: boolean;
   readonly pointerWorld: Point2D;
@@ -21,12 +22,22 @@ type ViewportState = {
   readonly isPanning: boolean;
   readonly lastPanPoint: ScreenPoint | null;
   readonly setCanvasSize: (width: number, height: number) => void;
+  readonly setViewportState: (
+    viewport: Viewport,
+    settings?: {
+      readonly gridSize?: number;
+      readonly snapEnabled?: boolean;
+      readonly showGrid?: boolean;
+      readonly showAxes?: boolean;
+    },
+  ) => void;
   readonly setPointerScreen: (point: ScreenPoint) => void;
   readonly zoomAt: (point: ScreenPoint, zoomFactor: number) => void;
   readonly startPan: (point: ScreenPoint) => void;
   readonly panTo: (point: ScreenPoint) => void;
   readonly endPan: () => void;
   readonly setSpacePressed: (pressed: boolean) => void;
+  readonly setSnapTemporarilyDisabled: (disabled: boolean) => void;
   readonly resetViewport: () => void;
 };
 
@@ -34,6 +45,7 @@ export const useViewportStore = create<ViewportState>((set, get) => ({
   viewport: DEFAULT_VIEWPORT,
   gridSize: 1,
   snapEnabled: true,
+  snapTemporarilyDisabled: false,
   showGrid: true,
   showAxes: true,
   pointerWorld: { x: 0, y: 0 },
@@ -43,6 +55,19 @@ export const useViewportStore = create<ViewportState>((set, get) => ({
   setCanvasSize: (width, height) => {
     set((state) => ({
       viewport: resizeViewport(state.viewport, width, height),
+    }));
+  },
+  setViewportState: (viewport, settings) => {
+    set((state) => ({
+      gridSize: settings?.gridSize ?? state.gridSize,
+      snapEnabled: settings?.snapEnabled ?? state.snapEnabled,
+      showAxes: settings?.showAxes ?? state.showAxes,
+      showGrid: settings?.showGrid ?? state.showGrid,
+      viewport: {
+        ...viewport,
+        height: Math.max(1, viewport.height),
+        width: Math.max(1, viewport.width),
+      },
     }));
   },
   setPointerScreen: (point) => {
@@ -101,6 +126,9 @@ export const useViewportStore = create<ViewportState>((set, get) => ({
     if (!pressed) {
       get().endPan();
     }
+  },
+  setSnapTemporarilyDisabled: (disabled) => {
+    set({ snapTemporarilyDisabled: disabled });
   },
   resetViewport: () => {
     const { viewport } = get();

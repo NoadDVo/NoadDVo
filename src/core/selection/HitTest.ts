@@ -6,7 +6,7 @@ import type {
   PointObject,
   ScreenPoint,
 } from "../geometry";
-import { distance, distanceSquared } from "../geometry";
+import { angleRadians, distance, distanceSquared } from "../geometry";
 import { worldToScreen, type Viewport } from "../geometry/viewport";
 
 export type HitTestResult = {
@@ -267,6 +267,31 @@ export function hitTest(
       ) <= tolerancePx
     ) {
       return { object, objectId: object.id, type: "ray" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "angle")) {
+    const pointA = getPoint(object.pointAId, objects);
+    const vertex = getPoint(object.vertexPointId, objects);
+    const pointC = getPoint(object.pointCId, objects);
+
+    if (!pointA || !vertex || !pointC) {
+      continue;
+    }
+
+    const radius = Math.max(0.15, object.radius);
+    const toleranceWorld = tolerancePx / viewport.scale;
+    const radialDistance = Math.abs(distance(vertex, worldPoint) - radius);
+    const targetAngle = angleRadians(pointA, vertex, pointC);
+    const splitAngle =
+      angleRadians(pointA, vertex, worldPoint) +
+      angleRadians(worldPoint, vertex, pointC);
+
+    if (
+      radialDistance <= toleranceWorld &&
+      Math.abs(splitAngle - targetAngle) <= (3 * Math.PI) / 180
+    ) {
+      return { object, objectId: object.id, type: "angle" };
     }
   }
 

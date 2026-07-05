@@ -87,8 +87,8 @@ function createLine(pointA: PointObject, pointB: PointObject): LineObject {
     pointBId: pointB.id,
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      stroke: "#dff6ff",
-      strokeOpacity: 0.88,
+      stroke: "#0b0f14",
+      strokeOpacity: 1,
       strokeWidth: 1.85,
     },
     type: "line",

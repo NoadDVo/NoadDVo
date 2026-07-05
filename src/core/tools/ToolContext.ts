@@ -1,4 +1,5 @@
 import type { GeometryObject, GeometryObjectRecord, GeometryToolId, Point2D, ScreenPoint } from "../geometry";
+import type { HistoryActionKind } from "../history";
 import { snapToGrid } from "../geometry/snap";
 import { screenToWorld, type Viewport } from "../geometry/viewport";
 import { useGeometryStore } from "../../app/store/geometryStore";
@@ -30,13 +31,23 @@ export type ToolContext = {
   readonly snapEnabled: boolean;
   readonly viewport: Viewport;
   readonly addObject: (object: GeometryObject) => boolean;
+  readonly beginHistoryTransaction: (
+    kind: HistoryActionKind,
+    description: string,
+  ) => void;
+  readonly cancelHistoryTransaction: () => void;
   readonly clearSelection: () => void;
+  readonly commitHistoryTransaction: () => void;
   readonly deleteObject: (objectId: string) => void;
   readonly selectObject: (objectId: string, additive?: boolean) => void;
   readonly setHoveredObject: (objectId: string | null) => void;
   readonly setActiveTool: (toolId: GeometryToolId) => void;
   readonly setSelectedObjects: (objectIds: readonly string[]) => void;
-  readonly setObjects: (objects: GeometryObjectRecord | readonly GeometryObject[]) => boolean;
+  readonly setObjects: (
+    objects: GeometryObjectRecord | readonly GeometryObject[],
+    description?: string,
+    selectedObjectIds?: readonly string[],
+  ) => boolean;
   readonly updateObject: (
     objectId: string,
     updater: GeometryObject | ((currentObject: GeometryObject) => GeometryObject),
@@ -58,7 +69,10 @@ export function createToolContext(): ToolContext {
   return {
     activeTool: geometryState.activeTool,
     addObject: geometryState.addObject,
+    beginHistoryTransaction: geometryState.beginHistoryTransaction,
+    cancelHistoryTransaction: geometryState.cancelHistoryTransaction,
     clearSelection: geometryState.clearSelection,
+    commitHistoryTransaction: geometryState.commitHistoryTransaction,
     deleteObject: geometryState.deleteObject,
     gridSize: viewportState.gridSize,
     hoveredObjectId: geometryState.hoveredObjectId,
@@ -70,9 +84,11 @@ export function createToolContext(): ToolContext {
     setActiveTool: geometryState.setActiveTool,
     setSelectedObjects: geometryState.setSelectedObjects,
     setObjects: geometryState.setObjects,
-    snapEnabled: viewportState.snapEnabled,
+    snapEnabled: viewportState.snapEnabled && !viewportState.snapTemporarilyDisabled,
     snapPoint: (point) =>
-      viewportState.snapEnabled ? snapToGrid(point, viewportState.gridSize) : point,
+      viewportState.snapEnabled && !viewportState.snapTemporarilyDisabled
+        ? snapToGrid(point, viewportState.gridSize)
+        : point,
     updateObject: geometryState.updateObject,
     viewport: viewportState.viewport,
   };

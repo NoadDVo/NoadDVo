@@ -8,6 +8,14 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
     const radius = object.style.pointSize;
+    const isDerived = object.pointKind === "derived";
+    const fill =
+      object.style.fill === "transparent"
+        ? isDerived
+          ? "#f8fafc"
+          : "#0b0f14"
+        : object.style.fill;
+    const fillOpacity = object.style.fill === "transparent" ? 1 : object.style.fillOpacity;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -37,21 +45,33 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
         <circle
           cx={point.x}
           cy={point.y}
-          fill={object.style.fill === "transparent" ? "#f4fbff" : object.style.fill}
-          fillOpacity={object.style.fill === "transparent" ? 1 : object.style.fillOpacity}
+          fill={fill}
+          fillOpacity={fillOpacity}
           r={radius}
-          stroke={object.style.stroke}
+          stroke={isDerived ? "#747b84" : object.style.stroke}
           strokeOpacity={object.style.strokeOpacity}
           strokeWidth={object.style.strokeWidth}
         />
+        {object.locked && (
+          <text
+            fill="#0b0f14"
+            fontFamily="Inter, ui-sans-serif, system-ui"
+            fontSize={10}
+            fontWeight={800}
+            x={point.x + radius + 4}
+            y={point.y + radius + 10}
+          >
+            L
+          </text>
+        )}
         {object.style.labelVisible && object.name && (
           <text
-            fill="#dff6ff"
+            fill="#0b0f14"
             fontFamily="Inter, ui-sans-serif, system-ui"
-            fontSize={12}
+            fontSize={object.style.labelSize ?? 12}
             fontWeight={700}
             paintOrder="stroke"
-            stroke="#08111a"
+            stroke="#f2f7fa"
             strokeWidth={3}
             x={point.x + radius + 8}
             y={point.y - radius - 6}

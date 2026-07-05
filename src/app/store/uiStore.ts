@@ -3,6 +3,7 @@ import { create } from "zustand";
 type ThemeMode = "dark-arctic" | "light" | "high-contrast";
 type SidebarPanel = "tools" | "layers" | "history" | "settings";
 type DialogId = "settings" | "export" | "help" | null;
+type KeyboardModeHint = "pan" | "snap-off" | "constraint" | null;
 
 type UIState = {
   readonly theme: ThemeMode;
@@ -10,11 +11,13 @@ type UIState = {
   readonly openDialog: DialogId;
   readonly commandPaletteOpen: boolean;
   readonly hoveredToolId: string | null;
+  readonly keyboardModeHint: KeyboardModeHint;
   readonly setTheme: (theme: ThemeMode) => void;
   readonly setActiveSidebar: (sidebar: SidebarPanel) => void;
   readonly setOpenDialog: (dialog: DialogId) => void;
   readonly setCommandPaletteOpen: (open: boolean) => void;
   readonly setHoveredToolId: (toolId: string | null) => void;
+  readonly setKeyboardModeHint: (hint: KeyboardModeHint) => void;
   readonly resetUi: () => void;
 };
 
@@ -22,11 +25,17 @@ const DEFAULT_UI_STATE = {
   activeSidebar: "tools",
   commandPaletteOpen: false,
   hoveredToolId: null,
+  keyboardModeHint: null,
   openDialog: null,
   theme: "dark-arctic",
 } satisfies Pick<
   UIState,
-  "activeSidebar" | "commandPaletteOpen" | "hoveredToolId" | "openDialog" | "theme"
+  | "activeSidebar"
+  | "commandPaletteOpen"
+  | "hoveredToolId"
+  | "keyboardModeHint"
+  | "openDialog"
+  | "theme"
 >;
 
 export const useUiStore = create<UIState>((set) => ({
@@ -45,6 +54,9 @@ export const useUiStore = create<UIState>((set) => ({
   },
   setHoveredToolId: (hoveredToolId) => {
     set({ hoveredToolId });
+  },
+  setKeyboardModeHint: (keyboardModeHint) => {
+    set({ keyboardModeHint });
   },
   resetUi: () => {
     set(DEFAULT_UI_STATE);

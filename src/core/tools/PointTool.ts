@@ -1,5 +1,6 @@
 import {
   DEFAULT_GEOMETRY_STYLE,
+  type ConstructionDefinition,
   type GeometryObjectRecord,
   type Point2D,
   type PointObject,
@@ -52,14 +53,54 @@ export function createNamedFreePoint(
     pointKind: "free",
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      fill: "#f4fbff",
+      fill: "#0b0f14",
       pointSize: 5,
-      stroke: "#7ddcff",
+      stroke: "#0b0f14",
       strokeWidth: 2,
     },
     type: "point",
     updatedAt: now,
     visible: true,
+    x: point.x,
+    y: point.y,
+  };
+}
+
+export function createNamedDerivedPoint(
+  point: Point2D,
+  objects: GeometryObjectRecord,
+  construction: ConstructionDefinition,
+  options: {
+    readonly visible?: boolean;
+    readonly namePrefix?: string;
+  } = {},
+): PointObject {
+  const name = options.namePrefix ?? getNextPointName(objects);
+  const now = Date.now();
+
+  pointIdCounter += 1;
+
+  return {
+    construction,
+    createdAt: now,
+    dependencies: Object.values(construction).filter(
+      (value): value is string => typeof value === "string" && value !== construction.type,
+    ),
+    dependents: [],
+    id: `point-${name.toLowerCase()}-${Date.now().toString(36)}-${pointIdCounter}`,
+    locked: false,
+    name,
+    pointKind: "derived",
+    style: {
+      ...DEFAULT_GEOMETRY_STYLE,
+      fill: "#f8fafc",
+      pointSize: 5,
+      stroke: "#747b84",
+      strokeWidth: 2,
+    },
+    type: "point",
+    updatedAt: now,
+    visible: options.visible ?? true,
     x: point.x,
     y: point.y,
   };

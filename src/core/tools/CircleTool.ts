@@ -90,8 +90,8 @@ function createCircle(
     radiusPointId: radiusPoint.id,
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      stroke: "#b8f3ff",
-      strokeOpacity: 0.68,
+      stroke: "#0b0f14",
+      strokeOpacity: 1,
       strokeWidth: 1.85,
     },
     type: "circle",

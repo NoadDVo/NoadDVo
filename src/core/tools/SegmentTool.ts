@@ -83,9 +83,9 @@ function createSegment(start: PointObject, end: PointObject): SegmentObject {
     startPointId: start.id,
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      stroke: "#dff6ff",
-      strokeOpacity: 0.95,
-      strokeWidth: 2.5,
+      stroke: "#0b0f14",
+      strokeOpacity: 1,
+      strokeWidth: 2,
     },
     type: "segment",
     updatedAt: now,

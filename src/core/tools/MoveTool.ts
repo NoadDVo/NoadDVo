@@ -10,6 +10,7 @@ type MovingPoint = {
 
 export class MoveTool extends BaseTool {
   private dragStart = null as Point2D | null;
+  private hasDragged = false;
   private movingPoints = [] as readonly MovingPoint[];
 
   constructor() {
@@ -62,8 +63,11 @@ export class MoveTool extends BaseTool {
     if (!context.selectedObjectIds.includes(point.id)) {
       context.selectObject(point.id);
     }
+
+    context.beginHistoryTransaction("move", "Move point");
     this.dragStart = event.snappedWorldPoint;
     this.movingPoints = movingPoints;
+    this.hasDragged = false;
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
@@ -85,6 +89,12 @@ export class MoveTool extends BaseTool {
       y: event.snappedWorldPoint.y - this.dragStart.y,
     };
 
+    if (delta.x === 0 && delta.y === 0) {
+      return;
+    }
+
+    this.hasDragged = true;
+
     for (const movingPoint of this.movingPoints) {
       context.updateObject(movingPoint.id, (currentObject) => {
         if (currentObject.type !== "point" || !this.canMovePoint(currentObject)) {
@@ -101,20 +111,29 @@ export class MoveTool extends BaseTool {
     }
   }
 
-  pointerUp(_event: ToolPointerEvent, _context: ToolContext): void {
-    this.stopDrag();
+  pointerUp(_event: ToolPointerEvent, context: ToolContext): void {
+    this.stopDrag(context);
   }
 
-  cancel(_context: ToolContext): void {
-    this.stopDrag();
+  cancel(context: ToolContext): void {
+    this.stopDrag(context);
   }
 
   private canMovePoint(point: PointObject): boolean {
     return point.visible && !point.locked && point.pointKind === "free";
   }
 
-  private stopDrag(): void {
+  private stopDrag(context: ToolContext): void {
+    if (this.dragStart) {
+      if (this.hasDragged) {
+        context.commitHistoryTransaction();
+      } else {
+        context.cancelHistoryTransaction();
+      }
+    }
+
     this.dragStart = null;
+    this.hasDragged = false;
     this.movingPoints = [];
   }
 }

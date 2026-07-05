@@ -4,6 +4,7 @@ import type {
   GeometryObject,
   GeometryObjectRecord,
 } from "../types";
+import { recomputeConstructedPoint } from "../constructions";
 import { DependencyGraph } from "./DependencyGraph";
 
 type PropagationResult =
@@ -175,6 +176,21 @@ export function propagateGeometryUpdates(
     const dependent = nextObjects[dependentId];
 
     if (!dependent) {
+      continue;
+    }
+
+    if (dependent.type === "point" && dependent.pointKind === "derived" && dependent.construction) {
+      const nextPoint = recomputeConstructedPoint(dependent.construction, nextObjects);
+
+      nextObjects = {
+        ...nextObjects,
+        [dependentId]: {
+          ...dependent,
+          ...(nextPoint ? { x: nextPoint.x, y: nextPoint.y, visible: true } : { visible: false }),
+          updatedAt,
+        },
+      };
+
       continue;
     }
 

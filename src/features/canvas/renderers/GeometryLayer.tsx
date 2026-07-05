@@ -15,8 +15,8 @@ const RENDER_ORDER = {
   ray: 40,
   segment: 50,
   vector: 60,
+  angle: 65,
   point: 70,
-  angle: 80,
 } as const;
 
 export const GeometryLayer = memo(function GeometryLayer({
@@ -41,7 +41,7 @@ export const GeometryLayer = memo(function GeometryLayer({
           refY="4"
           viewBox="0 0 8 8"
         >
-          <path d="M 0 0 L 8 4 L 0 8 z" fill="#dff6ff" />
+          <path d="M 0 0 L 8 4 L 0 8 z" fill="#0b0f14" />
         </marker>
         <marker
           id="ndv-vector-selection-arrow"

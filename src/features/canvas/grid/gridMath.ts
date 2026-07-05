@@ -10,7 +10,7 @@ export type GridLine = {
   readonly major: boolean;
 };
 
-const GRID_TARGET_PX = 42;
+const GRID_TARGET_PX = 36;
 
 function getNiceStep(rawStep: number): number {
   const exponent = Math.floor(Math.log10(rawStep));

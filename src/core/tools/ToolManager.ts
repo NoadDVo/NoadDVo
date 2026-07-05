@@ -1,8 +1,13 @@
 import type { GeometryToolId } from "../geometry";
+import { angleTool } from "./AngleTool";
 import { BaseTool } from "./BaseTool";
 import { circleTool } from "./CircleTool";
+import { intersectionTool } from "./IntersectionTool";
 import { lineTool } from "./LineTool";
+import { midpointTool } from "./MidpointTool";
 import { moveTool } from "./MoveTool";
+import { parallelLineTool } from "./ParallelLineTool";
+import { perpendicularLineTool } from "./PerpendicularLineTool";
 import { pointTool } from "./PointTool";
 import { polygonTool } from "./PolygonTool";
 import { segmentTool } from "./SegmentTool";
@@ -24,7 +29,11 @@ const defaultTools = [
   new BaseTool({ id: "vector", name: "Vector", shortcut: "X" }),
   circleTool,
   polygonTool,
-  new BaseTool({ id: "angle", name: "Angle", shortcut: "A" }),
+  angleTool,
+  midpointTool,
+  intersectionTool,
+  parallelLineTool,
+  perpendicularLineTool,
 ] satisfies readonly Tool[];
 
 export class ToolManager {

@@ -3,7 +3,10 @@ import { Lock, SlidersHorizontal } from "lucide-react";
 import { useGeometryStore } from "../../app/store/geometryStore";
 import {
   EPSILON,
+  angleDegrees,
   distance,
+  isRightAngle,
+  polygonArea,
   type CircleObject,
   type DashStyle,
   type GeometryObject,
@@ -71,8 +74,8 @@ type FieldProps = {
 
 function Field({ label, children }: FieldProps) {
   return (
-    <label className="grid gap-1.5">
-      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-arctic-muted">
+    <label className="grid gap-1">
+      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-arctic-muted">
         {label}
       </span>
       {children}
@@ -84,7 +87,7 @@ function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="h-9 w-full rounded-[10px] border border-white/10 bg-white/[0.045] px-3 font-mono text-xs text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
+      className="h-8 w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-2.5 font-mono text-[11px] text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
     />
   );
 }
@@ -93,7 +96,7 @@ function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className="h-9 w-full rounded-[10px] border border-white/10 bg-[#101b24] px-3 text-xs font-semibold text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
+      className="h-8 w-full rounded-[9px] border border-white/10 bg-[#101b24] px-2.5 text-[11px] font-semibold text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
     />
   );
 }
@@ -110,8 +113,8 @@ function ToggleRow({
   readonly onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex h-10 items-center justify-between rounded-[12px] border border-white/8 bg-white/[0.035] px-3">
-      <span className="text-xs font-semibold text-arctic-muted">{label}</span>
+    <label className="flex h-8 items-center justify-between rounded-[10px] border border-white/8 bg-white/[0.035] px-2.5">
+      <span className="text-[11px] font-semibold text-arctic-muted">{label}</span>
       <input
         checked={checked}
         className="size-4 accent-arctic-ice"
@@ -125,11 +128,11 @@ function ToggleRow({
 
 function Readout({ label, value }: { readonly label: string; readonly value: string }) {
   return (
-    <div className="rounded-[12px] border border-white/8 bg-white/[0.035] px-3 py-3">
-      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-arctic-muted">
+    <div className="rounded-[10px] border border-white/8 bg-white/[0.035] px-2.5 py-2">
+      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-arctic-muted">
         {label}
       </p>
-      <p className="mt-1 break-all font-mono text-xs text-arctic-text">{value}</p>
+      <p className="mt-0.5 break-all font-mono text-[11px] text-arctic-text">{value}</p>
     </div>
   );
 }
@@ -143,10 +146,10 @@ function Section({
 }) {
   return (
     <section>
-      <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-arctic-text">
+      <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-arctic-text">
         {title}
       </h3>
-      <div className="mt-4 space-y-3">{children}</div>
+      <div className="mt-3 space-y-2.5">{children}</div>
     </section>
   );
 }
@@ -193,26 +196,26 @@ export function RightPanel() {
       eyebrow="Inspector"
       title="Properties"
     >
-      <div className="flex h-full min-h-0 flex-col overflow-y-auto px-5 py-4">
+      <div className="flex h-full min-h-0 flex-col overflow-y-auto px-4 py-3">
         {!selectedObject ? (
-          <div className="rounded-[16px] border border-white/8 bg-white/[0.035] px-4 py-4">
+          <div className="rounded-[14px] border border-white/8 bg-white/[0.035] px-4 py-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-arctic-muted">
               Selection
             </p>
             <p className="mt-2 text-sm font-semibold text-arctic-text">
-              No object selected
+              Select an object to edit its properties.
             </p>
           </div>
         ) : (
           <>
             {multipleSelected && (
-              <div className="mb-4 rounded-[14px] border border-arctic-ice/20 bg-arctic-ice/10 px-3 py-2 text-xs font-semibold text-arctic-text">
+              <div className="mb-3 rounded-[12px] border border-arctic-ice/20 bg-arctic-ice/10 px-3 py-2 text-[11px] font-semibold text-arctic-text">
                 Editing first of {selectedObjectIds.length} selected objects.
               </div>
             )}
 
-            <Section title="Object">
-              <div className="grid grid-cols-2 gap-3">
+            <Section title="General">
+              <div className="grid grid-cols-2 gap-2">
                 <Readout label="Type" value={selectedObject.type} />
                 <Readout label="ID" value={selectedObject.id} />
               </div>
@@ -228,7 +231,7 @@ export function RightPanel() {
                   value={selectedObject.name ?? ""}
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <ToggleRow
                   checked={selectedObject.visible}
                   label="Visible"
@@ -254,10 +257,18 @@ export function RightPanel() {
               </div>
             </Section>
 
-            <Divider className="my-5" />
+            <Divider className="my-4" />
 
-            <Section title="Style">
-              <div className="grid grid-cols-2 gap-3">
+            <GeometrySection
+              object={selectedObject}
+              objects={objects}
+              updateSelected={updateSelected}
+            />
+
+            <Divider className="my-4" />
+
+            <Section title="Appearance">
+              <div className="grid grid-cols-2 gap-2">
                 <Field label="Stroke">
                   <TextInput
                     onChange={(event) => updateStyle({ stroke: event.target.value })}
@@ -293,7 +304,7 @@ export function RightPanel() {
                   value={selectedObject.style.strokeWidth}
                 />
               </Field>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <Field label="Stroke Opacity">
                   <TextInput
                     max={1}
@@ -363,7 +374,7 @@ export function RightPanel() {
               )}
             </Section>
 
-            <Divider className="my-5" />
+            <Divider className="my-4" />
 
             <Section title="Label">
               <ToggleRow
@@ -376,11 +387,16 @@ export function RightPanel() {
                   onChange={(event) =>
                     updateSelected((object) => ({
                       ...object,
+                      ...(object.type === "angle" ? { label: event.target.value } : {}),
                       name: event.target.value,
                       updatedAt: Date.now(),
                     }))
                   }
-                  value={selectedObject.name ?? ""}
+                  value={
+                    selectedObject.type === "angle"
+                      ? selectedObject.label ?? selectedObject.name ?? ""
+                      : selectedObject.name ?? ""
+                  }
                 />
               </Field>
               <Field label="Label Position">
@@ -397,14 +413,28 @@ export function RightPanel() {
                   ))}
                 </SelectInput>
               </Field>
+              <Field label="Label Size">
+                <TextInput
+                  min={8}
+                  onChange={(event) =>
+                    updateStyle({
+                      labelSize: Math.max(
+                        8,
+                        parseNumber(event.target.value, selectedObject.style.labelSize ?? 12),
+                      ),
+                    })
+                  }
+                  step={1}
+                  type="number"
+                  value={selectedObject.style.labelSize ?? 12}
+                />
+              </Field>
             </Section>
 
-            <Divider className="my-5" />
+            <Divider className="my-4" />
 
-            <GeometrySection
+            <AdvancedSection
               object={selectedObject}
-              objects={objects}
-              updateSelected={updateSelected}
             />
           </>
         )}
@@ -425,7 +455,7 @@ function GeometrySection({
   if (object.type === "point") {
     return (
       <Section title="Geometry">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <Field label="X">
             <TextInput
               onChange={(event) =>
@@ -474,18 +504,67 @@ function GeometrySection({
 
     return (
       <Section title="Geometry">
-        <Readout
-          label="Radius"
-          value={radius === null ? "Unavailable" : formatNumber(Math.max(EPSILON, radius))}
-        />
+        <Field label="Radius">
+          <TextInput
+            disabled={radius === null}
+            min={EPSILON}
+            onChange={(event) =>
+              updateSelected((current) => {
+                if (current.type !== "circle") {
+                  return current;
+                }
+
+                const nextRadius = Math.max(
+                  EPSILON,
+                  parseNumber(event.target.value, radius ?? EPSILON),
+                );
+
+                if (current.circleKind === "three-points") {
+                  return current;
+                }
+
+                return {
+                  centerPointId: current.centerPointId,
+                  circleKind: "center-radius",
+                  createdAt: current.createdAt,
+                  dependencies: [current.centerPointId],
+                  dependents: current.dependents,
+                  id: current.id,
+                  locked: current.locked,
+                  ...(current.metadata ? { metadata: current.metadata } : {}),
+                  ...(current.name ? { name: current.name } : {}),
+                  radius: nextRadius,
+                  style: current.style,
+                  type: "circle",
+                  updatedAt: Date.now(),
+                  visible: current.visible,
+                };
+              })
+            }
+            step={0.1}
+            type="number"
+            value={radius === null ? "" : formatNumber(Math.max(EPSILON, radius))}
+          />
+        </Field>
       </Section>
     );
   }
 
   if (object.type === "polygon") {
+    const vertices = object.pointIds
+      .map((pointId) => getPoint(objects, pointId))
+      .filter((point): point is NonNullable<ReturnType<typeof getPoint>> => Boolean(point));
+    const perimeter = vertices.reduce((sum, point, index) => {
+      const next = vertices[(index + 1) % vertices.length];
+
+      return next ? sum + distance(point, next) : sum;
+    }, 0);
+
     return (
       <Section title="Geometry">
         <Readout label="Vertices" value={String(object.pointIds.length)} />
+        <Readout label="Perimeter" value={formatNumber(perimeter)} />
+        <Readout label="Area" value={formatNumber(Math.abs(polygonArea(vertices)))} />
       </Section>
     );
   }
@@ -508,9 +587,95 @@ function GeometrySection({
     );
   }
 
+  if (object.type === "angle") {
+    const pointA = getPoint(objects, object.pointAId);
+    const vertex = getPoint(objects, object.vertexPointId);
+    const pointC = getPoint(objects, object.pointCId);
+    const angleValue =
+      pointA && vertex && pointC
+        ? `${formatNumber(angleDegrees(pointA, vertex, pointC))} deg`
+        : "Unavailable";
+
+    return (
+      <Section title="Geometry">
+        <Readout label="Point A" value={object.pointAId} />
+        <Readout label="Vertex" value={object.vertexPointId} />
+        <Readout label="Point C" value={object.pointCId} />
+        <Readout
+          label="Right Angle"
+          value={pointA && vertex && pointC && isRightAngle(pointA, vertex, pointC) ? "Yes" : "No"}
+        />
+        <Readout label="Current Angle" value={angleValue} />
+        <Field label="Radius">
+          <TextInput
+            min={EPSILON}
+            onChange={(event) =>
+              updateSelected((current) => {
+                if (current.type !== "angle") {
+                  return current;
+                }
+
+                return {
+                  ...current,
+                  radius: Math.max(EPSILON, parseNumber(event.target.value, current.radius)),
+                  updatedAt: Date.now(),
+                };
+              })
+            }
+            step={0.05}
+            type="number"
+            value={object.radius}
+          />
+        </Field>
+        <Field label="Label">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) => {
+                if (current.type !== "angle") {
+                  return current;
+                }
+
+                return {
+                  ...current,
+                  label: event.target.value,
+                  name: event.target.value,
+                  updatedAt: Date.now(),
+                };
+              })
+            }
+            value={object.label ?? object.name ?? ""}
+          />
+        </Field>
+      </Section>
+    );
+  }
+
   return (
     <Section title="Geometry">
       <Readout label="Details" value="No editable geometry fields" />
+    </Section>
+  );
+}
+
+function AdvancedSection({ object }: { readonly object: GeometryObject }) {
+  return (
+    <Section title="Advanced">
+      <Readout
+        label="Dependencies"
+        value={object.dependencies.length > 0 ? object.dependencies.join(", ") : "None"}
+      />
+      <Readout
+        label="Dependents"
+        value={object.dependents.length > 0 ? object.dependents.join(", ") : "None"}
+      />
+      <Readout
+        label="Creation Time"
+        value={object.createdAt ? new Date(object.createdAt).toLocaleString() : "Session seed"}
+      />
+      <Readout
+        label="Object Metadata"
+        value={object.metadata ? JSON.stringify(object.metadata) : "{}"}
+      />
     </Section>
   );
 }

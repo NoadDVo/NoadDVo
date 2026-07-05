@@ -9,6 +9,18 @@ import { Maximize2 } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useViewportStore } from "../../app/store/viewportStore";
+import {
+  distance,
+  type CircleObject,
+  type GeometryObject,
+  type GeometryObjectRecord,
+  type PointObject,
+  type SegmentObject,
+} from "../../core/geometry";
+import { contextMenuManager } from "../../core/context";
+import { screenToWorld, worldToScreen } from "../../core/geometry/viewport";
+import { keyboardEventRouter } from "../../core/keyboard";
+import { hitTest } from "../../core/selection/HitTest";
 import { toolManager } from "../../core/tools/ToolManager";
 import {
   createToolContext,
@@ -16,6 +28,7 @@ import {
   type ToolPointerEvent,
 } from "../../core/tools/ToolContext";
 import { IconButton } from "../../ui/primitives";
+import { ContextMenuOverlay } from "../context-menu/ContextMenuOverlay";
 import { GridLayer } from "./grid";
 import { PreviewLayer } from "./overlays";
 import { GeometryLayer } from "./renderers";
@@ -30,6 +43,88 @@ function getLocalPoint(
   return {
     x: event.clientX - rect.left,
     y: event.clientY - rect.top,
+  };
+}
+
+function formatHoverNumber(value: number): string {
+  const rounded = Number(value.toFixed(3));
+
+  return Object.is(rounded, -0) ? "0" : String(rounded);
+}
+
+function getPoint(
+  objects: GeometryObjectRecord,
+  pointId: string,
+): PointObject | null {
+  const object = objects[pointId];
+
+  return object?.type === "point" ? object : null;
+}
+
+function getCircleRadius(
+  object: CircleObject,
+  objects: GeometryObjectRecord,
+): number | null {
+  if (object.circleKind === "center-radius") {
+    return object.radius;
+  }
+
+  if (object.circleKind === "center-point") {
+    const center = getPoint(objects, object.centerPointId);
+    const radiusPoint = getPoint(objects, object.radiusPointId);
+
+    return center && radiusPoint ? distance(center, radiusPoint) : null;
+  }
+
+  return null;
+}
+
+function getSegmentLength(
+  object: SegmentObject,
+  objects: GeometryObjectRecord,
+): number | null {
+  const start = getPoint(objects, object.startPointId);
+  const end = getPoint(objects, object.endPointId);
+
+  return start && end ? distance(start, end) : null;
+}
+
+function getHoverInfo(
+  object: GeometryObject | null,
+  objects: GeometryObjectRecord,
+): { readonly title: string; readonly detail: string } | null {
+  if (!object) {
+    return null;
+  }
+
+  if (object.type === "point") {
+    return {
+      detail: `(${formatHoverNumber(object.x)}, ${formatHoverNumber(object.y)})`,
+      title: object.name ?? "Point",
+    };
+  }
+
+  if (object.type === "segment") {
+    const length = getSegmentLength(object, objects);
+
+    return {
+      detail: length === null ? "Length unavailable" : `Length ${formatHoverNumber(length)}`,
+      title: object.name ?? "Segment",
+    };
+  }
+
+  if (object.type === "circle") {
+    const radius = getCircleRadius(object, objects);
+
+    return {
+      detail: radius === null ? "Radius unavailable" : `Radius ${formatHoverNumber(radius)}`,
+      title: object.name ?? "Circle",
+    };
+  }
+
+  return {
+    detail: object.type,
+    title: object.name ?? object.id,
   };
 }
 
@@ -62,8 +157,13 @@ export function Canvas() {
   const isPanning = useViewportStore((state) => state.isPanning);
   const isSpacePressed = useViewportStore((state) => state.isSpacePressed);
   const resetViewport = useViewportStore((state) => state.resetViewport);
+  const objects = useGeometryStore((state) => state.objects);
+  const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
   const activeTool = useGeometryStore((state) => state.activeTool);
   const activeToolCursor = toolManager.getTool(activeTool).cursor;
+  const hoveredObject = hoveredObjectId ? objects[hoveredObjectId] ?? null : null;
+  const hoverInfo = getHoverInfo(hoveredObject, objects);
+  const hoverScreen = worldToScreen(pointerWorld, viewport);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -90,70 +190,10 @@ export function Canvas() {
   }, []);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        event.preventDefault();
-        useViewportStore.getState().setSpacePressed(true);
-      }
-    };
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        useViewportStore.getState().setSpacePressed(false);
-      }
-    };
-    const handleBlur = () => {
-      toolManager.cancel();
-      useViewportStore.getState().endPan();
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("blur", handleBlur);
+    keyboardEventRouter.attach(window);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("blur", handleBlur);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleKeyboardCommands = (event: KeyboardEvent) => {
-      toolManager.keyDown(event);
-
-      if (event.key === "Escape") {
-        useGeometryStore.getState().clearSelection();
-        toolManager.cancel();
-      }
-
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "a") {
-        event.preventDefault();
-        const { objects, setSelectedObjects } = useGeometryStore.getState();
-
-        setSelectedObjects(
-          Object.values(objects)
-            .filter((object) => object.visible)
-            .map((object) => object.id),
-        );
-      }
-
-      if (event.key === "Delete") {
-        const { deleteObject, objects, selectedObjectIds } = useGeometryStore.getState();
-
-        selectedObjectIds.forEach((objectId) => {
-          const object = objects[objectId];
-
-          if (object && !object.locked) {
-            deleteObject(objectId);
-          }
-        });
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyboardCommands);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyboardCommands);
+      keyboardEventRouter.detach();
     };
   }, []);
 
@@ -186,7 +226,45 @@ export function Canvas() {
       const isMiddleMouse = event.button === 1;
       const isSpaceDrag = useViewportStore.getState().isSpacePressed && event.button === 0;
 
+      if (event.button === 2) {
+        event.preventDefault();
+
+        const screenPoint = getLocalPoint(event, element);
+        const viewportState = useViewportStore.getState();
+        const geometryState = useGeometryStore.getState();
+        const worldPoint = screenToWorld(screenPoint, viewportState.viewport);
+        const hit = hitTest(
+          screenPoint,
+          worldPoint,
+          geometryState.objects,
+          viewportState.viewport,
+        );
+
+        contextMenuManager.open({
+          bounds: {
+            height: element.clientHeight,
+            width: element.clientWidth,
+          },
+          target: hit
+            ? {
+                kind: "object",
+                objectId: hit.objectId,
+                objectType: hit.object.type,
+                screenPoint,
+                worldPoint,
+              }
+            : {
+                kind: "canvas",
+                screenPoint,
+                worldPoint,
+              },
+        });
+
+        return;
+      }
+
       if (!isMiddleMouse && !isSpaceDrag) {
+        contextMenuManager.close();
         element.setPointerCapture(event.pointerId);
         toolManager.pointerDown(getToolPointerEvent(event, element));
 
@@ -234,7 +312,8 @@ export function Canvas() {
 
   return (
     <section
-      className="relative min-h-0 overflow-hidden rounded-[28px] border border-white/8 bg-arctic-canvas shadow-[0_20px_60px_rgb(0_0_0/0.26)]"
+      className="relative min-h-0 overflow-hidden rounded-[28px] border border-white/60 bg-[#f2f7fa] shadow-[0_20px_60px_rgb(0_0_0/0.18)]"
+      onContextMenu={(event) => event.preventDefault()}
       onPointerCancel={handlePointerUp}
       onPointerDown={handlePointerDown}
       onPointerLeave={handlePointerMove}
@@ -262,6 +341,29 @@ export function Canvas() {
         />
       </svg>
 
+      {hoverInfo && (
+        <div
+          className="pointer-events-none absolute z-10 rounded-[12px] border border-slate-900/10 bg-white/[0.82] px-3 py-2 text-slate-950 shadow-[0_16px_38px_rgb(15_23_42/0.16)] backdrop-blur-panel"
+          style={{
+            left: Math.max(
+              12,
+              Math.min(hoverScreen.x + 16, Math.max(12, viewport.width - 180)),
+            ),
+            top: Math.max(
+              12,
+              Math.min(hoverScreen.y + 16, Math.max(12, viewport.height - 72)),
+            ),
+          }}
+        >
+          <p className="text-[11px] font-black uppercase tracking-[0.12em]">
+            {hoverInfo.title}
+          </p>
+          <p className="mt-1 font-mono text-[12px] font-semibold text-slate-700">
+            {hoverInfo.detail}
+          </p>
+        </div>
+      )}
+
       <div className="absolute right-4 top-4">
         <IconButton label="Reset View" onClick={resetViewport} size="sm">
           <Maximize2 size={16} strokeWidth={2} />
@@ -276,6 +378,8 @@ export function Canvas() {
           Middle mouse or Space + Drag to pan
         </p>
       </div>
+
+      <ContextMenuOverlay />
     </section>
   );
 }
