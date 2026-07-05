@@ -2,9 +2,13 @@ import type { GeometryObject, GeometryObjectRecord } from "../geometry";
 import { AngleExporter } from "./exporters/AngleExporter";
 import { CircleExporter } from "./exporters/CircleExporter";
 import { LineExporter } from "./exporters/LineExporter";
+import { MeasurementExporter } from "./exporters/MeasurementExporter";
 import { PointExporter } from "./exporters/PointExporter";
 import { PolygonExporter } from "./exporters/PolygonExporter";
+import { RayExporter } from "./exporters/RayExporter";
 import { SegmentExporter } from "./exporters/SegmentExporter";
+import { TextExporter } from "./exporters/TextExporter";
+import { VectorExporter } from "./exporters/VectorExporter";
 import { formatTikzDocument } from "./TikzFormatter";
 import { getTikzOptions, type TikzOptions } from "./TikzOptions";
 import { TikzColorRegistry } from "./TikzColorRegistry";
@@ -34,14 +38,34 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
       LineExporter.exportObject(object, context);
     }
   },
+  measurement: (object, context) => {
+    if (object.type === "measurement") {
+      MeasurementExporter.exportObject(object, context);
+    }
+  },
   polygon: (object, context) => {
     if (object.type === "polygon") {
       PolygonExporter.exportObject(object, context);
     }
   },
+  ray: (object, context) => {
+    if (object.type === "ray") {
+      RayExporter.exportObject(object, context);
+    }
+  },
   segment: (object, context) => {
     if (object.type === "segment") {
       SegmentExporter.exportObject(object, context);
+    }
+  },
+  vector: (object, context) => {
+    if (object.type === "vector") {
+      VectorExporter.exportObject(object, context);
+    }
+  },
+  text: (object, context) => {
+    if (object.type === "text") {
+      TextExporter.exportObject(object, context);
     }
   },
 };

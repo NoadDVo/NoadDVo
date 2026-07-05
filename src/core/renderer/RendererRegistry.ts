@@ -9,10 +9,12 @@ import type { Viewport } from "../geometry/viewport";
 import { AngleRenderer } from "./AngleRenderer";
 import { CircleRenderer } from "./CircleRenderer";
 import { LineRenderer } from "./LineRenderer";
+import { MeasurementRenderer } from "./MeasurementRenderer";
 import { PointRenderer } from "./PointRenderer";
 import { PolygonRenderer } from "./PolygonRenderer";
 import { RayRenderer } from "./RayRenderer";
 import { SegmentRenderer } from "./SegmentRenderer";
+import { TextRenderer } from "./TextRenderer";
 import { VectorRenderer } from "./VectorRenderer";
 
 export type GeometryRendererContext = {
@@ -63,3 +65,5 @@ geometryRendererRegistry.register(SegmentRenderer);
 geometryRendererRegistry.register(VectorRenderer);
 geometryRendererRegistry.register(AngleRenderer);
 geometryRendererRegistry.register(PointRenderer);
+geometryRendererRegistry.register(TextRenderer);
+geometryRendererRegistry.register(MeasurementRenderer);

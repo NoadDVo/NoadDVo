@@ -94,10 +94,14 @@ export class PerpendicularLineTool extends BaseTool {
       },
     );
 
-    if (
-      hasLineWithEndpoints(anchorPoint.id, helperPoint.id, context.objects) ||
-      !context.addObject(helperPoint)
-    ) {
+    if (hasLineWithEndpoints(anchorPoint.id, helperPoint.id, context.objects)) {
+      return;
+    }
+
+    context.beginHistoryTransaction("construction", "Create perpendicular line");
+    if (!context.addObject(helperPoint)) {
+      context.cancelHistoryTransaction();
+
       return;
     }
 
@@ -106,10 +110,15 @@ export class PerpendicularLineTool extends BaseTool {
     if (context.addObject(line)) {
       context.selectObject(line.id);
       context.setHoveredObject(line.id);
+      context.commitHistoryTransaction();
       this.transitionState("completed", "complete");
       this.reset();
       this.transitionState("waitingInput", "await-input");
+
+      return;
     }
+
+    context.commitHistoryTransaction();
   }
 
   private reset(): void {

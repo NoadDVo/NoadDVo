@@ -56,6 +56,10 @@ export class ExportManager {
     downloadText(exportProjectJson(snapshot), defaultFilename("ndv"), "json");
   }
 
+  exportProjectText(content: string, filename = defaultFilename("ndv")): void {
+    downloadText(content, filename, "json");
+  }
+
   exportSvg(svgElement: SVGSVGElement): void {
     downloadText(exportSvgElement(svgElement), defaultFilename("svg"), "svg");
   }

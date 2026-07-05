@@ -12,6 +12,7 @@ import { worldToScreen } from "../geometry/viewport";
 import { hitTest } from "../selection/HitTest";
 import { BaseTool } from "./BaseTool";
 import { createNamedFreePoint } from "./PointTool";
+import { ToolHistorySession } from "./ToolHistorySession";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 type SegmentEndpoint = {
@@ -96,6 +97,7 @@ function createSegment(start: PointObject, end: PointObject): SegmentObject {
 export class SegmentTool extends BaseTool {
   private startEndpoint = null as SegmentEndpoint | null;
   private previewEndPoint = null as Point2D | null;
+  private readonly history = new ToolHistorySession("create", "Create segment");
 
   constructor() {
     super({
@@ -145,13 +147,18 @@ export class SegmentTool extends BaseTool {
         context.objects,
       )
     ) {
+      this.history.commit(context);
       this.reset();
       this.transitionState("waitingInput", "await-input");
 
       return;
     }
 
+    this.history.ensure(context);
+
     if (!endPoint && !context.addObject(finalEndPoint)) {
+      this.history.commit(context);
+
       return;
     }
 
@@ -162,6 +169,7 @@ export class SegmentTool extends BaseTool {
     const segment = createSegment(this.startEndpoint.point, finalEndPoint);
 
     if (hasDuplicateSegment(segment.startPointId, segment.endPointId, latestObjects)) {
+      this.history.commit(context);
       this.reset();
       this.transitionState("waitingInput", "await-input");
 
@@ -171,9 +179,12 @@ export class SegmentTool extends BaseTool {
     if (context.addObject(segment)) {
       context.selectObject(segment.id);
       context.setHoveredObject(segment.id);
+      this.history.commit(context);
       this.transitionState("completed", "complete");
       this.reset();
       this.transitionState("waitingInput", "await-input");
+    } else {
+      this.history.commit(context);
     }
   }
 
@@ -194,13 +205,15 @@ export class SegmentTool extends BaseTool {
     this.previewEndPoint = resolveSnapPoint(event, context);
   }
 
-  cancel(_context: ToolContext): void {
+  cancel(context: ToolContext): void {
+    this.history.commit(context);
     this.reset();
     this.transitionState("cancelled", "cancel");
     this.transitionState("waitingInput", "await-input");
   }
 
-  deactivate(_context: ToolContext): void {
+  deactivate(context: ToolContext): void {
+    this.history.commit(context);
     this.reset();
     this.transitionState("cancelled", "cancel");
     this.resetState("reset");
@@ -243,7 +256,11 @@ export class SegmentTool extends BaseTool {
     }
 
     const point = createNamedFreePoint(event.snappedWorldPoint, context.objects);
+    this.history.ensure(context);
+
     if (!context.addObject(point)) {
+      this.history.cancel(context);
+
       return null;
     }
 

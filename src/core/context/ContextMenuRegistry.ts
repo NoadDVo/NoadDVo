@@ -85,6 +85,36 @@ const menuOrders = {
     "copy-tikz",
     "properties",
   ],
+  vector: [
+    "rename",
+    "delete",
+    "separator",
+    "hide",
+    "lock",
+    "separator",
+    "copy-tikz",
+    "properties",
+  ],
+  text: [
+    "rename",
+    "delete",
+    "separator",
+    "hide",
+    "lock",
+    "separator",
+    "copy-tikz",
+    "properties",
+  ],
+  measurement: [
+    "rename",
+    "delete",
+    "separator",
+    "hide",
+    "lock",
+    "separator",
+    "copy-tikz",
+    "properties",
+  ],
 } as const;
 
 function menuKeyForTarget(target: ContextMenuTarget): keyof typeof menuOrders {

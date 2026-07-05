@@ -30,7 +30,9 @@ export type GeometryObjectType =
   | "vector"
   | "circle"
   | "polygon"
-  | "angle";
+  | "angle"
+  | "text"
+  | "measurement";
 
 export type GeometryToolId =
   | "select"
@@ -43,12 +45,36 @@ export type GeometryToolId =
   | "circle"
   | "polygon"
   | "angle"
+  | "text"
+  | "measure"
   | "midpoint"
   | "intersection"
   | "parallel"
   | "perpendicular";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
+
+export type TextMode =
+  | "plain"
+  | "math"
+  | "latex"
+  | "coordinate-label"
+  | "object-label"
+  | "measurement-label";
+
+export type TextAlignment = "left" | "center" | "right";
+
+export type MeasurementType =
+  | "segment-length"
+  | "polygon-perimeter"
+  | "polygon-area"
+  | "circle-radius"
+  | "circle-diameter"
+  | "circle-circumference"
+  | "circle-area"
+  | "angle-value"
+  | "point-distance"
+  | "coordinate-display";
 
 export type LabelPosition =
   | "above"
@@ -193,6 +219,22 @@ export type AngleObject = BaseGeometryObject & {
   readonly showRightAngleMarker: boolean;
 };
 
+export type TextObject = BaseGeometryObject & {
+  readonly type: "text";
+  readonly x: number;
+  readonly y: number;
+  readonly content: string;
+  readonly textMode: TextMode;
+};
+
+export type MeasurementObject = BaseGeometryObject & {
+  readonly type: "measurement";
+  readonly measurementType: MeasurementType;
+  readonly targetObjectId: string;
+  readonly labelPosition: LabelPosition;
+  readonly precision?: number;
+};
+
 export type GeometryObject =
   | PointObject
   | SegmentObject
@@ -201,7 +243,9 @@ export type GeometryObject =
   | VectorObject
   | CircleObject
   | PolygonObject
-  | AngleObject;
+  | AngleObject
+  | TextObject
+  | MeasurementObject;
 
 export type GeometryObjectRecord = Readonly<Record<string, GeometryObject>>;
 

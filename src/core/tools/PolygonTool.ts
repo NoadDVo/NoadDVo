@@ -13,6 +13,7 @@ import { worldToScreen } from "../geometry/viewport";
 import { hitTest } from "../selection/HitTest";
 import { BaseTool } from "./BaseTool";
 import { createNamedFreePoint } from "./PointTool";
+import { ToolHistorySession } from "./ToolHistorySession";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 let polygonIdCounter = 0;
@@ -90,6 +91,7 @@ function hasDuplicateConsecutiveVertices(vertices: readonly PointObject[]): bool
 export class PolygonTool extends BaseTool {
   private vertices = [] as PointObject[];
   private previewPoint = null as Point2D | null;
+  private readonly history = new ToolHistorySession("create", "Create polygon");
 
   constructor() {
     super({
@@ -128,7 +130,13 @@ export class PolygonTool extends BaseTool {
 
     const point = existingPoint ?? createNamedFreePoint(candidateWorldPoint, context.objects);
 
+    if (!existingPoint) {
+      this.history.ensure(context);
+    }
+
     if (!existingPoint && !context.addObject(point)) {
+      this.history.cancel(context);
+
       return;
     }
 
@@ -165,13 +173,15 @@ export class PolygonTool extends BaseTool {
     this.finish(context);
   }
 
-  cancel(_context: ToolContext): void {
+  cancel(context: ToolContext): void {
+    this.history.commit(context);
     this.reset();
     this.transitionState("cancelled", "cancel");
     this.transitionState("waitingInput", "await-input");
   }
 
-  deactivate(_context: ToolContext): void {
+  deactivate(context: ToolContext): void {
+    this.history.commit(context);
     this.reset();
     this.transitionState("cancelled", "cancel");
     this.resetState("reset");
@@ -237,6 +247,8 @@ export class PolygonTool extends BaseTool {
       hasDuplicateConsecutiveVertices(this.vertices) ||
       Math.abs(polygonArea(this.vertices)) <= EPSILON
     ) {
+      this.history.commit(context);
+
       return;
     }
 
@@ -245,9 +257,12 @@ export class PolygonTool extends BaseTool {
     if (context.addObject(polygon)) {
       context.selectObject(polygon.id);
       context.setHoveredObject(polygon.id);
+      this.history.commit(context);
       this.transitionState("completed", "complete");
       this.reset();
       this.transitionState("waitingInput", "await-input");
+    } else {
+      this.history.commit(context);
     }
   }
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, Clipboard, Edit3, FileCode2, Lock, RefreshCw, WrapText } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
+import { useUiStore } from "../../app/store/uiStore";
 import { wrapTikzInStandaloneDocument } from "../../core/export";
 import { generateTikz, type TikzMode } from "../../core/tikz";
 import { Button, IconButton, Panel } from "../../ui/primitives";
@@ -10,7 +11,8 @@ const tikzModes = ["minimal", "academic", "olympiad", "colorful"] satisfies read
 
 export function TikzPanel() {
   const objects = useGeometryStore((state) => state.objects);
-  const [mode, setMode] = useState<TikzMode>("academic");
+  const mode = useUiStore((state) => state.tikzMode);
+  const setMode = useUiStore((state) => state.setTikzMode);
   const [wrapDocument, setWrapDocument] = useState(false);
   const [autoUpdate, setAutoUpdate] = useState(true);
   const [editable, setEditable] = useState(false);

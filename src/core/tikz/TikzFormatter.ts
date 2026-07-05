@@ -44,7 +44,7 @@ export function formatTikzOptions(options: readonly string[]): string {
   return cleanOptions.length > 0 ? `[${cleanOptions.join(", ")}]` : "";
 }
 
-export function formatStyleOptions(parts: TikzStyleParts): string {
+export function stylePartsToOptions(parts: TikzStyleParts): string[] {
   const options: string[] = [];
 
   if (parts.draw) {
@@ -74,6 +74,12 @@ export function formatStyleOptions(parts: TikzStyleParts): string {
       options.push(dash);
     }
   }
+
+  return options;
+}
+
+export function formatStyleOptions(parts: TikzStyleParts): string {
+  const options = stylePartsToOptions(parts);
 
   return formatTikzOptions(options);
 }

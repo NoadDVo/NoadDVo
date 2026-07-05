@@ -87,6 +87,7 @@ export class IntersectionTool extends BaseTool {
     const createdIds: string[] = [];
     let nextObjects = context.objects;
 
+    context.beginHistoryTransaction("construction", "Create intersection");
     intersections.forEach((point, index) => {
       const constructedPoint = createIntersectionPoint(
         point,
@@ -108,6 +109,9 @@ export class IntersectionTool extends BaseTool {
     if (createdIds.length > 0) {
       context.setSelectedObjects(createdIds);
       context.setHoveredObject(createdIds[0] ?? null);
+      context.commitHistoryTransaction();
+    } else {
+      context.cancelHistoryTransaction();
     }
 
     this.transitionState("completed", "complete");

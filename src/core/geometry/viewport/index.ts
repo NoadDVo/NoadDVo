@@ -11,3 +11,4 @@ export {
   zoomViewportAtScreenPoint,
 } from "./viewport";
 export type { Viewport, WorldBounds } from "./viewport";
+export { clipLineToBounds, clipRayToBounds } from "./clipping";

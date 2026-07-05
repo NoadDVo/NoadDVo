@@ -51,8 +51,8 @@ const toolGroups = [
   { id: "point", label: "Point", icon: Compass },
   { id: "segment", label: "Segment", icon: Slash },
   { id: "line", label: "Line", icon: Minus },
-  { id: "ray", label: "Ray", icon: CornerUpRight, disabled: true },
-  { id: "vector", label: "Vector", icon: VectorSquare, disabled: true },
+  { id: "ray", label: "Ray", icon: CornerUpRight },
+  { id: "vector", label: "Vector", icon: VectorSquare },
     ],
   },
   {
@@ -75,9 +75,9 @@ const toolGroups = [
   {
     id: "annotation",
     items: [
-      { id: "text", label: "Text", icon: Type, disabled: true },
+      { id: "text", label: "Text", icon: Type },
       { id: "fill", label: "Fill", icon: PaintBucket, disabled: true },
-      { id: "measure", label: "Measure", icon: Ruler, disabled: true },
+      { id: "measure", label: "Measure", icon: Ruler },
     ],
   },
 ] satisfies readonly ToolbarGroup[];

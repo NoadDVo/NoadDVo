@@ -6,7 +6,15 @@ import type {
   PointObject,
   ScreenPoint,
 } from "../geometry";
-import { angleRadians, distance, distanceSquared } from "../geometry";
+import {
+  angleRadians,
+  distance,
+  distanceSquared,
+  formatMeasurementValue,
+  getMeasurementAnchorPoint,
+  getTextFontSize,
+  getTextPosition,
+} from "../geometry";
 import { worldToScreen, type Viewport } from "../geometry/viewport";
 
 export type HitTestResult = {
@@ -188,6 +196,39 @@ export function hitTest(
       screenPoint.y <= labelBox.maxY
     ) {
       return { object, objectId: object.id, type: "label" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "text")) {
+    const position = worldToScreen(getTextPosition(object, objects), viewport);
+    const fontSize = getTextFontSize(object);
+    const width = Math.max(36, object.content.length * fontSize * 0.62);
+    const height = fontSize * 1.5;
+
+    if (
+      screenPoint.x >= position.x - tolerancePx &&
+      screenPoint.x <= position.x + width + tolerancePx &&
+      screenPoint.y >= position.y - height - tolerancePx &&
+      screenPoint.y <= position.y + tolerancePx
+    ) {
+      return { object, objectId: object.id, type: "text" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "measurement")) {
+    const position = worldToScreen(getMeasurementAnchorPoint(object, objects), viewport);
+    const fontSize = object.style.labelSize;
+    const text = formatMeasurementValue(object, objects);
+    const width = Math.max(32, text.length * fontSize * 0.62);
+    const height = fontSize * 1.45;
+
+    if (
+      screenPoint.x >= position.x - width / 2 - tolerancePx &&
+      screenPoint.x <= position.x + width / 2 + tolerancePx &&
+      screenPoint.y >= position.y - height - tolerancePx &&
+      screenPoint.y <= position.y + tolerancePx
+    ) {
+      return { object, objectId: object.id, type: "measurement" };
     }
   }
 

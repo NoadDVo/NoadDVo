@@ -1,58 +1,11 @@
-import type { LineObject, Point2D, PointObject } from "../geometry";
-import { pointsAlmostEqual } from "../geometry";
-import { getViewportWorldBounds, worldToScreen } from "../geometry/viewport";
-import type { WorldBounds } from "../geometry/viewport";
+import type { LineObject, PointObject } from "../geometry";
+import { clipLineToBounds, getViewportWorldBounds, worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer, GeometryRendererContext } from "./RendererRegistry";
 
 function getPoint(objectId: string, context: GeometryRendererContext) {
   const object = context.objects[objectId];
 
   return object?.type === "point" ? object as PointObject : null;
-}
-
-function isInsideBounds(point: Point2D, bounds: WorldBounds): boolean {
-  const tolerance = 1e-8;
-
-  return (
-    point.x >= bounds.minX - tolerance &&
-    point.x <= bounds.maxX + tolerance &&
-    point.y >= bounds.minY - tolerance &&
-    point.y <= bounds.maxY + tolerance
-  );
-}
-
-function uniquePush(points: Point2D[], point: Point2D): void {
-  if (!points.some((candidate) => pointsAlmostEqual(candidate, point))) {
-    points.push(point);
-  }
-}
-
-function clipLineToBounds(a: Point2D, b: Point2D, bounds: WorldBounds) {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const points: Point2D[] = [];
-
-  if (Math.abs(dx) > 1e-10) {
-    const leftT = (bounds.minX - a.x) / dx;
-    const rightT = (bounds.maxX - a.x) / dx;
-
-    uniquePush(points, { x: bounds.minX, y: a.y + leftT * dy });
-    uniquePush(points, { x: bounds.maxX, y: a.y + rightT * dy });
-  }
-
-  if (Math.abs(dy) > 1e-10) {
-    const bottomT = (bounds.minY - a.y) / dy;
-    const topT = (bounds.maxY - a.y) / dy;
-
-    uniquePush(points, { x: a.x + bottomT * dx, y: bounds.minY });
-    uniquePush(points, { x: a.x + topT * dx, y: bounds.maxY });
-  }
-
-  const visiblePoints = points.filter((point) => isInsideBounds(point, bounds));
-  const firstPoint = visiblePoints[0];
-  const secondPoint = visiblePoints[1];
-
-  return firstPoint && secondPoint ? [firstPoint, secondPoint] as const : null;
 }
 
 function getDashArray(dash: LineObject["style"]["dash"]): string | undefined {

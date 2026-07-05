@@ -17,6 +17,8 @@ const RENDER_ORDER = {
   vector: 60,
   angle: 65,
   point: 70,
+  text: 80,
+  measurement: 90,
 } as const;
 
 export const GeometryLayer = memo(function GeometryLayer({
@@ -31,30 +33,6 @@ export const GeometryLayer = memo(function GeometryLayer({
 
   return (
     <g data-layer="geometry">
-      <defs>
-        <marker
-          id="ndv-vector-arrow"
-          markerHeight="8"
-          markerWidth="8"
-          orient="auto"
-          refX="7"
-          refY="4"
-          viewBox="0 0 8 8"
-        >
-          <path d="M 0 0 L 8 4 L 0 8 z" fill="#0b0f14" />
-        </marker>
-        <marker
-          id="ndv-vector-selection-arrow"
-          markerHeight="10"
-          markerWidth="10"
-          orient="auto"
-          refX="9"
-          refY="5"
-          viewBox="0 0 10 10"
-        >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#7ddcff" fillOpacity={0.55} />
-        </marker>
-      </defs>
       {orderedObjects.map((object) => (
         <Fragment key={object.id}>
           {geometryRendererRegistry.renderObject(object, {

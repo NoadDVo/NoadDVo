@@ -1,18 +1,21 @@
 import type { GeometryToolId } from "../geometry";
 import { angleTool } from "./AngleTool";
-import { BaseTool } from "./BaseTool";
 import { circleTool } from "./CircleTool";
 import { intersectionTool } from "./IntersectionTool";
 import { lineTool } from "./LineTool";
+import { measurementTool } from "./MeasurementTool";
 import { midpointTool } from "./MidpointTool";
 import { moveTool } from "./MoveTool";
 import { parallelLineTool } from "./ParallelLineTool";
 import { perpendicularLineTool } from "./PerpendicularLineTool";
 import { pointTool } from "./PointTool";
 import { polygonTool } from "./PolygonTool";
+import { rayTool } from "./RayTool";
 import { segmentTool } from "./SegmentTool";
 import { selectTool } from "./SelectTool";
+import { textTool } from "./TextTool";
 import type { Tool } from "./Tool";
+import { vectorTool } from "./VectorTool";
 import {
   createToolContext,
   type ToolContext,
@@ -25,11 +28,13 @@ const defaultTools = [
   pointTool,
   segmentTool,
   lineTool,
-  new BaseTool({ id: "ray", name: "Ray", shortcut: "R" }),
-  new BaseTool({ id: "vector", name: "Vector", shortcut: "X" }),
+  rayTool,
+  vectorTool,
   circleTool,
   polygonTool,
   angleTool,
+  textTool,
+  measurementTool,
   midpointTool,
   intersectionTool,
   parallelLineTool,

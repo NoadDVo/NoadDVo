@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import type { TikzMode } from "../../core/tikz";
+
 type ThemeMode = "dark-arctic" | "light" | "high-contrast";
 type SidebarPanel = "tools" | "layers" | "history" | "settings";
 type DialogId = "settings" | "export" | "help" | null;
@@ -12,12 +14,14 @@ type UIState = {
   readonly commandPaletteOpen: boolean;
   readonly hoveredToolId: string | null;
   readonly keyboardModeHint: KeyboardModeHint;
+  readonly tikzMode: TikzMode;
   readonly setTheme: (theme: ThemeMode) => void;
   readonly setActiveSidebar: (sidebar: SidebarPanel) => void;
   readonly setOpenDialog: (dialog: DialogId) => void;
   readonly setCommandPaletteOpen: (open: boolean) => void;
   readonly setHoveredToolId: (toolId: string | null) => void;
   readonly setKeyboardModeHint: (hint: KeyboardModeHint) => void;
+  readonly setTikzMode: (mode: TikzMode) => void;
   readonly resetUi: () => void;
 };
 
@@ -28,6 +32,7 @@ const DEFAULT_UI_STATE = {
   keyboardModeHint: null,
   openDialog: null,
   theme: "dark-arctic",
+  tikzMode: "academic",
 } satisfies Pick<
   UIState,
   | "activeSidebar"
@@ -36,6 +41,7 @@ const DEFAULT_UI_STATE = {
   | "keyboardModeHint"
   | "openDialog"
   | "theme"
+  | "tikzMode"
 >;
 
 export const useUiStore = create<UIState>((set) => ({
@@ -57,6 +63,9 @@ export const useUiStore = create<UIState>((set) => ({
   },
   setKeyboardModeHint: (keyboardModeHint) => {
     set({ keyboardModeHint });
+  },
+  setTikzMode: (tikzMode) => {
+    set({ tikzMode });
   },
   resetUi: () => {
     set(DEFAULT_UI_STATE);

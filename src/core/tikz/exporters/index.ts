@@ -1,6 +1,10 @@
 export { AngleExporter } from "./AngleExporter";
 export { CircleExporter } from "./CircleExporter";
 export { LineExporter } from "./LineExporter";
+export { MeasurementExporter } from "./MeasurementExporter";
 export { PointExporter } from "./PointExporter";
 export { PolygonExporter } from "./PolygonExporter";
+export { RayExporter } from "./RayExporter";
 export { SegmentExporter } from "./SegmentExporter";
+export { TextExporter } from "./TextExporter";
+export { VectorExporter } from "./VectorExporter";

@@ -1,12 +1,4 @@
-import {
-  EPSILON,
-  cross,
-  distance,
-  midpoint,
-  perpendicular,
-  pointsAlmostEqual,
-  vectorFromPoints,
-} from "../math";
+import { EPSILON, cross, distance, midpoint, perpendicular, pointsAlmostEqual, vectorFromPoints } from "../math";
 import type {
   CircleObject,
   ConstructionDefinition,

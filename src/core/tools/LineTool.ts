@@ -11,11 +11,12 @@ import {
 import {
   getViewportWorldBounds,
   worldToScreen,
-  type WorldBounds,
 } from "../geometry/viewport";
 import { hitTest } from "../selection/HitTest";
 import { BaseTool } from "./BaseTool";
+import { clipLineToBounds } from "./LineToolPreview";
 import { createNamedFreePoint } from "./PointTool";
+import { ToolHistorySession } from "./ToolHistorySession";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 type LineEndpoint = {
@@ -97,58 +98,10 @@ function createLine(pointA: PointObject, pointB: PointObject): LineObject {
   };
 }
 
-function isInsideBounds(point: Point2D, bounds: WorldBounds): boolean {
-  const tolerance = 1e-8;
-
-  return (
-    point.x >= bounds.minX - tolerance &&
-    point.x <= bounds.maxX + tolerance &&
-    point.y >= bounds.minY - tolerance &&
-    point.y <= bounds.maxY + tolerance
-  );
-}
-
-function uniquePush(points: Point2D[], point: Point2D): void {
-  if (!points.some((candidate) => pointsAlmostEqual(candidate, point))) {
-    points.push(point);
-  }
-}
-
-function clipLineToBounds(
-  pointA: Point2D,
-  pointB: Point2D,
-  bounds: WorldBounds,
-): readonly [Point2D, Point2D] | null {
-  const dx = pointB.x - pointA.x;
-  const dy = pointB.y - pointA.y;
-  const points: Point2D[] = [];
-
-  if (Math.abs(dx) > 1e-10) {
-    const leftT = (bounds.minX - pointA.x) / dx;
-    const rightT = (bounds.maxX - pointA.x) / dx;
-
-    uniquePush(points, { x: bounds.minX, y: pointA.y + leftT * dy });
-    uniquePush(points, { x: bounds.maxX, y: pointA.y + rightT * dy });
-  }
-
-  if (Math.abs(dy) > 1e-10) {
-    const bottomT = (bounds.minY - pointA.y) / dy;
-    const topT = (bounds.maxY - pointA.y) / dy;
-
-    uniquePush(points, { x: pointA.x + bottomT * dx, y: bounds.minY });
-    uniquePush(points, { x: pointA.x + topT * dx, y: bounds.maxY });
-  }
-
-  const visiblePoints = points.filter((point) => isInsideBounds(point, bounds));
-  const first = visiblePoints[0];
-  const second = visiblePoints[1];
-
-  return first && second ? [first, second] : null;
-}
-
 export class LineTool extends BaseTool {
   private startEndpoint = null as LineEndpoint | null;
   private previewEndPoint = null as Point2D | null;
+  private readonly history = new ToolHistorySession("create", "Create line");
 
   constructor() {
     super({
@@ -192,13 +145,18 @@ export class LineTool extends BaseTool {
       endPoint ?? createNamedFreePoint(endWorldPoint, context.objects);
 
     if (hasDuplicateLine(this.startEndpoint.point.id, finalEndPoint.id, context.objects)) {
+      this.history.commit(context);
       this.reset();
       this.transitionState("waitingInput", "await-input");
 
       return;
     }
 
+    this.history.ensure(context);
+
     if (!endPoint && !context.addObject(finalEndPoint)) {
+      this.history.commit(context);
+
       return;
     }
 
@@ -209,6 +167,7 @@ export class LineTool extends BaseTool {
     const line = createLine(this.startEndpoint.point, finalEndPoint);
 
     if (hasDuplicateLine(line.pointAId, line.pointBId, latestObjects)) {
+      this.history.commit(context);
       this.reset();
       this.transitionState("waitingInput", "await-input");
 
@@ -218,9 +177,12 @@ export class LineTool extends BaseTool {
     if (context.addObject(line)) {
       context.selectObject(line.id);
       context.setHoveredObject(line.id);
+      this.history.commit(context);
       this.transitionState("completed", "complete");
       this.reset();
       this.transitionState("waitingInput", "await-input");
+    } else {
+      this.history.commit(context);
     }
   }
 
@@ -241,13 +203,15 @@ export class LineTool extends BaseTool {
     this.previewEndPoint = resolveSnapPoint(event, context);
   }
 
-  cancel(_context: ToolContext): void {
+  cancel(context: ToolContext): void {
+    this.history.commit(context);
     this.reset();
     this.transitionState("cancelled", "cancel");
     this.transitionState("waitingInput", "await-input");
   }
 
-  deactivate(_context: ToolContext): void {
+  deactivate(context: ToolContext): void {
+    this.history.commit(context);
     this.reset();
     this.transitionState("cancelled", "cancel");
     this.resetState("reset");
@@ -300,8 +264,11 @@ export class LineTool extends BaseTool {
     }
 
     const point = createNamedFreePoint(event.snappedWorldPoint, context.objects);
+    this.history.ensure(context);
 
     if (!context.addObject(point)) {
+      this.history.cancel(context);
+
       return null;
     }
 

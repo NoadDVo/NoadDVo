@@ -12,9 +12,12 @@ import type {
   GeometryError,
   GeometryObject,
   GeometryObjectRecord,
+  MeasurementObject,
   PointObject,
+  TextObject,
   ValidationResult,
 } from "./types";
+import { isMeasurementTypeSupported } from "./measurements";
 
 function invalid(
   code: string,
@@ -231,6 +234,43 @@ function validateAngle(
   return valid();
 }
 
+function validateText(object: TextObject): ValidationResult {
+  if (!isFiniteNumber(object.x) || !isFiniteNumber(object.y)) {
+    return invalid(
+      "GEOMETRY_INVALID_TEXT_POSITION",
+      "Text position must use finite coordinates.",
+      object.id,
+    );
+  }
+
+  if (typeof object.content !== "string") {
+    return invalid(
+      "GEOMETRY_INVALID_TEXT",
+      "Text content must be a string.",
+      object.id,
+    );
+  }
+
+  return valid();
+}
+
+function validateMeasurement(
+  object: MeasurementObject,
+  objects: GeometryObjectRecord,
+): ValidationResult {
+  const target = objects[object.targetObjectId];
+
+  if (!target) {
+    return invalid("GEOMETRY_MISSING_TARGET", "Measurement target does not exist.", object.id);
+  }
+
+  if (!isMeasurementTypeSupported(target, object.measurementType)) {
+    return invalid("GEOMETRY_INVALID_MEASUREMENT", "Measurement type is not supported by target.", object.id);
+  }
+
+  return valid();
+}
+
 export function validateGeometryObject(
   object: GeometryObject,
   objects: GeometryObjectRecord = {},
@@ -274,6 +314,10 @@ export function validateGeometryObject(
       return validatePolygon(object, sceneObjects);
     case "angle":
       return validateAngle(object, sceneObjects);
+    case "text":
+      return validateText(object);
+    case "measurement":
+      return validateMeasurement(object, sceneObjects);
   }
 }
 

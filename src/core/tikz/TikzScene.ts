@@ -10,6 +10,8 @@ const objectOrder = {
   ray: 60,
   vector: 70,
   angle: 80,
+  text: 90,
+  measurement: 100,
 } satisfies Record<GeometryObject["type"], number>;
 
 export function buildTikzScene(objects: GeometryObjectRecord): TikzScene {

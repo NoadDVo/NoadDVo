@@ -53,6 +53,14 @@ function expectedDependenciesForObject(object: GeometryObject): readonly string[
     return [object.pointAId, object.vertexPointId, object.pointCId];
   }
 
+  if (object.type === "text") {
+    return object.dependencies;
+  }
+
+  if (object.type === "measurement") {
+    return [object.targetObjectId];
+  }
+
   return object.dependencies;
 }
 
