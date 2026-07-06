@@ -8,6 +8,7 @@ import {
 } from "../../../core/geometry";
 import { worldToScreen, type Viewport } from "../../../core/geometry/viewport";
 import type { Point2D } from "../../../core/geometry";
+import { FixedOverlay } from "../../../ui/overlay/OverlayPortal";
 
 function formatHoverNumber(value: number): string {
   const rounded = Number(value.toFixed(3));
@@ -109,19 +110,29 @@ export function HoverInfoLayer({
   }
 
   const hoverScreen = worldToScreen(pointerWorld, viewport);
+  const canvasRect =
+    typeof document === "undefined"
+      ? null
+      : document
+          .querySelector<SVGSVGElement>('svg[aria-label="Geometry canvas"]')
+          ?.getBoundingClientRect();
+  const left = Math.max(
+    12,
+    Math.min(hoverScreen.x + 16, Math.max(12, viewport.width - 180)),
+  );
+  const top = Math.max(
+    12,
+    Math.min(hoverScreen.y + 16, Math.max(12, viewport.height - 72)),
+  );
 
   return (
-    <div
-      className="pointer-events-none absolute z-10 rounded-[12px] border border-slate-900/10 bg-white/[0.82] px-3 py-2 text-slate-950 shadow-[0_16px_38px_rgb(15_23_42/0.16)] backdrop-blur-panel"
+    <FixedOverlay
+      className="pointer-events-none rounded-[12px] border border-slate-900/10 bg-white/[0.86] px-3 py-2 text-slate-950 shadow-[0_16px_38px_rgb(15_23_42/0.16)] backdrop-blur-panel"
       style={{
-        left: Math.max(
-          12,
-          Math.min(hoverScreen.x + 16, Math.max(12, viewport.width - 180)),
-        ),
-        top: Math.max(
-          12,
-          Math.min(hoverScreen.y + 16, Math.max(12, viewport.height - 72)),
-        ),
+        left: (canvasRect?.left ?? 0) + left,
+        position: "fixed",
+        top: (canvasRect?.top ?? 0) + top,
+        zIndex: 2147483647,
       }}
     >
       <p className="text-[11px] font-black uppercase tracking-[0.12em]">
@@ -130,7 +141,6 @@ export function HoverInfoLayer({
       <p className="mt-1 font-mono text-[12px] font-semibold text-slate-700">
         {hoverInfo.detail}
       </p>
-    </div>
+    </FixedOverlay>
   );
 }
-

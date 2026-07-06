@@ -1,7 +1,7 @@
 import type { PointObject } from "../geometry";
 
 function sanitizeName(name: string): string {
-  const sanitized = name.replace(/[^A-Za-z0-9_]/g, "");
+  const sanitized = name.replace(/\s+/g, "").replace(/[^A-Za-z0-9]/g, "");
 
   if (!sanitized) {
     return "P";
@@ -21,14 +21,16 @@ export class TikzNameRegistry {
   private readonly namesByPointId = new Map<string, string>();
   private readonly usedNames = new Set<string>();
 
-  registerPoint(point: PointObject, index: number): string {
+  registerPoint(point: PointObject, index: number, usePointNames = true): string {
     const existing = this.namesByPointId.get(point.id);
 
     if (existing) {
       return existing;
     }
 
-    const baseName = sanitizeName(point.name ?? fallbackName(index));
+    const baseName = sanitizeName(
+      usePointNames ? point.name ?? fallbackName(index) : fallbackName(index),
+    );
     let candidate = baseName;
     let suffix = 1;
 

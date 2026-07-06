@@ -1,6 +1,15 @@
 import type { GeometryToolId } from "../geometry";
+import {
+  altitudeTool,
+  angleBisectorTool,
+  circumcircleTool,
+  incircleTool,
+  medianTool,
+  perpendicularBisectorTool,
+} from "./AdvancedConstructionTools";
 import { angleTool } from "./AngleTool";
 import { circleTool } from "./CircleTool";
+import { fillTool } from "./FillTool";
 import { intersectionTool } from "./IntersectionTool";
 import { lineTool } from "./LineTool";
 import { measurementTool } from "./MeasurementTool";
@@ -34,11 +43,18 @@ const defaultTools = [
   polygonTool,
   angleTool,
   textTool,
+  fillTool,
   measurementTool,
   midpointTool,
   intersectionTool,
   parallelLineTool,
   perpendicularLineTool,
+  perpendicularBisectorTool,
+  angleBisectorTool,
+  medianTool,
+  altitudeTool,
+  circumcircleTool,
+  incircleTool,
 ] satisfies readonly Tool[];
 
 export class ToolManager {

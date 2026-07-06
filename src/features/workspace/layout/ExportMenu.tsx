@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Download } from "lucide-react";
 
 import { useAppStore } from "../../../app/store/appStore";
@@ -6,10 +6,12 @@ import { useGeometryStore } from "../../../app/store/geometryStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
 import { exportManager } from "../../../core/export";
 import { Button } from "../../../ui/primitives";
+import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
 
 export function ExportMenu() {
   const appName = useAppStore((state) => state.appName);
   const [exportOpen, setExportOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   const createProjectSnapshot = () => {
     const geometry = useGeometryStore.getState();
@@ -39,17 +41,18 @@ export function ExportMenu() {
   };
 
   return (
-    <div className="relative">
+    <div>
       <Button
         icon={<Download size={16} strokeWidth={2} />}
         onClick={() => setExportOpen((open) => !open)}
+        ref={buttonRef}
         size="sm"
         variant="primary"
       >
         Export
       </Button>
-      {exportOpen && (
-        <div className="absolute right-0 top-11 z-30 w-44 overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
+      <AnchoredOverlay anchorRef={buttonRef} open={exportOpen} width={176}>
+        <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
           <ExportOption
             label="TikZ"
             onClick={() =>
@@ -89,7 +92,7 @@ export function ExportMenu() {
             }
           />
         </div>
-      )}
+      </AnchoredOverlay>
     </div>
   );
 }
@@ -111,4 +114,3 @@ function ExportOption({
     </button>
   );
 }
-

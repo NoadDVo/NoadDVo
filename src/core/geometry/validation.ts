@@ -14,10 +14,12 @@ import type {
   GeometryObjectRecord,
   MeasurementObject,
   PointObject,
+  RegionObject,
   TextObject,
   ValidationResult,
 } from "./types";
 import { isMeasurementTypeSupported } from "./measurements";
+import { getArcGeometry, getPolygonPoints } from "./derivedGeometry";
 
 function invalid(
   code: string,
@@ -199,6 +201,74 @@ function validatePolygon(
   return valid();
 }
 
+function validateRegion(
+  object: RegionObject,
+  objects: GeometryObjectRecord,
+): ValidationResult {
+  if (object.boundaryPointIds.length < 3) {
+    return invalid(
+      "GEOMETRY_INVALID_REGION",
+      "Region requires at least three boundary points.",
+      object.id,
+    );
+  }
+
+  const points = getPolygonPoints(object, objects);
+
+  if (!points) {
+    return invalid(
+      "GEOMETRY_MISSING_POINT",
+      "Region references a missing boundary point.",
+      object.id,
+    );
+  }
+
+  if (Math.abs(polygonArea(points)) <= EPSILON) {
+    return invalid(
+      "GEOMETRY_ZERO_AREA",
+      "Region area must not be zero.",
+      object.id,
+    );
+  }
+
+  return valid();
+}
+
+function validateArc(
+  object: GeometryObject & { readonly type: "arc" },
+  objects: GeometryObjectRecord,
+): ValidationResult {
+  const center = getPoint(objects, object.centerPointId);
+  const start = getPoint(objects, object.startPointId);
+  const end = getPoint(objects, object.endPointId);
+
+  if (!center || !start || !end) {
+    return invalid(
+      "GEOMETRY_MISSING_POINT",
+      "Arc requires existing center, start, and end points.",
+      object.id,
+    );
+  }
+
+  if (distance(center, start) <= EPSILON || distance(center, end) <= EPSILON) {
+    return invalid(
+      "GEOMETRY_INVALID_ARC",
+      "Arc radius must be greater than zero.",
+      object.id,
+    );
+  }
+
+  if (!getArcGeometry(object, objects)) {
+    return invalid(
+      "GEOMETRY_INVALID_ARC_RADIUS",
+      "Arc start and end points must be the same distance from the center.",
+      object.id,
+    );
+  }
+
+  return valid();
+}
+
 function validateAngle(
   object: AngleObject,
   objects: GeometryObjectRecord,
@@ -310,12 +380,16 @@ export function validateGeometryObject(
       );
     case "circle":
       return validateCircle(object, sceneObjects);
+    case "arc":
+      return validateArc(object, sceneObjects);
     case "polygon":
       return validatePolygon(object, sceneObjects);
     case "angle":
       return validateAngle(object, sceneObjects);
     case "text":
       return validateText(object);
+    case "region":
+      return validateRegion(object, sceneObjects);
     case "measurement":
       return validateMeasurement(object, sceneObjects);
   }

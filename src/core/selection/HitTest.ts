@@ -1,5 +1,4 @@
 import type {
-  CircleObject,
   GeometryObject,
   GeometryObjectRecord,
   Point2D,
@@ -11,9 +10,14 @@ import {
   distance,
   distanceSquared,
   formatMeasurementValue,
+  getArcGeometry,
+  getCircleGeometry,
   getMeasurementAnchorPoint,
+  getPointObject,
+  getPolygonPoints,
   getTextFontSize,
   getTextPosition,
+  isPointInPolygon,
 } from "../geometry";
 import { worldToScreen, type Viewport } from "../geometry/viewport";
 
@@ -31,9 +35,7 @@ function getPoint(
   objectId: string,
   objects: GeometryObjectRecord,
 ): PointObject | null {
-  const object = objects[objectId];
-
-  return object?.type === "point" ? object : null;
+  return getPointObject(objects, objectId);
 }
 
 function distanceToSegmentPx(
@@ -95,59 +97,6 @@ function distanceToRayPx(
   return distanceToInfiniteLinePx(point, start, through);
 }
 
-function isPointInPolygon(point: Point2D, polygonPoints: readonly Point2D[]): boolean {
-  let inside = false;
-
-  for (
-    let index = 0, previousIndex = polygonPoints.length - 1;
-    index < polygonPoints.length;
-    previousIndex = index, index += 1
-  ) {
-    const current = polygonPoints[index];
-    const previous = polygonPoints[previousIndex];
-
-    if (!current || !previous) {
-      continue;
-    }
-
-    const intersects =
-      current.y > point.y !== previous.y > point.y &&
-      point.x <
-        ((previous.x - current.x) * (point.y - current.y)) /
-          (previous.y - current.y) +
-          current.x;
-
-    if (intersects) {
-      inside = !inside;
-    }
-  }
-
-  return inside;
-}
-
-function getCircleGeometry(
-  object: CircleObject,
-  objects: GeometryObjectRecord,
-): { readonly center: PointObject; readonly radius: number } | null {
-  if (object.circleKind === "three-points") {
-    return null;
-  }
-
-  const center = getPoint(object.centerPointId, objects);
-
-  if (!center) {
-    return null;
-  }
-
-  if (object.circleKind === "center-radius") {
-    return { center, radius: object.radius };
-  }
-
-  const radiusPoint = getPoint(object.radiusPointId, objects);
-
-  return radiusPoint ? { center, radius: distance(center, radiusPoint) } : null;
-}
-
 function visibleObjectsByType<TType extends GeometryObject["type"]>(
   objects: GeometryObjectRecord,
   type: TType,
@@ -156,6 +105,25 @@ function visibleObjectsByType<TType extends GeometryObject["type"]>(
     (object): object is Extract<GeometryObject, { readonly type: TType }> =>
       object.visible && object.type === type,
   );
+}
+
+function normalizedAngleDegrees(center: Point2D, point: Point2D): number {
+  const degrees = (Math.atan2(point.y - center.y, point.x - center.x) * 180) / Math.PI;
+
+  return degrees < 0 ? degrees + 360 : degrees;
+}
+
+function isAngleOnArc(
+  angle: number,
+  start: number,
+  end: number,
+  direction: "clockwise" | "counterclockwise",
+): boolean {
+  if (direction === "counterclockwise") {
+    return ((angle - start + 360) % 360) <= ((end - start + 360) % 360 || 360);
+  }
+
+  return ((start - angle + 360) % 360) <= ((start - end + 360) % 360 || 360);
 }
 
 export function hitTest(
@@ -251,10 +219,16 @@ export function hitTest(
     }
   }
 
+  for (const object of visibleObjectsByType(objects, "region")) {
+    const points = getPolygonPoints(object, objects) ?? [];
+
+    if (points.length >= 3 && isPointInPolygon(worldPoint, points)) {
+      return { object, objectId: object.id, type: "region" };
+    }
+  }
+
   for (const object of visibleObjectsByType(objects, "polygon")) {
-    const points = object.pointIds
-      .map((pointId) => getPoint(pointId, objects))
-      .filter((point): point is PointObject => Boolean(point));
+    const points = getPolygonPoints(object, objects) ?? [];
 
     if (points.length >= 3 && isPointInPolygon(worldPoint, points)) {
       return { object, objectId: object.id, type: "polygon" };
@@ -274,6 +248,31 @@ export function hitTest(
 
     if (Math.abs(distancePx - radiusPx) <= tolerancePx) {
       return { object, objectId: object.id, type: "circle" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "arc")) {
+    const geometry = getArcGeometry(object, objects);
+
+    if (!geometry) {
+      continue;
+    }
+
+    const center = worldToScreen(geometry.center, viewport);
+    const radiusPx = geometry.radius * viewport.scale;
+    const distancePx = Math.hypot(screenPoint.x - center.x, screenPoint.y - center.y);
+    const pointerAngle = normalizedAngleDegrees(geometry.center, worldPoint);
+
+    if (
+      Math.abs(distancePx - radiusPx) <= tolerancePx &&
+      isAngleOnArc(
+        pointerAngle,
+        geometry.startAngleDegrees,
+        geometry.endAngleDegrees,
+        object.direction,
+      )
+    ) {
+      return { object, objectId: object.id, type: "arc" };
     }
   }
 

@@ -1,40 +1,12 @@
-import type { CircleObject, Point2D, PointObject } from "../geometry";
-import { distance } from "../geometry";
+import type { CircleObject } from "../geometry";
+import { getCircleGeometry } from "../geometry";
 import { worldToScreen } from "../geometry/viewport";
-import type { GeometryRenderer, GeometryRendererContext } from "./RendererRegistry";
-
-function getPoint(objectId: string, context: GeometryRendererContext) {
-  const object = context.objects[objectId];
-
-  return object?.type === "point" ? object as PointObject : null;
-}
-
-function getCircleGeometry(
-  object: CircleObject,
-  context: GeometryRendererContext,
-): { readonly center: Point2D; readonly radius: number } | null {
-  if (object.circleKind === "center-radius") {
-    const center = getPoint(object.centerPointId, context);
-
-    return center ? { center, radius: object.radius } : null;
-  }
-
-  if (object.circleKind === "center-point") {
-    const center = getPoint(object.centerPointId, context);
-    const radiusPoint = getPoint(object.radiusPointId, context);
-
-    return center && radiusPoint
-      ? { center, radius: distance(center, radiusPoint) }
-      : null;
-  }
-
-  return null;
-}
+import type { GeometryRenderer } from "./RendererRegistry";
 
 export const CircleRenderer: GeometryRenderer<CircleObject> = {
   objectType: "circle",
   render: (object, context) => {
-    const geometry = getCircleGeometry(object, context);
+    const geometry = getCircleGeometry(object, context.objects);
 
     if (!geometry) {
       return null;

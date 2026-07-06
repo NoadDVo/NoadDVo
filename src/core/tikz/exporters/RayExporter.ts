@@ -26,12 +26,22 @@ export const RayExporter: TikzObjectExporter<RayObject> = {
     const throughPoint = getPoint(object.throughPointId, context);
 
     if (!startPoint || !throughPoint) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_RAY",
+        message: "Ray could not be exported because one or both defining points are unavailable.",
+        objectId: object.id,
+      });
       return;
     }
 
     const clipped = clipRayToBounds(startPoint, throughPoint, exportBounds);
 
     if (!clipped) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_RAY",
+        message: "Ray could not be exported because it is degenerate or outside export bounds.",
+        objectId: object.id,
+      });
       return;
     }
 
@@ -46,4 +56,3 @@ export const RayExporter: TikzObjectExporter<RayObject> = {
   },
   objectType: "ray",
 };
-

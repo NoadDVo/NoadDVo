@@ -6,13 +6,19 @@ import {
   midpoint,
   polygonArea,
   validateGeometryObject,
+  getCircleGeometry,
+  recomputeConstructedPoint,
   type GeometryObjectRecord,
+  type ArcObject,
+  type CircleObject,
   type PointObject,
   type RayObject,
+  type RegionObject,
   type TextObject,
   type VectorObject,
 } from "../../core/geometry";
 import { clipRayToBounds, type WorldBounds } from "../../core/geometry/viewport";
+import { toolManager } from "../../core/tools/ToolManager";
 import { assert, assertEqual } from "../assert";
 
 function createPoint(id: string, x: number, y: number): PointObject {
@@ -49,6 +55,11 @@ export function runGeometryTests(): void {
   assertVectorDependencyMetadata();
   assertTextValidation();
   assertTextDependencyMetadata();
+  assertThreePointCircleGeometry();
+  assertArcValidationAndDependencies();
+  assertRegionValidationAndDependencies();
+  assertAdvancedConstructionRecomputation();
+  assertAdvancedConstructionToolsAreRegistered();
 }
 
 function createRay(startPointId: string, throughPointId: string): RayObject {
@@ -214,4 +225,173 @@ function assertTextDependencyMetadata(): void {
     propagated.valid && (propagated.objects["text-a"]?.updatedAt ?? 0) > text.updatedAt,
     "text dependent metadata updates when attachment moves",
   );
+}
+
+function assertThreePointCircleGeometry(): void {
+  const pointA = createPoint("a", 1, 0);
+  const pointB = createPoint("b", 0, 1);
+  const pointC = createPoint("c", -1, 0);
+  const circle: CircleObject = {
+    circleKind: "three-points",
+    createdAt: 2,
+    dependencies: ["a", "b", "c"],
+    dependents: [],
+    id: "circle-abc",
+    locked: false,
+    pointAId: "a",
+    pointBId: "b",
+    pointCId: "c",
+    style: DEFAULT_GEOMETRY_STYLE,
+    type: "circle",
+    updatedAt: 2,
+    visible: true,
+  };
+  const objects = { a: pointA, b: pointB, c: pointC, "circle-abc": circle };
+  const geometry = getCircleGeometry(circle, objects);
+
+  assert(validateGeometryObject(circle, objects).valid, "three-point circle validates non-collinear points");
+  assertEqual(geometry?.center.x, 0, "three-point circle computes center x");
+  assertEqual(geometry?.center.y, 0, "three-point circle computes center y");
+  assertEqual(geometry?.radius, 1, "three-point circle computes radius");
+}
+
+function assertArcValidationAndDependencies(): void {
+  const arc: ArcObject = {
+    centerPointId: "o",
+    createdAt: 2,
+    dependencies: ["o", "a", "b"],
+    dependents: [],
+    direction: "counterclockwise",
+    endPointId: "b",
+    id: "arc-ab",
+    locked: false,
+    startPointId: "a",
+    style: DEFAULT_GEOMETRY_STYLE,
+    type: "arc",
+    updatedAt: 2,
+    visible: true,
+  };
+  const objects = normalizeDependencyMetadata({
+    a: createPoint("a", 1, 0),
+    b: createPoint("b", 0, 1),
+    o: createPoint("o", 0, 0),
+    "arc-ab": arc,
+  });
+  const propagated = propagateGeometryUpdates(
+    {
+      ...objects,
+      a: { ...objects.a as PointObject, updatedAt: 3, x: 0, y: -1 },
+    },
+    "a",
+  );
+
+  assert(validateGeometryObject(arc, objects).valid, "arc validates center/start/end points on same radius");
+  assert(objects.o?.dependents.includes("arc-ab"), "arc depends on center point");
+  assert(objects.a?.dependents.includes("arc-ab"), "arc depends on start point");
+  assert(propagated.valid, "arc dependency propagation remains valid");
+  assert(
+    propagated.valid && (propagated.objects["arc-ab"]?.updatedAt ?? 0) > arc.updatedAt,
+    "arc metadata updates when an endpoint moves",
+  );
+}
+
+function assertRegionValidationAndDependencies(): void {
+  const region: RegionObject = {
+    boundaryPointIds: ["a", "b", "c"],
+    createdAt: 2,
+    dependencies: ["a", "b", "c"],
+    dependents: [],
+    id: "region-abc",
+    locked: false,
+    style: { ...DEFAULT_GEOMETRY_STYLE, fill: "#7ddcff", fillOpacity: 0.2 },
+    type: "region",
+    updatedAt: 2,
+    visible: true,
+  };
+  const objects = normalizeDependencyMetadata({
+    a: createPoint("a", 0, 0),
+    b: createPoint("b", 4, 0),
+    c: createPoint("c", 0, 3),
+    "region-abc": region,
+  });
+  const propagated = propagateGeometryUpdates(
+    {
+      ...objects,
+      c: { ...objects.c as PointObject, updatedAt: 3, y: 4 },
+    },
+    "c",
+  );
+
+  assert(validateGeometryObject(region, objects).valid, "region validates polygonal boundary");
+  assert(objects.a?.dependents.includes("region-abc"), "region depends on boundary points");
+  assert(propagated.valid, "region dependency propagation remains valid");
+  assert(
+    propagated.valid && (propagated.objects["region-abc"]?.updatedAt ?? 0) > region.updatedAt,
+    "region metadata updates when a boundary point moves",
+  );
+}
+
+function assertAdvancedConstructionRecomputation(): void {
+  const objects: GeometryObjectRecord = {
+    a: createPoint("a", 0, 0),
+    b: createPoint("b", 2, 0),
+    c: createPoint("c", 0, 2),
+    p: createPoint("p", 1, 1),
+  };
+  const perpendicularBisectorPoint = recomputeConstructedPoint(
+    { pointAId: "a", pointBId: "b", type: "perpendicular-bisector-point" },
+    objects,
+  );
+  const angleBisectorPoint = recomputeConstructedPoint(
+    {
+      pointAId: "b",
+      pointCId: "c",
+      type: "angle-bisector-point",
+      vertexPointId: "a",
+    },
+    objects,
+  );
+  const projectionPoint = recomputeConstructedPoint(
+    {
+      linePointAId: "a",
+      linePointBId: "b",
+      pointId: "p",
+      type: "projection-point",
+    },
+    objects,
+  );
+  const incenter = recomputeConstructedPoint(
+    {
+      pointAId: "a",
+      pointBId: "b",
+      pointCId: "c",
+      type: "incenter",
+    },
+    objects,
+  );
+
+  assertEqual(perpendicularBisectorPoint?.x, 1, "perpendicular bisector helper x is recomputed");
+  assertEqual(perpendicularBisectorPoint?.y, 2, "perpendicular bisector helper y is recomputed");
+  assertEqual(angleBisectorPoint?.x, 1, "angle bisector helper x is recomputed");
+  assertEqual(angleBisectorPoint?.y, 1, "angle bisector helper y is recomputed");
+  assertEqual(projectionPoint?.x, 1, "altitude projection x is recomputed");
+  assertEqual(projectionPoint?.y, 0, "altitude projection y is recomputed");
+  assertEqual(Number(incenter?.x.toFixed(6)), 0.585786, "incenter x is recomputed");
+  assertEqual(Number(incenter?.y.toFixed(6)), 0.585786, "incenter y is recomputed");
+}
+
+function assertAdvancedConstructionToolsAreRegistered(): void {
+  const expectedTools = [
+    "perpendicular-bisector",
+    "angle-bisector",
+    "median",
+    "altitude",
+    "circumcircle",
+    "incircle",
+    "fill",
+  ] as const;
+
+  expectedTools.forEach((toolId) => {
+    assertEqual(toolManager.getTool(toolId).id, toolId, `${toolId} tool is registered`);
+  });
 }

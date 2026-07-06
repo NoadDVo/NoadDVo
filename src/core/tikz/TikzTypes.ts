@@ -11,7 +11,15 @@ import type { TikzOptions } from "./TikzOptions";
 
 export type TikzMode = "minimal" | "academic" | "colorful" | "olympiad";
 
-export type TikzSectionName = "coordinates" | "shapes" | "points" | "labels";
+export type TikzOutputType = "snippet" | "document" | "raw";
+
+export type TikzSectionName =
+  | "coordinates"
+  | "fills"
+  | "shapes"
+  | "points"
+  | "labels"
+  | "measurements";
 
 export type TikzSceneSections = Record<TikzSectionName, string[]>;
 
@@ -27,6 +35,7 @@ export type TikzExportContext = {
   readonly nameRegistry: TikzNameRegistry;
   readonly options: TikzOptions;
   readonly scene: TikzScene;
+  readonly warnings: TikzWarning[];
 };
 
 export type TikzObjectExporter<TObject extends GeometryObject = GeometryObject> = {
@@ -45,11 +54,25 @@ export type TikzStyleParts = {
 
 export type TikzGeneratedOutput = {
   readonly code: string;
+  readonly errors: readonly TikzError[];
   readonly metadata: {
     readonly generatedAt: number;
     readonly mode: TikzMode;
     readonly objectCount: number;
   };
+  readonly warnings: readonly TikzWarning[];
 };
 
 export type TikzPointLike = Point2D;
+
+export type TikzWarning = {
+  readonly code: string;
+  readonly message: string;
+  readonly objectId?: string | undefined;
+};
+
+export type TikzError = {
+  readonly code: string;
+  readonly message: string;
+  readonly objectId?: string | undefined;
+};

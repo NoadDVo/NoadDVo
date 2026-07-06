@@ -2,6 +2,7 @@ import {
   Circle,
   Compass,
   CornerUpRight,
+  Diameter,
   Minus,
   MousePointer2,
   Move,
@@ -11,6 +12,7 @@ import {
   Slash,
   Type,
   VectorSquare,
+  Triangle,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -25,16 +27,9 @@ type ToolbarItem = {
   readonly icon: LucideIcon;
 };
 
-type FutureToolbarItem = {
-  readonly id: string;
-  readonly label: string;
-  readonly icon: LucideIcon;
-  readonly disabled: true;
-};
-
 type ToolbarGroup = {
   readonly id: string;
-  readonly items: readonly (ToolbarItem | FutureToolbarItem)[];
+  readonly items: readonly ToolbarItem[];
 };
 
 const toolGroups = [
@@ -70,20 +65,26 @@ const toolGroups = [
   { id: "intersection", label: "Intersection", icon: Ruler },
   { id: "parallel", label: "Parallel", icon: Minus },
   { id: "perpendicular", label: "Perpendicular", icon: Slash },
+  { id: "perpendicular-bisector", label: "Perpendicular Bisector", icon: Diameter },
+  { id: "angle-bisector", label: "Angle Bisector", icon: Ruler },
+  { id: "median", label: "Median", icon: Triangle },
+  { id: "altitude", label: "Altitude", icon: Slash },
+  { id: "circumcircle", label: "Circumcircle", icon: Circle },
+  { id: "incircle", label: "Incircle", icon: Compass },
     ],
   },
   {
     id: "annotation",
     items: [
       { id: "text", label: "Text", icon: Type },
-      { id: "fill", label: "Fill", icon: PaintBucket, disabled: true },
+      { id: "fill", label: "Fill", icon: PaintBucket },
       { id: "measure", label: "Measure", icon: Ruler },
     ],
   },
 ] satisfies readonly ToolbarGroup[];
 
 function isActiveGroup(group: ToolbarGroup, activeTool: GeometryToolId): boolean {
-  return group.items.some((item) => "disabled" in item ? false : item.id === activeTool);
+  return group.items.some((item) => item.id === activeTool);
 }
 
 export function LeftToolbar() {
@@ -105,17 +106,12 @@ export function LeftToolbar() {
                   : "flex flex-col items-center gap-2 p-1"
               }
             >
-              {group.items.map(({ label, icon: Icon, ...item }) => (
+              {group.items.map(({ id, label, icon: Icon }) => (
                 <IconButton
-                  active={!("disabled" in item) && activeTool === item.id}
-                  disabled={"disabled" in item}
+                  active={activeTool === id}
                   key={label}
-                  label={"disabled" in item ? `${label} - Coming soon` : label}
-                  onClick={
-                    "disabled" in item
-                      ? undefined
-                      : () => toolManager.activateTool(item.id)
-                  }
+                  label={label}
+                  onClick={() => toolManager.activateTool(id)}
                   size="toolbar"
                 >
                   <Icon size={22} strokeWidth={2} />

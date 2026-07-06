@@ -8,10 +8,10 @@ import {
 import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
 
 const greekLabelMap: Record<string, string> = {
-  α: "\\alpha",
-  β: "\\beta",
-  γ: "\\gamma",
-  θ: "\\theta",
+  "\u03b1": "\\alpha",
+  "\u03b2": "\\beta",
+  "\u03b3": "\\gamma",
+  "\u03b8": "\\theta",
 };
 
 function getPoint(objectId: string, context: TikzExportContext): PointObject | null {
@@ -29,7 +29,9 @@ function formatLabel(label: string | undefined): string | null {
     return null;
   }
 
-  return `"$${greekLabelMap[label] ?? label}$"`;
+  const trimmed = label.trim();
+
+  return `"$${greekLabelMap[trimmed] ?? trimmed}$"`;
 }
 
 export const AngleExporter: TikzObjectExporter<AngleObject> = {
@@ -42,14 +44,23 @@ export const AngleExporter: TikzObjectExporter<AngleObject> = {
     const pointCName = getPointName(object.pointCId, context);
 
     if (!pointA || !vertex || !pointC || !pointAName || !vertexName || !pointCName) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_ANGLE",
+        message: "Angle could not be exported because one or more defining points are unavailable.",
+        objectId: object.id,
+      });
       return;
     }
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
     const style = styleToTikzParts(object.style, context.options, colorFor);
+    const styleOptions = formatStyleOptions(style)
+      .replace(/^\[|\]$/g, "")
+      .split(", ")
+      .filter(Boolean);
     const label = formatLabel(object.label ?? object.name);
     const options = formatTikzOptions([
-      ...formatStyleOptions(style).replace(/^\[|\]$/g, "").split(", ").filter(Boolean),
+      ...(styleOptions.length > 0 ? styleOptions : ["draw"]),
       ...(label ? [label] : []),
       `angle radius=${formatNumber(Math.max(0.15, object.radius), 2)}cm`,
       "angle eccentricity=1.35",

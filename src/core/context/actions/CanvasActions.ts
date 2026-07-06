@@ -7,7 +7,7 @@ import { getBoundingBox } from "../../selection/BoundingBox";
 import { disabled } from "../ContextMenuHelpers";
 import type { ContextMenuAction } from "../ContextMenuTypes";
 
-function fitViewportToObjects(objects: GeometryObjectRecord): void {
+export function fitViewportToObjects(objects: GeometryObjectRecord): void {
   const boxes = Object.values(objects)
     .filter((object) => object.visible)
     .map((object) => getBoundingBox(object, objects))
@@ -109,4 +109,3 @@ export const canvasContextMenuActions: readonly ContextMenuAction[] = [
     targets: ["canvas"],
   },
 ];
-

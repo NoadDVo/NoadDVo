@@ -14,6 +14,7 @@ let measurementIdCounter = 0;
 
 const targetMeasurementTypes = {
   angle: ["angle-value"],
+  arc: ["arc-length"],
   circle: [
     "circle-radius",
     "circle-diameter",
@@ -21,6 +22,7 @@ const targetMeasurementTypes = {
     "circle-area",
   ],
   polygon: ["polygon-area", "polygon-perimeter"],
+  region: ["region-area"],
   segment: ["segment-length"],
 } as const satisfies Partial<Record<GeometryObject["type"], readonly MeasurementType[]>>;
 

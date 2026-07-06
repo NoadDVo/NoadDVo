@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { clsx } from "clsx";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "outline";
@@ -29,7 +29,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "h-12 px-5 text-sm",
 };
 
-export function Button({
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button({
   children,
   icon,
   variant = "secondary",
@@ -38,7 +38,7 @@ export function Button({
   className,
   type = "button",
   ...props
-}: ButtonProps) {
+}, ref) {
   return (
     <button
       className={clsx(
@@ -48,6 +48,7 @@ export function Button({
         active && "border-arctic-ice/60 bg-arctic-ice/18 text-arctic-text",
         className,
       )}
+      ref={ref}
       type={type}
       {...props}
     >
@@ -55,4 +56,4 @@ export function Button({
       <span>{children}</span>
     </button>
   );
-}
+});

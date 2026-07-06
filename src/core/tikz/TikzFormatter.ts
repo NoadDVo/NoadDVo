@@ -60,7 +60,7 @@ export function stylePartsToOptions(parts: TikzStyleParts): string[] {
   }
 
   if (parts.strokeOpacity !== undefined && parts.strokeOpacity < 1) {
-    options.push(`opacity=${formatOpacity(parts.strokeOpacity)}`);
+    options.push(`draw opacity=${formatOpacity(parts.strokeOpacity)}`);
   }
 
   if (parts.fillOpacity !== undefined && parts.fillOpacity < 1) {
@@ -117,6 +117,79 @@ function formatSection(title: string, lines: readonly string[]): string[] {
   return [`% ${title}`, ...lines, ""];
 }
 
+function formatSectionLines(
+  title: string,
+  lines: readonly string[],
+  includeComments: boolean,
+): string[] {
+  if (lines.length === 0) {
+    return [];
+  }
+
+  return includeComments ? formatSection(title, lines) : [...lines];
+}
+
+function formatTikzPicture(
+  options: TikzOptions,
+  sections: TikzSceneSections,
+): string[] {
+  const lines: string[] = [];
+  const pictureOptions =
+    options.scale === 1 && options.mode === "minimal"
+      ? ""
+      : `[scale=${formatNumber(options.scale, 3)}]`;
+
+  lines.push(`\\begin{tikzpicture}${pictureOptions}`);
+
+  if (options.includeComments) {
+    lines.push("");
+  }
+
+  lines.push(...formatSectionLines("Coordinates", sections.coordinates, options.includeComments));
+  lines.push(...formatSectionLines("Filled regions", sections.fills, options.includeComments));
+  lines.push(...formatSectionLines("Lines and shapes", sections.shapes, options.includeComments));
+  lines.push(...formatSectionLines("Points", sections.points, options.includeComments));
+  lines.push(...formatSectionLines("Labels", sections.labels, options.includeComments));
+  lines.push(...formatSectionLines("Measurements", sections.measurements, options.includeComments));
+
+  if (!options.includeComments) {
+    lines.push("\\end{tikzpicture}");
+
+    return lines;
+  }
+
+  const lastLine = lines[lines.length - 1];
+
+  if (lastLine === "") {
+    lines.pop();
+  }
+
+  lines.push("\\end{tikzpicture}");
+
+  return lines;
+}
+
+function wrapStandaloneDocument(
+  body: readonly string[],
+  includeTikzLibraries: boolean,
+): string {
+  const lines = [
+    "\\documentclass[tikz,border=5pt]{standalone}",
+    "\\usepackage{tikz}",
+    ...(includeTikzLibraries
+      ? ["\\usetikzlibrary{calc,angles,quotes,intersections,arrows.meta}"]
+      : []),
+    "",
+    "\\begin{document}",
+    "",
+    ...body,
+    "",
+    "\\end{document}",
+  ];
+
+  return lines.join("\n");
+}
+
 export function formatTikzDocument({
   colorDefinitions,
   options,
@@ -126,18 +199,28 @@ export function formatTikzDocument({
   readonly options: TikzOptions;
   readonly sections: TikzSceneSections;
 }): string {
-  const lines: string[] = [];
-
-  if (colorDefinitions.length > 0) {
-    lines.push("% Colors", ...colorDefinitions, "");
+  if (options.outputType === "raw") {
+    return [
+      ...colorDefinitions,
+      ...sections.coordinates,
+      ...sections.fills,
+      ...sections.shapes,
+      ...sections.points,
+      ...sections.labels,
+      ...sections.measurements,
+    ].join("\n");
   }
 
-  lines.push(`\\begin{tikzpicture}[scale=${formatNumber(options.scale, 3)}]`, "");
-  lines.push(...formatSection("Coordinates", sections.coordinates));
-  lines.push(...formatSection("Shapes", sections.shapes));
-  lines.push(...formatSection("Points", sections.points));
-  lines.push(...formatSection("Labels", sections.labels));
-  lines.push("\\end{tikzpicture}");
+  const colorLines =
+    colorDefinitions.length > 0
+      ? options.includeComments
+        ? ["% Colors", ...colorDefinitions, ""]
+        : [...colorDefinitions]
+      : [];
 
-  return lines.join("\n");
+  const picture = [...colorLines, ...formatTikzPicture(options, sections)];
+
+  return options.includeDocumentWrapper || options.outputType === "document"
+    ? wrapStandaloneDocument(picture, options.includeTikzLibraries)
+    : picture.join("\n");
 }

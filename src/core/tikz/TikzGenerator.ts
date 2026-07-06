@@ -1,11 +1,13 @@
 import type { GeometryObject, GeometryObjectRecord } from "../geometry";
 import { AngleExporter } from "./exporters/AngleExporter";
+import { ArcExporter } from "./exporters/ArcExporter";
 import { CircleExporter } from "./exporters/CircleExporter";
 import { LineExporter } from "./exporters/LineExporter";
 import { MeasurementExporter } from "./exporters/MeasurementExporter";
 import { PointExporter } from "./exporters/PointExporter";
 import { PolygonExporter } from "./exporters/PolygonExporter";
 import { RayExporter } from "./exporters/RayExporter";
+import { RegionExporter } from "./exporters/RegionExporter";
 import { SegmentExporter } from "./exporters/SegmentExporter";
 import { TextExporter } from "./exporters/TextExporter";
 import { VectorExporter } from "./exporters/VectorExporter";
@@ -18,6 +20,7 @@ import type {
   TikzExportContext,
   TikzGeneratedOutput,
   TikzMode,
+  TikzWarning,
 } from "./TikzTypes";
 
 type ExportHandler = (object: GeometryObject, context: TikzExportContext) => void;
@@ -26,6 +29,11 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
   angle: (object, context) => {
     if (object.type === "angle") {
       AngleExporter.exportObject(object, context);
+    }
+  },
+  arc: (object, context) => {
+    if (object.type === "arc") {
+      ArcExporter.exportObject(object, context);
     }
   },
   circle: (object, context) => {
@@ -53,6 +61,11 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
       RayExporter.exportObject(object, context);
     }
   },
+  region: (object, context) => {
+    if (object.type === "region") {
+      RegionExporter.exportObject(object, context);
+    }
+  },
   segment: (object, context) => {
     if (object.type === "segment") {
       SegmentExporter.exportObject(object, context);
@@ -72,7 +85,7 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
 
 function registerCoordinateNames(context: TikzExportContext): void {
   context.scene.points.forEach((point, index) => {
-    context.nameRegistry.registerPoint(point, index);
+    context.nameRegistry.registerPoint(point, index, context.options.usePointNames);
   });
 }
 
@@ -91,25 +104,53 @@ function exportShapes(context: TikzExportContext): void {
     const exporter = exporters[object.type];
 
     if (!exporter) {
+      context.warnings.push({
+        code: "TIKZ_UNSUPPORTED_OBJECT",
+        message: `No TikZ exporter is registered for object type "${object.type}".`,
+        objectId: object.id,
+      });
       return;
     }
 
-    exporter(object, context);
+    try {
+      exporter(object, context);
+    } catch (error) {
+      context.warnings.push({
+        code: "TIKZ_EXPORT_FAILED",
+        message:
+          error instanceof Error
+            ? error.message
+            : `Object "${object.id}" could not be exported.`,
+        objectId: object.id,
+      });
+    }
   });
+}
+
+function resolveTikzOptions(modeOrOptions: TikzMode | TikzOptions): TikzOptions {
+  if (typeof modeOrOptions === "string") {
+    return getTikzOptions(modeOrOptions);
+  }
+
+  return {
+    ...getTikzOptions(modeOrOptions.mode),
+    ...modeOrOptions,
+  };
 }
 
 export function generateTikz(
   objects: GeometryObjectRecord,
   modeOrOptions: TikzMode | TikzOptions = "academic",
 ): TikzGeneratedOutput {
-  const options =
-    typeof modeOrOptions === "string" ? getTikzOptions(modeOrOptions) : modeOrOptions;
-  const scene = buildTikzScene(objects);
+  const options = resolveTikzOptions(modeOrOptions);
+  const scene = buildTikzScene(objects, options);
+  const warnings: TikzWarning[] = [];
   const context: TikzExportContext = {
     colorRegistry: new TikzColorRegistry(),
     nameRegistry: new TikzNameRegistry(),
     options,
     scene,
+    warnings,
   };
 
   registerCoordinateNames(context);
@@ -127,10 +168,12 @@ export function generateTikz(
 
   return {
     code,
+    errors: [],
     metadata: {
       generatedAt: Date.now(),
       mode: options.mode,
       objectCount: scene.orderedObjects.length,
     },
+    warnings,
   };
 }

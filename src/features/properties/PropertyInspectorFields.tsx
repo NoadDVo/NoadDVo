@@ -5,7 +5,7 @@ import type {
   LabelPosition,
   PointObject,
 } from "../../core/geometry";
-import { distance } from "../../core/geometry";
+import { getCircleGeometry } from "../../core/geometry";
 
 export const dashOptions = ["solid", "dashed", "dotted"] satisfies readonly DashStyle[];
 export const labelPositions = [
@@ -48,18 +48,7 @@ export function getCircleRadius(
   object: CircleObject,
   objects: Record<string, GeometryObject>,
 ): number | null {
-  if (object.circleKind === "center-radius") {
-    return object.radius;
-  }
-
-  if (object.circleKind === "center-point") {
-    const center = getPoint(objects, object.centerPointId);
-    const radiusPoint = getPoint(objects, object.radiusPointId);
-
-    return center && radiusPoint ? distance(center, radiusPoint) : null;
-  }
-
-  return null;
+  return getCircleGeometry(object, objects)?.radius ?? null;
 }
 
 export function Field({
@@ -155,4 +144,3 @@ export function Section({
     </section>
   );
 }
-

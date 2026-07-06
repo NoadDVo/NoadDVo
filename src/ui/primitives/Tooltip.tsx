@@ -1,4 +1,12 @@
-import type { ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+
+import { FixedOverlay } from "../overlay/OverlayPortal";
 
 type TooltipProps = {
   readonly label: string;
@@ -6,12 +14,61 @@ type TooltipProps = {
 };
 
 export function Tooltip({ label, children }: TooltipProps) {
+  const anchorRef = useRef<HTMLSpanElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [style, setStyle] = useState<CSSProperties | null>(null);
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setStyle(null);
+
+      return undefined;
+    }
+
+    const updatePosition = () => {
+      const rect = anchorRef.current?.getBoundingClientRect();
+
+      if (!rect) {
+        return;
+      }
+
+      setStyle({
+        left: rect.left + rect.width / 2,
+        position: "fixed",
+        top: rect.bottom + 8,
+        transform: "translateX(-50%)",
+        zIndex: 2147483647,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open]);
+
   return (
-    <span className="group relative inline-flex">
+    <span
+      className="inline-flex"
+      onBlur={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      ref={anchorRef}
+    >
       {children}
-      <span className="pointer-events-none absolute left-1/2 top-[calc(100%+8px)] z-50 -translate-x-1/2 whitespace-nowrap rounded-[12px] border border-white/10 bg-[#13212c]/95 px-2.5 py-1.5 text-[11px] font-medium text-arctic-text opacity-0 shadow-[0_10px_30px_rgb(0_0_0/0.28)] backdrop-blur-sm transition duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-        {label}
-      </span>
+      {open && style && (
+        <FixedOverlay
+          className="pointer-events-none whitespace-nowrap rounded-[12px] border border-white/10 bg-[#13212c]/95 px-2.5 py-1.5 text-[11px] font-medium text-arctic-text shadow-[0_10px_30px_rgb(0_0_0/0.28)] backdrop-blur-sm"
+          style={style}
+        >
+          {label}
+        </FixedOverlay>
+      )}
     </span>
   );
 }

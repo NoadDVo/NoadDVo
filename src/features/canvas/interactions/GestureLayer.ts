@@ -95,7 +95,7 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
 
     event.preventDefault();
 
-    const zoomFactor = event.deltaY < 0 ? 1.12 : 1 / 1.12;
+    const zoomFactor = event.deltaY < 0 ? 1.08 : 1 / 1.08;
     useViewportStore
       .getState()
       .zoomAt(getLocalPoint(event, element), zoomFactor);
@@ -123,9 +123,10 @@ function openContextMenu(event: PointerEvent<HTMLElement>, element: HTMLElement)
 
   contextMenuManager.open({
     bounds: {
-      height: element.clientHeight,
-      width: element.clientWidth,
+      height: window.innerHeight,
+      width: window.innerWidth,
     },
+    position: { x: event.clientX, y: event.clientY },
     target: hit
       ? {
           kind: "object",
@@ -141,4 +142,3 @@ function openContextMenu(event: PointerEvent<HTMLElement>, element: HTMLElement)
         },
   });
 }
-

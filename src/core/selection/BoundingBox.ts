@@ -6,15 +6,20 @@ import type {
   Point2D,
   PointObject,
 } from "../geometry";
-import { distance } from "../geometry";
+import {
+  getArcGeometry,
+  getCircleGeometry,
+  getMeasurementAnchorPoint,
+  getPointObject,
+  getPolygonPoints,
+  getTextPosition,
+} from "../geometry";
 
 function getPoint(
   objectId: string,
   objects: GeometryObjectRecord,
 ): PointObject | null {
-  const object = objects[objectId];
-
-  return object?.type === "point" ? object : null;
+  return getPointObject(objects, objectId);
 }
 
 function boxFromPoints(points: readonly Point2D[]): BoundingBox | null {
@@ -37,34 +42,17 @@ function getCircleBoundingBox(
   object: CircleObject,
   objects: GeometryObjectRecord,
 ): BoundingBox | null {
-  if (object.circleKind === "three-points") {
-    return null;
-  }
+  const geometry = getCircleGeometry(object, objects);
 
-  const center = getPoint(object.centerPointId, objects);
-
-  if (!center) {
-    return null;
-  }
-
-  const radius =
-    object.circleKind === "center-radius"
-      ? object.radius
-      : (() => {
-          const radiusPoint = getPoint(object.radiusPointId, objects);
-
-          return radiusPoint ? distance(center, radiusPoint) : null;
-        })();
-
-  if (radius === null) {
+  if (!geometry) {
     return null;
   }
 
   return {
-    maxX: center.x + radius,
-    maxY: center.y + radius,
-    minX: center.x - radius,
-    minY: center.y - radius,
+    maxX: geometry.center.x + geometry.radius,
+    maxY: geometry.center.y + geometry.radius,
+    minX: geometry.center.x - geometry.radius,
+    minY: geometry.center.y - geometry.radius,
   };
 }
 
@@ -88,16 +76,45 @@ export function getBoundingBox(
     return start && end ? boxFromPoints([start, end]) : null;
   }
 
+  if (object.type === "vector") {
+    const start = getPoint(object.startPointId, objects);
+    const end = getPoint(object.endPointId, objects);
+
+    return start && end ? boxFromPoints([start, end]) : null;
+  }
+
   if (object.type === "circle") {
     return getCircleBoundingBox(object, objects);
   }
 
   if (object.type === "polygon") {
-    const points = object.pointIds
-      .map((pointId) => getPoint(pointId, objects))
-      .filter((point): point is PointObject => Boolean(point));
+    return boxFromPoints(getPolygonPoints(object, objects) ?? []);
+  }
 
-    return boxFromPoints(points);
+  if (object.type === "region") {
+    return boxFromPoints(getPolygonPoints(object, objects) ?? []);
+  }
+
+  if (object.type === "arc") {
+    const arc = getArcGeometry(object, objects);
+
+    return arc ? boxFromPoints([arc.center, arc.startPoint, arc.endPoint]) : null;
+  }
+
+  if (object.type === "angle") {
+    const pointA = getPoint(object.pointAId, objects);
+    const vertex = getPoint(object.vertexPointId, objects);
+    const pointC = getPoint(object.pointCId, objects);
+
+    return pointA && vertex && pointC ? boxFromPoints([pointA, vertex, pointC]) : null;
+  }
+
+  if (object.type === "text") {
+    return boxFromPoints([getTextPosition(object, objects)]);
+  }
+
+  if (object.type === "measurement") {
+    return boxFromPoints([getMeasurementAnchorPoint(object, objects)]);
   }
 
   return null;

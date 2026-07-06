@@ -1,9 +1,11 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import {
+  Download,
   FilePlus2,
   FolderClock,
+  FolderOpen,
+  Menu,
   Save,
-  SaveAll,
   Upload,
 } from "lucide-react";
 
@@ -11,8 +13,10 @@ import {
   useGeometryStore,
   type ExampleSceneId,
 } from "../../../app/store/geometryStore";
+import { exportManager } from "../../../core/export";
 import { projectManager, type ProjectManagerState } from "../../../core/project";
 import { Button } from "../../../ui/primitives";
+import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
 
 type ProjectMenuProps = {
   readonly projectState: ProjectManagerState;
@@ -20,15 +24,15 @@ type ProjectMenuProps = {
 
 export function ProjectMenu({ projectState }: ProjectMenuProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [examplesOpen, setExamplesOpen] = useState(false);
-  const [recentOpen, setRecentOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const loadExample = (exampleId: ExampleSceneId) => {
     if (!useGeometryStore.getState().loadExample(exampleId)) {
       window.alert("The example scene could not be loaded.");
     }
 
-    setExamplesOpen(false);
+    setMenuOpen(false);
   };
 
   const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +45,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
     }
 
     projectManager.openProjectText(await file.text());
+    setMenuOpen(false);
   };
 
   return (
@@ -53,107 +58,35 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
         type="file"
       />
       <Button
-        icon={<FilePlus2 size={16} strokeWidth={2} />}
-        onClick={() => projectManager.newProject()}
+        icon={<Menu size={16} strokeWidth={2} />}
+        onClick={() => setMenuOpen((open) => !open)}
+        ref={buttonRef}
         size="sm"
         variant="ghost"
       >
-        New Project
+        Project
       </Button>
-      <ExamplesMenu open={examplesOpen} setOpen={setExamplesOpen} loadExample={loadExample} />
-      <Button
-        icon={<Upload size={16} strokeWidth={2} />}
-        onClick={() => fileInputRef.current?.click()}
-        size="sm"
-        variant="ghost"
-      >
-        Open
-      </Button>
-      <Button
-        icon={<Save size={16} strokeWidth={2} />}
-        onClick={() => projectManager.saveProject()}
-        size="sm"
-        variant="ghost"
-      >
-        Save
-      </Button>
-      <Button
-        icon={<SaveAll size={16} strokeWidth={2} />}
-        onClick={() => projectManager.saveProjectAs()}
-        size="sm"
-        variant="ghost"
-      >
-        Save As
-      </Button>
-      <RecentProjectsMenu
-        open={recentOpen}
-        projectState={projectState}
-        setOpen={setRecentOpen}
-      />
-    </>
-  );
-}
-
-function ExamplesMenu({
-  loadExample,
-  open,
-  setOpen,
-}: {
-  readonly loadExample: (exampleId: ExampleSceneId) => void;
-  readonly open: boolean;
-  readonly setOpen: (open: boolean | ((current: boolean) => boolean)) => void;
-}) {
-  return (
-    <div className="relative">
-      <Button onClick={() => setOpen((current) => !current)} size="sm" variant="ghost">
-        Load Example
-      </Button>
-      {open && (
-        <div className="absolute right-0 top-11 z-30 w-56 overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
-          {[
-            ["triangle", "Triangle"],
-            ["circle", "Circle"],
-            ["olympiad", "Olympiad Sample"],
-            ["coordinate", "Coordinate Geometry"],
-          ].map(([id, label]) => (
-            <button
-              className="block w-full rounded-[12px] px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-arctic-text transition hover:bg-white/8 hover:text-arctic-ice"
-              key={id}
-              onClick={() => loadExample(id as ExampleSceneId)}
-              type="button"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function RecentProjectsMenu({
-  open,
-  projectState,
-  setOpen,
-}: {
-  readonly open: boolean;
-  readonly projectState: ProjectManagerState;
-  readonly setOpen: (open: boolean | ((current: boolean) => boolean)) => void;
-}) {
-  return (
-    <div className="relative">
-      <Button
-        icon={<FolderClock size={16} strokeWidth={2} />}
-        onClick={() => setOpen((current) => !current)}
-        size="sm"
-        variant="ghost"
-      >
-        Recent
-      </Button>
-      {open && (
-        <div className="absolute right-0 top-11 z-30 w-72 overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
+      <AnchoredOverlay anchorRef={buttonRef} open={menuOpen} width={320}>
+        <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
+          <ProjectOption
+            icon={<FilePlus2 size={15} strokeWidth={2} />}
+            label="New Project"
+            onClick={() => {
+              projectManager.newProject();
+              setMenuOpen(false);
+            }}
+          />
+          <ProjectOption
+            icon={<Upload size={15} strokeWidth={2} />}
+            label="Open Project"
+            onClick={() => fileInputRef.current?.click()}
+          />
+          <MenuDivider />
+          <MenuHeading icon={<FolderClock size={14} strokeWidth={2} />}>
+            Recent Projects
+          </MenuHeading>
           {projectState.recentProjects.length === 0 ? (
-            <div className="rounded-[12px] px-3 py-3 text-[11px] font-semibold text-arctic-muted">
+            <div className="rounded-[12px] px-3 py-2 text-[11px] font-semibold text-arctic-muted">
               No recent projects yet.
             </div>
           ) : (
@@ -163,11 +96,11 @@ function RecentProjectsMenu({
                 key={project.id}
                 onClick={() => {
                   projectManager.openRecentProject(project);
-                  setOpen(false);
+                  setMenuOpen(false);
                 }}
                 type="button"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] border border-arctic-ice/15 bg-arctic-ice/10 text-[10px] font-black text-arctic-ice">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] border border-arctic-ice/15 bg-arctic-ice/10 text-[9px] font-black text-arctic-ice">
                   NDV
                 </span>
                 <span className="min-w-0">
@@ -181,9 +114,87 @@ function RecentProjectsMenu({
               </button>
             ))
           )}
+          <MenuDivider />
+          <ProjectOption
+            icon={<Save size={15} strokeWidth={2} />}
+            label="Save"
+            onClick={() => {
+              projectManager.saveProject();
+              setMenuOpen(false);
+            }}
+          />
+
+          <MenuDivider />
+          <MenuHeading icon={<FolderOpen size={14} strokeWidth={2} />}>
+            Load Example
+          </MenuHeading>
+          {([
+            ["triangle", "Triangle"],
+            ["circle", "Circle"],
+            ["olympiad", "Olympiad Sample"],
+            ["coordinate", "Coordinate Geometry"],
+          ] as const).map(([id, label]) => (
+            <ProjectOption
+              key={id}
+              label={label}
+              onClick={() => loadExample(id as ExampleSceneId)}
+            />
+          ))}
+          <ProjectOption
+            icon={<Upload size={15} strokeWidth={2} />}
+            label="Import"
+            onClick={() => fileInputRef.current?.click()}
+          />
+          <ProjectOption
+            icon={<Download size={15} strokeWidth={2} />}
+            label="Export"
+            onClick={() => {
+              exportManager.exportProjectText(projectManager.serializeCurrentProject());
+              setMenuOpen(false);
+            }}
+          />
         </div>
-      )}
+      </AnchoredOverlay>
+    </>
+  );
+}
+
+function ProjectOption({
+  icon,
+  label,
+  onClick,
+}: {
+  readonly icon?: ReactNode;
+  readonly label: string;
+  readonly onClick: () => void;
+}) {
+  return (
+    <button
+      className="flex min-h-9 w-full items-center gap-2 rounded-[12px] px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-arctic-text transition hover:bg-white/8 hover:text-arctic-ice"
+      onClick={onClick}
+      type="button"
+    >
+      {icon && <span className="text-arctic-ice/80">{icon}</span>}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function MenuHeading({
+  children,
+  icon,
+}: {
+  readonly children: ReactNode;
+  readonly icon: ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-arctic-muted">
+      {icon}
+      {children}
     </div>
   );
 }
 
+function MenuDivider() {
+  return <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />;
+}

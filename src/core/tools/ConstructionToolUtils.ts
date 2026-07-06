@@ -94,6 +94,66 @@ export function createConstructionLine(
   };
 }
 
+export function createConstructionCircle(
+  centerPoint: PointObject,
+  radiusPoint: PointObject,
+  name: string,
+): Extract<CircleObject, { readonly circleKind: "center-point" }> {
+  const now = Date.now();
+
+  return {
+    centerPointId: centerPoint.id,
+    circleKind: "center-point",
+    createdAt: now,
+    dependencies: [centerPoint.id, radiusPoint.id],
+    dependents: [],
+    id: createConstructionId("circle-construction"),
+    locked: false,
+    name,
+    radiusPointId: radiusPoint.id,
+    style: {
+      ...DEFAULT_GEOMETRY_STYLE,
+      stroke: "#747b84",
+      strokeOpacity: 0.86,
+      strokeWidth: 1.6,
+    },
+    type: "circle",
+    updatedAt: now,
+    visible: true,
+  };
+}
+
+export function createThreePointConstructionCircle(
+  pointA: PointObject,
+  pointB: PointObject,
+  pointC: PointObject,
+  name: string,
+): Extract<CircleObject, { readonly circleKind: "three-points" }> {
+  const now = Date.now();
+
+  return {
+    circleKind: "three-points",
+    createdAt: now,
+    dependencies: [pointA.id, pointB.id, pointC.id],
+    dependents: [],
+    id: createConstructionId("circle-construction"),
+    locked: false,
+    name,
+    pointAId: pointA.id,
+    pointBId: pointB.id,
+    pointCId: pointC.id,
+    style: {
+      ...DEFAULT_GEOMETRY_STYLE,
+      stroke: "#747b84",
+      strokeOpacity: 0.86,
+      strokeWidth: 1.6,
+    },
+    type: "circle",
+    updatedAt: now,
+    visible: true,
+  };
+}
+
 export function hasLineWithEndpoints(
   pointAId: string,
   pointBId: string,

@@ -37,6 +37,14 @@ function expectedDependenciesForObject(object: GeometryObject): readonly string[
     return object.pointIds;
   }
 
+  if (object.type === "arc") {
+    return [object.centerPointId, object.startPointId, object.endPointId];
+  }
+
+  if (object.type === "region") {
+    return object.boundaryPointIds;
+  }
+
   if (object.type === "line") {
     return [object.pointAId, object.pointBId];
   }

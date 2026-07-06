@@ -2,6 +2,8 @@ import {
   EPSILON,
   angleDegrees,
   distance,
+  getArcGeometry,
+  getRegionArea,
   isRightAngle,
   polygonArea,
   type GeometryObject,
@@ -106,6 +108,31 @@ export function GeometryPanel({
         objects={objects}
         updateSelected={updateSelected}
       />
+    );
+  }
+
+  if (object.type === "arc") {
+    const arc = getArcGeometry(object, objects);
+
+    return (
+      <Section title="Geometry">
+        <Readout label="Center" value={object.centerPointId} />
+        <Readout label="Start" value={object.startPointId} />
+        <Readout label="End" value={object.endPointId} />
+        <Readout label="Direction" value={object.direction} />
+        <Readout label="Radius" value={arc ? formatNumber(arc.radius) : "Unavailable"} />
+      </Section>
+    );
+  }
+
+  if (object.type === "region") {
+    const area = getRegionArea(object, objects);
+
+    return (
+      <Section title="Geometry">
+        <Readout label="Boundary Points" value={String(object.boundaryPointIds.length)} />
+        <Readout label="Area" value={area === null ? "Unavailable" : formatNumber(area)} />
+      </Section>
     );
   }
 

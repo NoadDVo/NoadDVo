@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useViewportStore } from "../../app/store/viewportStore";
+import { fitViewportToObjects } from "../../core/context/actions/CanvasActions";
 import { toolManager } from "../../core/tools/ToolManager";
-import { IconButton } from "../../ui/primitives";
+import { Button, IconButton } from "../../ui/primitives";
 import { ContextMenuOverlay } from "../context-menu/ContextMenuOverlay";
 import { GridLayer } from "./grid";
 import { useCanvasGestures } from "./interactions/GestureLayer";
@@ -24,12 +25,15 @@ export function Canvas() {
   const isPanning = useViewportStore((state) => state.isPanning);
   const isSpacePressed = useViewportStore((state) => state.isSpacePressed);
   const resetViewport = useViewportStore((state) => state.resetViewport);
+  const zoomAt = useViewportStore((state) => state.zoomAt);
   const objects = useGeometryStore((state) => state.objects);
+  const loadExample = useGeometryStore((state) => state.loadExample);
   const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
   const activeTool = useGeometryStore((state) => state.activeTool);
   const activeToolCursor = toolManager.getTool(activeTool).cursor;
   const hoveredObject = hoveredObjectId ? objects[hoveredObjectId] ?? null : null;
   const gestures = useCanvasGestures(containerRef);
+  const objectCount = Object.keys(objects).length;
 
   useEffect(() => {
     const element = containerRef.current;
@@ -94,19 +98,46 @@ export function Canvas() {
         viewport={viewport}
       />
 
-      <div className="absolute right-4 top-4">
-        <IconButton label="Reset View" onClick={resetViewport} size="sm">
+      {objectCount === 0 && (
+        <EmptyWorkspacePrompt
+          loadExample={() => loadExample("triangle")}
+          startPointTool={() => toolManager.activateTool("point")}
+        />
+      )}
+
+      <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-[14px] border border-slate-900/10 bg-white/80 p-1 shadow-[0_14px_34px_rgb(15_23_42/0.14)] backdrop-blur-panel">
+        <IconButton
+          className="border-slate-900/10 bg-white/70 text-slate-700 hover:bg-white hover:text-slate-950"
+          label="Zoom In"
+          onClick={() => zoomAt({ x: viewport.width / 2, y: viewport.height / 2 }, 1.18)}
+          size="sm"
+        >
+          <ZoomIn size={16} strokeWidth={2} />
+        </IconButton>
+        <IconButton
+          className="border-slate-900/10 bg-white/70 text-slate-700 hover:bg-white hover:text-slate-950"
+          label="Zoom Out"
+          onClick={() => zoomAt({ x: viewport.width / 2, y: viewport.height / 2 }, 1 / 1.18)}
+          size="sm"
+        >
+          <ZoomOut size={16} strokeWidth={2} />
+        </IconButton>
+        <IconButton
+          className="border-slate-900/10 bg-white/70 text-slate-700 hover:bg-white hover:text-slate-950"
+          label="Reset View"
+          onClick={resetViewport}
+          size="sm"
+        >
+          <RotateCcw size={16} strokeWidth={2} />
+        </IconButton>
+        <IconButton
+          className="border-slate-900/10 bg-white/70 text-slate-700 hover:bg-white hover:text-slate-950"
+          label="Fit View"
+          onClick={() => fitViewportToObjects(objects)}
+          size="sm"
+        >
           <Maximize2 size={16} strokeWidth={2} />
         </IconButton>
-      </div>
-
-      <div className="pointer-events-none absolute bottom-4 left-4 rounded-[16px] border border-white/8 bg-[#101b24]/72 px-4 py-3 backdrop-blur-panel">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-arctic-ice/80">
-          SVG Canvas
-        </p>
-        <p className="mt-1 text-sm font-semibold text-arctic-text">
-          Middle mouse or Space + Drag to pan
-        </p>
       </div>
 
       <ContextMenuOverlay />
@@ -114,3 +145,39 @@ export function Canvas() {
   );
 }
 
+function EmptyWorkspacePrompt({
+  loadExample,
+  startPointTool,
+}: {
+  readonly loadExample: () => void;
+  readonly startPointTool: () => void;
+}) {
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-6">
+      <div className="pointer-events-auto rounded-[18px] border border-slate-900/10 bg-white/78 px-4 py-3 text-center text-slate-950 shadow-[0_18px_48px_rgb(15_23_42/0.14)] backdrop-blur-panel">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+          Empty Workspace
+        </p>
+        <p className="mt-1 text-sm font-bold">Create your first object</p>
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <Button
+            className="border-slate-900/10 bg-slate-950 text-white hover:bg-slate-800"
+            onClick={startPointTool}
+            size="sm"
+            variant="secondary"
+          >
+            Create a point
+          </Button>
+          <Button
+            className="border-slate-900/10 bg-white/70 text-slate-800 hover:bg-white"
+            onClick={loadExample}
+            size="sm"
+            variant="secondary"
+          >
+            Load an example
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

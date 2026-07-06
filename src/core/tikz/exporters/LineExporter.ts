@@ -26,12 +26,22 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
     const pointB = getPoint(object.pointBId, context) as PointObject | null;
 
     if (!pointA || !pointB) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_LINE",
+        message: "Line could not be exported because one or both defining points are unavailable.",
+        objectId: object.id,
+      });
       return;
     }
 
     const clipped = clipLineToBounds(pointA, pointB, exportBounds);
 
     if (!clipped) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_LINE",
+        message: "Line could not be exported because it is degenerate or outside export bounds.",
+        objectId: object.id,
+      });
       return;
     }
 

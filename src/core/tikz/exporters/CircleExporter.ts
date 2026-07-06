@@ -1,55 +1,49 @@
-import type { CircleObject, PointObject } from "../../geometry";
-import { EPSILON, distance } from "../../geometry";
+import type { CircleObject } from "../../geometry";
+import { EPSILON, getCircleGeometry } from "../../geometry";
 import {
   formatNumber,
+  formatPoint,
   formatStyleOptions,
   styleToTikzParts,
 } from "../TikzFormatter";
-import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
-
-function getPoint(objectId: string, context: TikzExportContext) {
-  const object = context.scene.objects[objectId];
-
-  return object?.type === "point" ? object : null;
-}
+import type { TikzObjectExporter } from "../TikzTypes";
 
 export const CircleExporter: TikzObjectExporter<CircleObject> = {
   exportObject: (object, context) => {
-    if (object.circleKind === "three-points") {
+    const geometry = getCircleGeometry(object, context.scene.objects);
+
+    if (!geometry || geometry.radius <= EPSILON) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_CIRCLE",
+        message: "Circle could not be exported because its radius is zero or dependencies are unavailable.",
+        objectId: object.id,
+      });
       return;
     }
 
-    const center = getPoint(object.centerPointId, context) as PointObject | null;
-
-    if (!center) {
-      return;
-    }
-
-    const radius =
-      object.circleKind === "center-radius"
-        ? object.radius
+    const centerExpression =
+      object.circleKind === "three-points"
+        ? formatPoint(geometry.center, context.options.coordinatePrecision)
         : (() => {
-            const radiusPoint = getPoint(object.radiusPointId, context);
+            const centerName = context.nameRegistry.getPointName(object.centerPointId);
 
-            return radiusPoint ? distance(center, radiusPoint) : 0;
+            return centerName ? `(${centerName})` : null;
           })();
-
-    if (radius <= EPSILON) {
-      return;
-    }
-
-    const centerName = context.nameRegistry.getPointName(center.id);
-
-    if (!centerName) {
-      return;
-    }
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
     const style = styleToTikzParts(object.style, context.options, colorFor);
 
-    context.scene.sections.shapes.push(
-      `\\draw${formatStyleOptions(style)} (${centerName}) circle (${formatNumber(radius, context.options.coordinatePrecision)});`,
-    );
+    if (centerExpression) {
+      context.scene.sections.shapes.push(
+        `\\draw${formatStyleOptions(style)} ${centerExpression} circle (${formatNumber(geometry.radius, context.options.coordinatePrecision)});`,
+      );
+    } else {
+      context.warnings.push({
+        code: "TIKZ_INVALID_CIRCLE",
+        message: "Circle could not be exported because its center point is unavailable.",
+        objectId: object.id,
+      });
+    }
   },
   objectType: "circle",
 };

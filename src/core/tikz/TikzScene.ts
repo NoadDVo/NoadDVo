@@ -1,26 +1,38 @@
 import type { GeometryObject, GeometryObjectRecord, PointObject } from "../geometry";
+import type { TikzOptions } from "./TikzOptions";
 import type { TikzScene } from "./TikzTypes";
 
 const objectOrder = {
-  polygon: 10,
-  circle: 20,
-  line: 30,
-  segment: 40,
-  point: 50,
-  ray: 60,
-  vector: 70,
-  angle: 80,
-  text: 90,
-  measurement: 100,
+  region: 10,
+  line: 20,
+  segment: 30,
+  ray: 40,
+  vector: 50,
+  circle: 60,
+  arc: 70,
+  polygon: 80,
+  angle: 90,
+  point: 100,
+  text: 110,
+  measurement: 120,
 } satisfies Record<GeometryObject["type"], number>;
 
-export function buildTikzScene(objects: GeometryObjectRecord): TikzScene {
+export function buildTikzScene(
+  objects: GeometryObjectRecord,
+  options: Pick<TikzOptions, "showHiddenObjects">,
+): TikzScene {
   const orderedObjects = Object.values(objects)
-    .filter((object) => object.visible)
+    .filter((object) => options.showHiddenObjects || object.visible)
     .sort((a, b) => {
       const orderDelta = objectOrder[a.type] - objectOrder[b.type];
 
-      return orderDelta === 0 ? a.id.localeCompare(b.id) : orderDelta;
+      if (orderDelta !== 0) {
+        return orderDelta;
+      }
+
+      const createdDelta = a.createdAt - b.createdAt;
+
+      return createdDelta === 0 ? a.id.localeCompare(b.id) : createdDelta;
     });
   const points = orderedObjects.filter(
     (object): object is PointObject => object.type === "point",
@@ -32,7 +44,9 @@ export function buildTikzScene(objects: GeometryObjectRecord): TikzScene {
     points,
     sections: {
       coordinates: [],
+      fills: [],
       labels: [],
+      measurements: [],
       points: [],
       shapes: [],
     },

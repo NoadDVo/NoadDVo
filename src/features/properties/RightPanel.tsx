@@ -98,6 +98,9 @@ function EmptyInspectorState() {
       <p className="mt-2 text-sm font-semibold text-arctic-text">
         Select an object to edit its properties.
       </p>
+      <p className="mt-1 text-xs font-semibold text-arctic-muted">
+        Or choose a drawing tool from the toolbar.
+      </p>
     </div>
   );
 }

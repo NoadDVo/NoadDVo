@@ -4,17 +4,21 @@ import type { TikzObjectExporter } from "../TikzTypes";
 
 function labelAnchor(position: PointObject["style"]["labelPosition"]): string {
   const map: Record<PointObject["style"]["labelPosition"], string> = {
-    above: "below",
-    "above-left": "below right",
-    "above-right": "below left",
-    below: "above",
-    "below-left": "above right",
-    "below-right": "above left",
-    left: "right",
-    right: "left",
+    above: "above",
+    "above-left": "above left",
+    "above-right": "above right",
+    below: "below",
+    "below-left": "below left",
+    "below-right": "below right",
+    left: "left",
+    right: "right",
   };
 
   return map[position];
+}
+
+function mathLabel(content: string): string {
+  return `$${content.replace(/\\/g, "\\backslash ").replace(/[{}]/g, "")}$`;
 }
 
 export const PointExporter: TikzObjectExporter<PointObject> = {
@@ -22,6 +26,7 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
     const name = context.nameRegistry.registerPoint(
       object,
       context.scene.points.findIndex((point) => point.id === object.id),
+      context.options.usePointNames,
     );
 
     context.scene.sections.coordinates.push(
@@ -42,7 +47,7 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
 
     if (context.options.exportLabels && object.style.labelVisible && object.name) {
       context.scene.sections.labels.push(
-        `\\node[${labelAnchor(object.style.labelPosition)}] at (${name}) {$${object.name}$};`,
+        `\\node[${labelAnchor(object.style.labelPosition)}] at (${name}) {${mathLabel(object.name)}};`,
       );
     }
   },

@@ -5,11 +5,13 @@ import {
   normalizeDependencyMetadata,
   propagateGeometryUpdates,
   type AngleObject,
+  type ArcObject,
   type CircleObject,
   type MeasurementObject,
   type MeasurementType,
   type PointObject,
   type PolygonObject,
+  type RegionObject,
   type SegmentObject,
 } from "../../core/geometry";
 import { assert, assertEqual } from "../assert";
@@ -53,6 +55,9 @@ export function runMeasurementTests(): void {
   assertSegmentLength();
   assertPolygonMeasurements();
   assertCircleMeasurements();
+  assertThreePointCircleMeasurements();
+  assertArcMeasurement();
+  assertRegionMeasurement();
   assertAngleMeasurement();
   assertMeasurementDependencyUpdate();
 }
@@ -122,6 +127,81 @@ function assertCircleMeasurements(): void {
   assertEqual(measureValue(measurement("circle-diameter", "circle-o"), objects), 6, "circle diameter is measured");
   assertEqual(formatMeasurementValue(measurement("circle-circumference", "circle-o"), objects), "18.85", "circle circumference is formatted");
   assertEqual(formatMeasurementValue(measurement("circle-area", "circle-o"), objects), "28.27", "circle area is formatted");
+}
+
+function assertThreePointCircleMeasurements(): void {
+  const circle: CircleObject = {
+    circleKind: "three-points",
+    createdAt: 1,
+    dependencies: ["a", "b", "c"],
+    dependents: [],
+    id: "circle-abc",
+    locked: false,
+    pointAId: "a",
+    pointBId: "b",
+    pointCId: "c",
+    style: DEFAULT_GEOMETRY_STYLE,
+    type: "circle",
+    updatedAt: 1,
+    visible: true,
+  };
+  const objects = {
+    a: point("a", 1, 0),
+    b: point("b", 0, 1),
+    c: point("c", -1, 0),
+    "circle-abc": circle,
+  };
+
+  assertEqual(measureValue(measurement("circle-radius", "circle-abc"), objects), 1, "three-point circle radius is measured");
+}
+
+function assertArcMeasurement(): void {
+  const arc: ArcObject = {
+    centerPointId: "o",
+    createdAt: 1,
+    dependencies: ["o", "a", "b"],
+    dependents: [],
+    direction: "counterclockwise",
+    endPointId: "b",
+    id: "arc-ab",
+    locked: false,
+    startPointId: "a",
+    style: DEFAULT_GEOMETRY_STYLE,
+    type: "arc",
+    updatedAt: 1,
+    visible: true,
+  };
+  const objects = {
+    a: point("a", 1, 0),
+    b: point("b", 0, 1),
+    o: point("o", 0, 0),
+    "arc-ab": arc,
+  };
+
+  assertEqual(formatMeasurementValue(measurement("arc-length", "arc-ab"), objects), "1.57", "arc length is measured");
+}
+
+function assertRegionMeasurement(): void {
+  const region: RegionObject = {
+    boundaryPointIds: ["a", "b", "c"],
+    createdAt: 1,
+    dependencies: ["a", "b", "c"],
+    dependents: [],
+    id: "region-abc",
+    locked: false,
+    style: DEFAULT_GEOMETRY_STYLE,
+    type: "region",
+    updatedAt: 1,
+    visible: true,
+  };
+  const objects = {
+    a: point("a", 0, 0),
+    b: point("b", 4, 0),
+    c: point("c", 0, 3),
+    "region-abc": region,
+  };
+
+  assertEqual(measureValue(measurement("region-area", "region-abc"), objects), 6, "region area is measured");
 }
 
 function assertAngleMeasurement(): void {

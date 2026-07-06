@@ -1,4 +1,15 @@
-import { EPSILON, cross, distance, midpoint, perpendicular, pointsAlmostEqual, vectorFromPoints } from "../math";
+import {
+  EPSILON,
+  addVectors,
+  cross,
+  distance,
+  dot,
+  midpoint,
+  normalize,
+  perpendicular,
+  pointsAlmostEqual,
+  vectorFromPoints,
+} from "../math";
 import type {
   CircleObject,
   ConstructionDefinition,
@@ -243,6 +254,65 @@ export function getIntersectionPoints(
   return [];
 }
 
+export function projectPointToLine(
+  point: Point2D,
+  linePointA: Point2D,
+  linePointB: Point2D,
+): Point2D | null {
+  const direction = vectorFromPoints(linePointA, linePointB);
+  const lengthSquared = direction.x * direction.x + direction.y * direction.y;
+
+  if (lengthSquared <= EPSILON) {
+    return null;
+  }
+
+  const t = dot(vectorFromPoints(linePointA, point), direction) / lengthSquared;
+
+  return {
+    x: linePointA.x + t * direction.x,
+    y: linePointA.y + t * direction.y,
+  };
+}
+
+export function angleBisectorDirectionPoint(
+  pointA: Point2D,
+  vertex: Point2D,
+  pointC: Point2D,
+): Point2D | null {
+  const first = normalize(vectorFromPoints(vertex, pointA));
+  const second = normalize(vectorFromPoints(vertex, pointC));
+  const direction = addVectors(first, second);
+
+  if (Math.hypot(direction.x, direction.y) <= EPSILON) {
+    return null;
+  }
+
+  return {
+    x: vertex.x + direction.x,
+    y: vertex.y + direction.y,
+  };
+}
+
+export function incenterPoint(
+  pointA: Point2D,
+  pointB: Point2D,
+  pointC: Point2D,
+): Point2D | null {
+  const sideA = distance(pointB, pointC);
+  const sideB = distance(pointC, pointA);
+  const sideC = distance(pointA, pointB);
+  const perimeter = sideA + sideB + sideC;
+
+  if (perimeter <= EPSILON) {
+    return null;
+  }
+
+  return {
+    x: (sideA * pointA.x + sideB * pointB.x + sideC * pointC.x) / perimeter,
+    y: (sideA * pointA.y + sideB * pointB.y + sideC * pointC.y) / perimeter,
+  };
+}
+
 export function recomputeConstructedPoint(
   construction: ConstructionDefinition,
   objects: GeometryObjectRecord,
@@ -263,6 +333,67 @@ export function recomputeConstructedPoint(
     }
 
     return getIntersectionPoints(sourceA, sourceB, objects)[construction.index] ?? null;
+  }
+
+  if (construction.type === "perpendicular-bisector-point") {
+    const pointA = getPoint(objects, construction.pointAId);
+    const pointB = getPoint(objects, construction.pointBId);
+
+    if (!pointA || !pointB) {
+      return null;
+    }
+
+    const middle = midpoint(pointA, pointB);
+    const normal = perpendicular(vectorFromPoints(pointA, pointB));
+
+    if (Math.hypot(normal.x, normal.y) <= EPSILON) {
+      return null;
+    }
+
+    return {
+      x: middle.x + normal.x,
+      y: middle.y + normal.y,
+    };
+  }
+
+  if (construction.type === "angle-bisector-point") {
+    const pointA = getPoint(objects, construction.pointAId);
+    const vertex = getPoint(objects, construction.vertexPointId);
+    const pointC = getPoint(objects, construction.pointCId);
+
+    return pointA && vertex && pointC
+      ? angleBisectorDirectionPoint(pointA, vertex, pointC)
+      : null;
+  }
+
+  if (construction.type === "projection-point") {
+    const point = getPoint(objects, construction.pointId);
+    const linePointA = getPoint(objects, construction.linePointAId);
+    const linePointB = getPoint(objects, construction.linePointBId);
+
+    return point && linePointA && linePointB
+      ? projectPointToLine(point, linePointA, linePointB)
+      : null;
+  }
+
+  if (construction.type === "incenter") {
+    const pointA = getPoint(objects, construction.pointAId);
+    const pointB = getPoint(objects, construction.pointBId);
+    const pointC = getPoint(objects, construction.pointCId);
+
+    return pointA && pointB && pointC
+      ? incenterPoint(pointA, pointB, pointC)
+      : null;
+  }
+
+  if (construction.type === "inradius-point") {
+    const center = getPoint(objects, construction.centerPointId);
+    const sidePointA = getPoint(objects, construction.sidePointAId);
+    const sidePointB = getPoint(objects, construction.sidePointBId);
+
+    return center && sidePointA && sidePointB
+      ? projectPointToLine(center, sidePointA, sidePointB)
+      : null;
   }
 
   const point = getPoint(objects, construction.pointId);

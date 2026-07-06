@@ -7,12 +7,14 @@ import type {
 } from "../geometry";
 import type { Viewport } from "../geometry/viewport";
 import { AngleRenderer } from "./AngleRenderer";
+import { ArcRenderer } from "./ArcRenderer";
 import { CircleRenderer } from "./CircleRenderer";
 import { LineRenderer } from "./LineRenderer";
 import { MeasurementRenderer } from "./MeasurementRenderer";
 import { PointRenderer } from "./PointRenderer";
 import { PolygonRenderer } from "./PolygonRenderer";
 import { RayRenderer } from "./RayRenderer";
+import { RegionRenderer } from "./RegionRenderer";
 import { SegmentRenderer } from "./SegmentRenderer";
 import { TextRenderer } from "./TextRenderer";
 import { VectorRenderer } from "./VectorRenderer";
@@ -58,7 +60,9 @@ export class RendererRegistry {
 export const geometryRendererRegistry = new RendererRegistry();
 
 geometryRendererRegistry.register(PolygonRenderer);
+geometryRendererRegistry.register(RegionRenderer);
 geometryRendererRegistry.register(CircleRenderer);
+geometryRendererRegistry.register(ArcRenderer);
 geometryRendererRegistry.register(LineRenderer);
 geometryRendererRegistry.register(RayRenderer);
 geometryRendererRegistry.register(SegmentRenderer);

@@ -1,4 +1,5 @@
 export * from "./math";
+export * from "./derivedGeometry";
 export * from "./measurements";
 export * from "./textAnnotation";
 export * from "./types";

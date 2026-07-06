@@ -3,9 +3,15 @@ import {
   distance,
   polygonArea,
 } from "./math";
+import {
+  getArcGeometry,
+  getCircleGeometry,
+  getPointObject,
+  getPolygonPoints,
+  getRegionArea,
+} from "./derivedGeometry";
 import type {
   AngleObject,
-  CircleObject,
   GeometryObject,
   GeometryObjectRecord,
   MeasurementObject,
@@ -28,32 +34,7 @@ const labelOffsets = {
 } satisfies Record<MeasurementObject["labelPosition"], Point2D>;
 
 function getPoint(objects: GeometryObjectRecord, pointId: string): PointObject | null {
-  const object = objects[pointId];
-
-  return object?.type === "point" ? object : null;
-}
-
-export function getCircleMeasurementGeometry(
-  object: CircleObject,
-  objects: GeometryObjectRecord,
-): { readonly center: PointObject; readonly radius: number } | null {
-  if (object.circleKind === "three-points") {
-    return null;
-  }
-
-  const center = getPoint(objects, object.centerPointId);
-
-  if (!center) {
-    return null;
-  }
-
-  if (object.circleKind === "center-radius") {
-    return { center, radius: object.radius };
-  }
-
-  const radiusPoint = getPoint(objects, object.radiusPointId);
-
-  return radiusPoint ? { center, radius: distance(center, radiusPoint) } : null;
+  return getPointObject(objects, pointId);
 }
 
 function segmentLength(object: SegmentObject, objects: GeometryObjectRecord): number | null {
@@ -67,11 +48,7 @@ function polygonPoints(
   object: PolygonObject,
   objects: GeometryObjectRecord,
 ): readonly PointObject[] | null {
-  const points = object.pointIds.map((pointId) => getPoint(objects, pointId));
-
-  return points.some((point) => point === null)
-    ? null
-    : points.filter((point): point is PointObject => Boolean(point));
+  return getPolygonPoints(object, objects);
 }
 
 function polygonPerimeter(object: PolygonObject, objects: GeometryObjectRecord): number | null {
@@ -117,7 +94,7 @@ export function measureValue(
   }
 
   if (target?.type === "circle") {
-    const circle = getCircleMeasurementGeometry(target, objects);
+    const circle = getCircleGeometry(target, objects);
     const radius = circle?.radius ?? null;
 
     if (radius === null) {
@@ -139,6 +116,25 @@ export function measureValue(
     if (measurement.measurementType === "circle-area") {
       return Math.PI * radius * radius;
     }
+  }
+
+  if (target?.type === "arc" && measurement.measurementType === "arc-length") {
+    const arc = getArcGeometry(target, objects);
+
+    if (!arc) {
+      return null;
+    }
+
+    const delta =
+      target.direction === "counterclockwise"
+        ? (arc.endAngleDegrees - arc.startAngleDegrees + 360) % 360
+        : (arc.startAngleDegrees - arc.endAngleDegrees + 360) % 360;
+
+    return arc.radius * ((delta || 360) * Math.PI / 180);
+  }
+
+  if (target?.type === "region" && measurement.measurementType === "region-area") {
+    return getRegionArea(target, objects);
   }
 
   return target?.type === "angle" && measurement.measurementType === "angle-value"
@@ -190,11 +186,22 @@ export function getMeasurementAnchorPoint(
   } else if (target?.type === "polygon") {
     point = averagePoint(polygonPoints(target, objects) ?? [point]);
   } else if (target?.type === "circle") {
-    const circle = getCircleMeasurementGeometry(target, objects);
+    const circle = getCircleGeometry(target, objects);
 
     point = circle
       ? { x: circle.center.x + circle.radius, y: circle.center.y }
       : point;
+  } else if (target?.type === "arc") {
+    const arc = getArcGeometry(target, objects);
+
+    point = arc
+      ? {
+          x: arc.center.x + arc.radius,
+          y: arc.center.y,
+        }
+      : point;
+  } else if (target?.type === "region") {
+    point = averagePoint(getPolygonPoints(target, objects) ?? [point]);
   } else if (target?.type === "angle") {
     const vertex = getPoint(objects, target.vertexPointId);
 
@@ -218,6 +225,8 @@ export function isMeasurementTypeSupported(
     (target.type === "polygon" &&
       (measurementType === "polygon-area" || measurementType === "polygon-perimeter")) ||
     (target.type === "circle" && measurementType.startsWith("circle-")) ||
+    (target.type === "arc" && measurementType === "arc-length") ||
+    (target.type === "region" && measurementType === "region-area") ||
     (target.type === "angle" && measurementType === "angle-value")
   );
 }

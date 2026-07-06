@@ -29,9 +29,11 @@ export type GeometryObjectType =
   | "ray"
   | "vector"
   | "circle"
+  | "arc"
   | "polygon"
   | "angle"
   | "text"
+  | "region"
   | "measurement";
 
 export type GeometryToolId =
@@ -46,11 +48,18 @@ export type GeometryToolId =
   | "polygon"
   | "angle"
   | "text"
+  | "fill"
   | "measure"
   | "midpoint"
   | "intersection"
   | "parallel"
-  | "perpendicular";
+  | "perpendicular"
+  | "perpendicular-bisector"
+  | "angle-bisector"
+  | "median"
+  | "altitude"
+  | "circumcircle"
+  | "incircle";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
 
@@ -72,6 +81,8 @@ export type MeasurementType =
   | "circle-diameter"
   | "circle-circumference"
   | "circle-area"
+  | "arc-length"
+  | "region-area"
   | "angle-value"
   | "point-distance"
   | "coordinate-display";
@@ -148,6 +159,35 @@ export type ConstructionDefinition =
       readonly type: "perpendicular-line-point";
       readonly pointId: string;
       readonly lineId: string;
+    }
+  | {
+      readonly type: "perpendicular-bisector-point";
+      readonly pointAId: string;
+      readonly pointBId: string;
+    }
+  | {
+      readonly type: "angle-bisector-point";
+      readonly pointAId: string;
+      readonly vertexPointId: string;
+      readonly pointCId: string;
+    }
+  | {
+      readonly type: "projection-point";
+      readonly pointId: string;
+      readonly linePointAId: string;
+      readonly linePointBId: string;
+    }
+  | {
+      readonly type: "incenter";
+      readonly pointAId: string;
+      readonly pointBId: string;
+      readonly pointCId: string;
+    }
+  | {
+      readonly type: "inradius-point";
+      readonly centerPointId: string;
+      readonly sidePointAId: string;
+      readonly sidePointBId: string;
     };
 
 export type PointObject = BaseGeometryObject & {
@@ -209,6 +249,14 @@ export type PolygonObject = BaseGeometryObject & {
   readonly closed: true;
 };
 
+export type ArcObject = BaseGeometryObject & {
+  readonly type: "arc";
+  readonly centerPointId: string;
+  readonly startPointId: string;
+  readonly endPointId: string;
+  readonly direction: "clockwise" | "counterclockwise";
+};
+
 export type AngleObject = BaseGeometryObject & {
   readonly type: "angle";
   readonly pointAId: string;
@@ -227,6 +275,11 @@ export type TextObject = BaseGeometryObject & {
   readonly textMode: TextMode;
 };
 
+export type RegionObject = BaseGeometryObject & {
+  readonly type: "region";
+  readonly boundaryPointIds: readonly string[];
+};
+
 export type MeasurementObject = BaseGeometryObject & {
   readonly type: "measurement";
   readonly measurementType: MeasurementType;
@@ -242,9 +295,11 @@ export type GeometryObject =
   | RayObject
   | VectorObject
   | CircleObject
+  | ArcObject
   | PolygonObject
   | AngleObject
   | TextObject
+  | RegionObject
   | MeasurementObject;
 
 export type GeometryObjectRecord = Readonly<Record<string, GeometryObject>>;

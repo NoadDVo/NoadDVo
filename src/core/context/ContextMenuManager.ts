@@ -14,6 +14,7 @@ type Listener = () => void;
 type OpenContextMenuOptions = {
   readonly target: ContextMenuTarget;
   readonly bounds: ContextMenuViewportBounds;
+  readonly position?: ScreenPoint;
 };
 
 const MENU_WIDTH = 256;
@@ -83,7 +84,11 @@ export class ContextMenuManager {
     this.state = {
       items,
       open: true,
-      position: clampPosition(options.target.screenPoint, options.bounds, items.length),
+      position: clampPosition(
+        options.position ?? options.target.screenPoint,
+        options.bounds,
+        items.length,
+      ),
       target: options.target,
     };
     this.emit();

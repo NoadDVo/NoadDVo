@@ -4,9 +4,8 @@ import { IconButton } from "../../../ui/primitives";
 
 export function HelpGroup() {
   return (
-    <IconButton disabled label="Help - Coming soon">
+    <IconButton disabled label="Coming soon">
       <CircleHelp size={18} strokeWidth={2} />
     </IconButton>
   );
 }
-

@@ -22,6 +22,7 @@ import {
 import clsx from "clsx";
 
 import { contextMenuManager, type ContextMenuItem } from "../../core/context";
+import { OverlayPortal } from "../../ui/overlay/OverlayPortal";
 
 type IconComponent = ComponentType<{
   readonly size?: number | string;
@@ -130,16 +131,18 @@ export function ContextMenuOverlay() {
   }
 
   return (
-    <div
-      className="absolute inset-0 z-30"
+    <OverlayPortal>
+      <div
+      className="fixed inset-0"
       onPointerDown={(event) => {
         if (event.target === event.currentTarget) {
           contextMenuManager.close();
         }
       }}
+      style={{ zIndex: 2147483647 }}
     >
       <div
-        className="absolute w-64 overflow-hidden rounded-[18px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_26px_70px_rgb(0_0_0/0.42)] backdrop-blur-panel"
+        className="fixed w-64 overflow-hidden rounded-[18px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_26px_70px_rgb(0_0_0/0.42)] backdrop-blur-panel"
         onPointerDown={(event) => event.stopPropagation()}
         style={{
           left: state.position.x,
@@ -158,6 +161,6 @@ export function ContextMenuOverlay() {
         )}
       </div>
     </div>
+    </OverlayPortal>
   );
 }
-

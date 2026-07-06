@@ -17,6 +17,11 @@ export const VectorExporter: TikzObjectExporter<VectorObject> = {
     const endName = context.nameRegistry.getPointName(object.endPointId);
 
     if (!startName || !endName) {
+      context.warnings.push({
+        code: "TIKZ_INVALID_VECTOR",
+        message: "Vector could not be exported because one or both endpoints are unavailable.",
+        objectId: object.id,
+      });
       return;
     }
 

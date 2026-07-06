@@ -14,16 +14,16 @@ export const AxisLayer = memo(function AxisLayer({ viewport }: AxisLayerProps) {
   return (
     <g data-layer="axes" shapeRendering="crispEdges">
       <line
-        stroke="rgb(11 15 20 / 0.82)"
-        strokeWidth={1.35}
+        stroke="rgb(11 15 20 / 0.78)"
+        strokeWidth={1.2}
         x1={0}
         x2={viewport.width}
         y1={origin.y}
         y2={origin.y}
       />
       <line
-        stroke="rgb(11 15 20 / 0.82)"
-        strokeWidth={1.35}
+        stroke="rgb(11 15 20 / 0.78)"
+        strokeWidth={1.2}
         x1={origin.x}
         x2={origin.x}
         y1={0}
@@ -33,20 +33,20 @@ export const AxisLayer = memo(function AxisLayer({ viewport }: AxisLayerProps) {
         cx={origin.x}
         cy={origin.y}
         fill="rgb(11 15 20)"
-        r={4}
+        r={3.25}
         stroke="rgb(242 247 250)"
         strokeWidth={1.25}
       />
       {labels.map((label) => (
         <text
-          fill="rgb(11 15 20 / 0.62)"
+          fill="rgb(11 15 20 / 0.5)"
           fontFamily="Inter, ui-sans-serif, system-ui"
-          fontSize={10}
+          fontSize={8.5}
           fontWeight={700}
           key={label.id}
           paintOrder="stroke"
           stroke="rgb(242 247 250 / 0.92)"
-          strokeWidth={3}
+          strokeWidth={2.5}
           textAnchor={label.anchor}
           x={label.x}
           y={label.y}
@@ -84,18 +84,22 @@ function createAxisLabels(viewport: Viewport): readonly AxisLabel[] {
   const startY = Math.ceil(worldMinY / majorStep) * majorStep;
   const endY = Math.floor(worldMaxY / majorStep) * majorStep;
   const origin = worldToScreen({ x: 0, y: 0 }, viewport);
-  const xAxisY = Math.min(viewport.height - 14, Math.max(14, origin.y + 13));
-  const yAxisX = Math.min(viewport.width - 14, Math.max(16, origin.x - 9));
+  const xAxisY = Math.min(viewport.height - 12, Math.max(12, origin.y + 11));
+  const yAxisX = Math.min(viewport.width - 12, Math.max(14, origin.x - 8));
   const labels: AxisLabel[] = [];
 
   for (let x = startX; x <= endX; x += majorStep) {
+    if (Math.abs(x) < 1e-8) {
+      continue;
+    }
+
     const screen = worldToScreen({ x, y: 0 }, viewport);
 
     labels.push({
       anchor: "middle",
       id: `x-label-${x.toFixed(6)}`,
       value: formatAxisNumber(x),
-      x: Math.abs(x) < 1e-8 ? screen.x + 14 : screen.x,
+      x: screen.x,
       y: xAxisY,
     });
   }
