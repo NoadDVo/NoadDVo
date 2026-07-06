@@ -1,6 +1,12 @@
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
 import { useViewportStore } from "../../app/store/viewportStore";
+import {
+  copySelectionToGeometryClipboard,
+  cutSelectionToGeometryClipboard,
+  duplicateSelection,
+  pasteGeometryClipboard,
+} from "../clipboard";
 import { contextMenuManager } from "../context";
 import { toolManager } from "../tools/ToolManager";
 import type { KeyboardActionContext } from "./KeyboardContext";
@@ -35,11 +41,6 @@ function selectAllVisibleObjects(): void {
   );
 }
 
-function setPlaceholderHint(hint: string): void {
-  void hint;
-  useUiStore.getState().setKeyboardModeHint(null);
-}
-
 function clearWorkspaceInteraction(): void {
   contextMenuManager.close();
   toolManager.cancel();
@@ -69,6 +70,13 @@ export const defaultKeyboardActions: readonly KeyboardAction[] = [
     shortcut: { ctrl: true, key: "y" },
   },
   {
+    execute: () => useUiStore.getState().setCommandPaletteOpen(true),
+    id: "open-command-palette",
+    label: "Open command palette",
+    preventDefault: true,
+    shortcut: { ctrl: true, key: "k" },
+  },
+  {
     execute: deleteSelectedObjects,
     id: "delete-selection",
     label: "Delete selected objects",
@@ -90,21 +98,28 @@ export const defaultKeyboardActions: readonly KeyboardAction[] = [
     shortcut: { ctrl: true, key: "a" },
   },
   {
-    execute: () => setPlaceholderHint("Copy selected geometry"),
+    execute: copySelectionToGeometryClipboard,
     id: "copy-selection",
     label: "Copy selected geometry",
     preventDefault: true,
     shortcut: { ctrl: true, key: "c" },
   },
   {
-    execute: () => setPlaceholderHint("Paste geometry"),
+    execute: cutSelectionToGeometryClipboard,
+    id: "cut-selection",
+    label: "Cut selected geometry",
+    preventDefault: true,
+    shortcut: { ctrl: true, key: "x" },
+  },
+  {
+    execute: pasteGeometryClipboard,
     id: "paste-selection",
     label: "Paste geometry",
     preventDefault: true,
     shortcut: { ctrl: true, key: "v" },
   },
   {
-    execute: () => setPlaceholderHint("Duplicate selected geometry"),
+    execute: duplicateSelection,
     id: "duplicate-selection",
     label: "Duplicate selected geometry",
     preventDefault: true,

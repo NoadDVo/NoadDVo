@@ -72,7 +72,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="h-8 w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-2.5 font-mono text-[11px] text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
+      className="h-8 w-full rounded-[9px] border border-arctic-border/10 bg-arctic-surface/60 px-2.5 font-mono text-[11px] text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
     />
   );
 }
@@ -81,7 +81,7 @@ export function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>
   return (
     <select
       {...props}
-      className="h-8 w-full rounded-[9px] border border-white/10 bg-[#101b24] px-2.5 text-[11px] font-semibold text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
+      className="h-8 w-full rounded-[9px] border border-arctic-border/10 bg-arctic-surface px-2.5 text-[11px] font-semibold text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
     />
   );
 }
@@ -98,7 +98,7 @@ export function ToggleRow({
   readonly onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex h-8 items-center justify-between rounded-[10px] border border-white/8 bg-white/[0.035] px-2.5">
+    <label className="flex h-8 items-center justify-between rounded-[10px] border border-arctic-border/8 bg-arctic-surface/55 px-2.5">
       <span className="text-[11px] font-semibold text-arctic-muted">{label}</span>
       <input
         checked={checked}
@@ -119,7 +119,7 @@ export function Readout({
   readonly value: string;
 }) {
   return (
-    <div className="rounded-[10px] border border-white/8 bg-white/[0.035] px-2.5 py-2">
+    <div className="rounded-[10px] border border-arctic-border/8 bg-arctic-surface/55 px-2.5 py-2">
       <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-arctic-muted">
         {label}
       </p>

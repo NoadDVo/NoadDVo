@@ -16,6 +16,8 @@ import {
 } from "../ContextMenuHelpers";
 import { duplicateObjectAction } from "./ObjectDuplicateActions";
 
+const geometryTargets = ["point", "segment", "line", "ray", "vector", "circle", "polygon", "region", "arc", "angle", "text", "measurement"] as const;
+
 export const objectContextMenuActions: readonly ContextMenuAction[] = [
   {
     execute: (context) => {
@@ -54,7 +56,7 @@ export const objectContextMenuActions: readonly ContextMenuAction[] = [
     icon: "rename",
     id: "rename",
     isEnabled: isObjectTarget,
-    targets: ["point", "segment", "line", "ray", "vector", "circle", "polygon", "angle", "text", "measurement"],
+    targets: geometryTargets,
   },
   {
     execute: (context) => {
@@ -68,7 +70,7 @@ export const objectContextMenuActions: readonly ContextMenuAction[] = [
     id: "delete",
     isEnabled: isUnlockedObject,
     shortcut: "Delete",
-    targets: ["point", "segment", "line", "ray", "vector", "circle", "polygon", "angle", "text", "measurement"],
+    targets: geometryTargets,
   },
   duplicateObjectAction,
   {
@@ -92,7 +94,7 @@ export const objectContextMenuActions: readonly ContextMenuAction[] = [
     },
     icon: "hide",
     id: "hide",
-    targets: ["point", "segment", "line", "ray", "vector", "circle", "polygon", "angle", "text", "measurement"],
+    targets: geometryTargets,
   },
   {
     execute: (context) => {
@@ -115,7 +117,7 @@ export const objectContextMenuActions: readonly ContextMenuAction[] = [
     },
     icon: "lock",
     id: "lock",
-    targets: ["point", "segment", "line", "ray", "vector", "circle", "polygon", "angle", "text", "measurement"],
+    targets: geometryTargets,
   },
   {
     execute: () => undefined,
@@ -201,6 +203,6 @@ export const objectContextMenuActions: readonly ContextMenuAction[] = [
     },
     icon: "properties",
     id: "properties",
-    targets: ["point", "segment", "line", "ray", "vector", "circle", "polygon", "angle", "text", "measurement"],
+    targets: geometryTargets,
   },
 ];

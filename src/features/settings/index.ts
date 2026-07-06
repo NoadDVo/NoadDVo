@@ -1,1 +1,1 @@
-export {};
+export { SettingsDialog } from "./SettingsDialog";

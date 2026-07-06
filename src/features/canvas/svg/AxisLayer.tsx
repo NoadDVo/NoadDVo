@@ -1,5 +1,6 @@
 import { memo, useMemo } from "react";
 
+import { useViewportStore } from "../../../app/store/viewportStore";
 import { worldToScreen, type Viewport } from "../../../core/geometry/viewport";
 import { getGridStep } from "../grid/gridMath";
 
@@ -9,6 +10,7 @@ type AxisLayerProps = {
 
 export const AxisLayer = memo(function AxisLayer({ viewport }: AxisLayerProps) {
   const origin = worldToScreen({ x: 0, y: 0 }, viewport);
+  const showOrigin = useViewportStore((state) => state.showOrigin);
   const labels = useMemo(() => createAxisLabels(viewport), [viewport]);
 
   return (
@@ -29,14 +31,16 @@ export const AxisLayer = memo(function AxisLayer({ viewport }: AxisLayerProps) {
         y1={0}
         y2={viewport.height}
       />
-      <circle
-        cx={origin.x}
-        cy={origin.y}
-        fill="rgb(11 15 20)"
-        r={3.25}
-        stroke="rgb(242 247 250)"
-        strokeWidth={1.25}
-      />
+      {showOrigin && (
+        <circle
+          cx={origin.x}
+          cy={origin.y}
+          fill="rgb(11 15 20)"
+          r={3.25}
+          stroke="rgb(242 247 250)"
+          strokeWidth={1.25}
+        />
+      )}
       {labels.map((label) => (
         <text
           fill="rgb(11 15 20 / 0.5)"

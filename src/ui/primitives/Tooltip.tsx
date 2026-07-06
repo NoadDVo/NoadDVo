@@ -63,7 +63,7 @@ export function Tooltip({ label, children }: TooltipProps) {
       {children}
       {open && style && (
         <FixedOverlay
-          className="pointer-events-none whitespace-nowrap rounded-[12px] border border-white/10 bg-[#13212c]/95 px-2.5 py-1.5 text-[11px] font-medium text-arctic-text shadow-[0_10px_30px_rgb(0_0_0/0.28)] backdrop-blur-sm"
+          className="pointer-events-none whitespace-nowrap rounded-[12px] border border-arctic-border/10 bg-arctic-surface/95 px-2.5 py-1.5 text-[11px] font-medium text-arctic-text shadow-[0_10px_30px_rgb(0_0_0/0.28)] backdrop-blur-sm"
           style={style}
         >
           {label}

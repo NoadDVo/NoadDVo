@@ -79,7 +79,7 @@ export function ObjectTreeItem({
           ? "border-arctic-ice/35 bg-arctic-ice/13 text-arctic-text shadow-[0_0_18px_rgb(168_216_255/0.12)]"
           : hovered
             ? "border-arctic-ice/20 bg-arctic-ice/8 text-arctic-text"
-            : "border-transparent bg-white/[0.025] text-arctic-muted hover:bg-white/[0.055]",
+            : "border-transparent bg-arctic-surface/35 text-arctic-muted hover:bg-arctic-surface/65",
       )}
       onDoubleClick={() => {
         setDraftName(getObjectDisplayName(object));
@@ -93,13 +93,13 @@ export function ObjectTreeItem({
         onClick={(event) => selectObject(object.id, event.ctrlKey || event.metaKey)}
         type="button"
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-[9px] border border-white/8 bg-white/[0.045] text-arctic-ice">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-[9px] border border-arctic-border/8 bg-arctic-surface/55 text-arctic-ice">
           {iconForObject(object)}
         </span>
         {renaming ? (
           <input
             autoFocus
-            className="min-w-0 flex-1 rounded-[8px] border border-arctic-ice/30 bg-[#101b24] px-2 py-1 text-[12px] font-semibold text-arctic-text outline-none"
+            className="min-w-0 flex-1 rounded-[8px] border border-arctic-ice/30 bg-arctic-surface px-2 py-1 text-[12px] font-semibold text-arctic-text outline-none"
             onBlur={() => onRename(object, draftName)}
             onChange={(event) => setDraftName(event.target.value)}
             onKeyDown={(event) => {

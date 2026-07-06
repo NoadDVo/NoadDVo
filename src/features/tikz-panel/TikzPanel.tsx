@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Clipboard, Edit3, FileCode2, Lock, RefreshCw, WrapText } from "lucide-react";
+import { Check, Clipboard, Edit3, FileCode2, Lock, RefreshCw, Upload, WrapText } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
 import { wrapTikzInStandaloneDocument } from "../../core/export";
+import { applyTikzToGeometry, type SyncDiagnostic } from "../../core/sync";
 import { generateTikz, type TikzMode } from "../../core/tikz";
 import { Button, Panel } from "../../ui/primitives";
 
@@ -11,6 +12,7 @@ const tikzModes = ["minimal", "academic", "olympiad", "colorful"] satisfies read
 
 export function TikzPanel() {
   const objects = useGeometryStore((state) => state.objects);
+  const setObjects = useGeometryStore((state) => state.setObjects);
   const selectedObjectIds = useGeometryStore((state) => state.selectedObjectIds);
   const mode = useUiStore((state) => state.tikzMode);
   const setMode = useUiStore((state) => state.setTikzMode);
@@ -23,6 +25,7 @@ export function TikzPanel() {
     : tikz.code;
   const [draftCode, setDraftCode] = useState(generatedCode);
   const [copied, setCopied] = useState(false);
+  const [syncDiagnostics, setSyncDiagnostics] = useState<readonly SyncDiagnostic[]>([]);
   const displayedCode = autoUpdate ? generatedCode : draftCode;
   const displayedLines = displayedCode.split("\n");
   const lineCount = displayedLines.length;
@@ -49,13 +52,38 @@ export function TikzPanel() {
   const regenerateFromGeometry = () => {
     setDraftCode(generatedCode);
     setAutoUpdate(true);
+    setSyncDiagnostics([]);
+  };
+
+  const applyToGeometry = () => {
+    const result = applyTikzToGeometry({
+      currentObjects: objects,
+      source: displayedCode,
+    });
+
+    setSyncDiagnostics(result.diagnostics);
+
+    if (result.status === "failed") {
+      return;
+    }
+
+    if (
+      setObjects(
+        result.objectRecord,
+        "Apply TikZ to geometry",
+        result.changedObjectIds,
+      )
+    ) {
+      setAutoUpdate(true);
+      setDraftCode(generatedCode);
+    }
   };
 
   return (
     <Panel
       actions={
         <div className="flex flex-wrap items-center justify-end gap-1.5">
-          <label className="flex h-8 items-center gap-1.5 rounded-[10px] border border-white/10 bg-[#101b24] px-2">
+          <label className="flex h-8 items-center gap-1.5 rounded-[10px] border border-arctic-border/10 bg-arctic-surface/70 px-2">
             <span className="text-[9px] font-black uppercase tracking-[0.14em] text-arctic-muted">
               Mode
             </span>
@@ -111,6 +139,14 @@ export function TikzPanel() {
             Regenerate
           </Button>
           <Button
+            icon={<Upload size={15} strokeWidth={2} />}
+            onClick={applyToGeometry}
+            size="sm"
+            variant={editable || !autoUpdate ? "primary" : "ghost"}
+          >
+            Apply
+          </Button>
+          <Button
             icon={<Clipboard size={15} strokeWidth={2} />}
             onClick={copyTikz}
             size="sm"
@@ -125,10 +161,12 @@ export function TikzPanel() {
       title="TikZ"
     >
       <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_30px]">
-        <div className="border-b border-white/8 px-4 py-2 text-[11px] font-semibold text-arctic-muted">
-          {editable
-            ? "Editing TikZ directly is experimental. Full sync coming later."
-            : "Generated from geometry. This is the source of truth."}
+        <div className="border-b border-arctic-border/8 px-4 py-2 text-[11px] font-semibold text-arctic-muted">
+          {syncDiagnostics.length > 0
+            ? syncDiagnostics.slice(0, 2).map((diagnostic) => diagnostic.message).join(" ")
+            : editable
+              ? "Editing TikZ directly is experimental. Apply changes when ready."
+              : "Generated from geometry. This is the source of truth."}
         </div>
         {editable ? (
           <textarea
@@ -160,7 +198,7 @@ export function TikzPanel() {
             </code>
           </pre>
         )}
-        <footer className="flex items-center justify-between border-t border-white/8 px-4 font-mono text-[11px] text-arctic-muted">
+        <footer className="flex items-center justify-between border-t border-arctic-border/8 px-4 font-mono text-[11px] text-arctic-muted">
           <span>Lines {lineCount} / Chars {displayedCode.length}</span>
           <span className="inline-flex items-center gap-2 text-arctic-ice">
             <Check size={14} strokeWidth={2} />

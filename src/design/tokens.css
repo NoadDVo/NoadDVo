@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme="dark-arctic"] {
   --color-bg: 17 26 34;
   --color-bg-secondary: 23 37 48;
   --color-canvas: 15 24 32;
@@ -17,4 +18,38 @@
   --radius-button: 12px;
   --blur-panel: 18px;
   --transition-fast: 120ms ease-out;
+}
+
+[data-theme="dark"] {
+  --color-bg: 8 11 15;
+  --color-bg-secondary: 14 18 24;
+  --color-canvas: 12 15 20;
+  --color-surface: 18 23 30;
+  --color-surface-strong: 30 36 46;
+  --color-border: 226 232 240;
+  --color-primary: 148 163 184;
+  --color-primary-hover: 203 213 225;
+  --color-success: 74 222 128;
+  --color-warning: 250 204 21;
+  --color-danger: 248 113 113;
+  --color-text: 248 250 252;
+  --color-text-secondary: 203 213 225;
+  --color-text-muted: 148 163 184;
+}
+
+[data-theme="light"] {
+  --color-bg: 244 248 251;
+  --color-bg-secondary: 232 240 247;
+  --color-canvas: 248 250 252;
+  --color-surface: 255 255 255;
+  --color-surface-strong: 241 245 249;
+  --color-border: 15 23 42;
+  --color-primary: 37 99 235;
+  --color-primary-hover: 29 78 216;
+  --color-success: 22 163 74;
+  --color-warning: 202 138 4;
+  --color-danger: 220 38 38;
+  --color-text: 15 23 42;
+  --color-text-secondary: 51 65 85;
+  --color-text-muted: 100 116 139;
 }

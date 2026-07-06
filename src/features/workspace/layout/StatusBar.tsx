@@ -40,7 +40,7 @@ export function StatusBar() {
   ] as const;
 
   return (
-    <footer className="flex h-7 shrink-0 items-center gap-4 border-t border-white/8 bg-[#0d1720]/78 px-4 font-mono text-[11px] text-arctic-muted backdrop-blur-panel">
+    <footer className="flex h-7 shrink-0 items-center gap-4 border-t border-arctic-border/8 bg-arctic-background/82 px-4 font-mono text-[11px] text-arctic-muted backdrop-blur-panel">
       {statusItems.map(([label, value]) => (
         <div className="flex items-center gap-1.5" key={label}>
           <span className="uppercase tracking-[0.12em] text-arctic-muted/70">

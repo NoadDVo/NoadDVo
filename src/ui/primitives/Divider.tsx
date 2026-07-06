@@ -12,7 +12,7 @@ export function Divider({
   return (
     <div
       className={clsx(
-        "bg-white/8",
+        "bg-arctic-border/8",
         orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
         className,
       )}

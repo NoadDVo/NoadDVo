@@ -5,6 +5,8 @@ import {
   FolderClock,
   FolderOpen,
   Menu,
+  Clipboard,
+  Copy,
   Save,
   Upload,
 } from "lucide-react";
@@ -14,6 +16,12 @@ import {
   type ExampleSceneId,
 } from "../../../app/store/geometryStore";
 import { exportManager } from "../../../core/export";
+import {
+  copySelectionToGeometryClipboard,
+  duplicateSelection,
+  hasGeometryClipboard,
+  pasteGeometryClipboard,
+} from "../../../core/clipboard";
 import { projectManager, type ProjectManagerState } from "../../../core/project";
 import { Button } from "../../../ui/primitives";
 import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
@@ -67,7 +75,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
         Project
       </Button>
       <AnchoredOverlay anchorRef={buttonRef} open={menuOpen} width={320}>
-        <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
+        <div className="overflow-hidden rounded-[16px] border border-arctic-border/10 bg-arctic-background/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
           <ProjectOption
             icon={<FilePlus2 size={15} strokeWidth={2} />}
             label="New Project"
@@ -92,7 +100,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           ) : (
             projectState.recentProjects.map((project) => (
               <button
-                className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left transition hover:bg-white/8"
+                className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left transition hover:bg-arctic-surface/70"
                 key={project.id}
                 onClick={() => {
                   projectManager.openRecentProject(project);
@@ -124,6 +132,36 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
             }}
           />
 
+          <MenuDivider />
+          <ProjectOption
+            icon={<Clipboard size={15} strokeWidth={2} />}
+            label="Copy Selection"
+            onClick={() => {
+              copySelectionToGeometryClipboard();
+              setMenuOpen(false);
+            }}
+          />
+          <ProjectOption
+            icon={<Clipboard size={15} strokeWidth={2} />}
+            label="Paste"
+            onClick={() => {
+              pasteGeometryClipboard();
+              setMenuOpen(false);
+            }}
+          />
+          <ProjectOption
+            icon={<Copy size={15} strokeWidth={2} />}
+            label="Duplicate Selection"
+            onClick={() => {
+              duplicateSelection();
+              setMenuOpen(false);
+            }}
+          />
+          {!hasGeometryClipboard() && (
+            <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-arctic-muted">
+              Paste uses the internal geometry clipboard.
+            </div>
+          )}
           <MenuDivider />
           <MenuHeading icon={<FolderOpen size={14} strokeWidth={2} />}>
             Load Example
@@ -170,7 +208,7 @@ function ProjectOption({
 }) {
   return (
     <button
-      className="flex min-h-9 w-full items-center gap-2 rounded-[12px] px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-arctic-text transition hover:bg-white/8 hover:text-arctic-ice"
+      className="flex min-h-9 w-full items-center gap-2 rounded-[12px] px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-arctic-text transition hover:bg-arctic-surface/70 hover:text-arctic-ice"
       onClick={onClick}
       type="button"
     >
@@ -196,5 +234,5 @@ function MenuHeading({
 }
 
 function MenuDivider() {
-  return <div className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />;
+  return <div className="my-1 h-px bg-gradient-to-r from-transparent via-arctic-border/10 to-transparent" />;
 }

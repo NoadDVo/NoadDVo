@@ -6,3 +6,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"],
+[data-theme="dark-arctic"] {
+  color-scheme: dark;
+}

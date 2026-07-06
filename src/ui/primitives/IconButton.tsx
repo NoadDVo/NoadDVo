@@ -33,7 +33,7 @@ export function IconButton({
       <button
         aria-label={label}
         className={clsx(
-          "inline-flex shrink-0 items-center justify-center rounded-[14px] border border-white/8 bg-white/[0.045] text-arctic-muted transition duration-150 ease-out hover:border-arctic-ice/30 hover:bg-arctic-ice/10 hover:text-arctic-text hover:shadow-[0_0_22px_rgb(168_216_255/0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arctic-ice active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40",
+          "inline-flex shrink-0 items-center justify-center rounded-[14px] border border-arctic-border/8 bg-arctic-surface/65 text-arctic-muted transition duration-150 ease-out hover:border-arctic-ice/30 hover:bg-arctic-ice/10 hover:text-arctic-text hover:shadow-[0_0_22px_rgb(168_216_255/0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arctic-ice active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40",
           sizeClasses[size],
           active &&
             "border-arctic-ice/45 bg-arctic-ice/16 text-arctic-text shadow-[0_0_22px_rgb(168_216_255/0.18)]",

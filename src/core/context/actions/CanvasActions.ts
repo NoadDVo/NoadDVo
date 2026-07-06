@@ -1,10 +1,10 @@
 import { useGeometryStore } from "../../../app/store/geometryStore";
+import { useUiStore } from "../../../app/store/uiStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
 import type { BoundingBox, GeometryObjectRecord } from "../../geometry";
 import { clampScale } from "../../geometry/viewport";
 import { createNamedFreePoint } from "../../tools/PointTool";
 import { getBoundingBox } from "../../selection/BoundingBox";
-import { disabled } from "../ContextMenuHelpers";
 import type { ContextMenuAction } from "../ContextMenuTypes";
 
 export function fitViewportToObjects(objects: GeometryObjectRecord): void {
@@ -72,15 +72,6 @@ export const canvasContextMenuActions: readonly ContextMenuAction[] = [
     targets: ["canvas"],
   },
   {
-    execute: () => undefined,
-    getDetail: () => "Coming soon",
-    icon: "clipboard",
-    id: "paste",
-    isEnabled: disabled,
-    shortcut: "Ctrl+V",
-    targets: ["canvas"],
-  },
-  {
     execute: () => useViewportStore.getState().resetViewport(),
     icon: "reset-view",
     id: "reset-view",
@@ -93,19 +84,15 @@ export const canvasContextMenuActions: readonly ContextMenuAction[] = [
     targets: ["canvas"],
   },
   {
-    execute: () => undefined,
-    getDetail: () => "Coming soon",
+    execute: () => useUiStore.getState().setOpenDialog("settings"),
     icon: "grid",
     id: "grid-settings",
-    isEnabled: disabled,
     targets: ["canvas"],
   },
   {
-    execute: () => undefined,
-    getDetail: () => "Coming soon",
+    execute: () => useUiStore.getState().setOpenDialog("settings"),
     icon: "settings",
     id: "canvas-settings",
-    isEnabled: disabled,
     targets: ["canvas"],
   },
 ];

@@ -127,7 +127,7 @@ export function HoverInfoLayer({
 
   return (
     <FixedOverlay
-      className="pointer-events-none rounded-[12px] border border-slate-900/10 bg-white/[0.86] px-3 py-2 text-slate-950 shadow-[0_16px_38px_rgb(15_23_42/0.16)] backdrop-blur-panel"
+      className="pointer-events-none rounded-[12px] border border-arctic-border/10 bg-arctic-surface/86 px-3 py-2 text-arctic-text shadow-[0_16px_38px_rgb(15_23_42/0.16)] backdrop-blur-panel"
       style={{
         left: (canvasRect?.left ?? 0) + left,
         position: "fixed",
@@ -138,7 +138,7 @@ export function HoverInfoLayer({
       <p className="text-[11px] font-black uppercase tracking-[0.12em]">
         {hoverInfo.title}
       </p>
-      <p className="mt-1 font-mono text-[12px] font-semibold text-slate-700">
+      <p className="mt-1 font-mono text-[12px] font-semibold text-arctic-muted">
         {hoverInfo.detail}
       </p>
     </FixedOverlay>

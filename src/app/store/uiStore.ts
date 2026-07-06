@@ -2,7 +2,8 @@ import { create } from "zustand";
 
 import type { TikzMode } from "../../core/tikz";
 
-type ThemeMode = "dark-arctic" | "light" | "high-contrast";
+export type ThemeMode = "dark-arctic" | "dark" | "light" | "system";
+export type ResolvedThemeMode = Exclude<ThemeMode, "system">;
 type SidebarPanel = "tools" | "layers" | "history" | "settings";
 type DialogId = "settings" | "export" | "help" | null;
 type KeyboardModeHint = "pan" | "snap-off" | "constraint" | null;
@@ -44,9 +45,33 @@ const DEFAULT_UI_STATE = {
   | "tikzMode"
 >;
 
+function readStoredTheme(): ThemeMode {
+  if (typeof window === "undefined") {
+    return DEFAULT_UI_STATE.theme;
+  }
+
+  const stored = window.localStorage.getItem("ndv.theme");
+
+  return stored === "dark-arctic" || stored === "dark" || stored === "light" || stored === "system"
+    ? stored
+    : DEFAULT_UI_STATE.theme;
+}
+
+export function resolveThemeMode(
+  theme: ThemeMode,
+  systemPrefersLight: boolean,
+): ResolvedThemeMode {
+  return theme === "system" ? (systemPrefersLight ? "light" : "dark") : theme;
+}
+
 export const useUiStore = create<UIState>((set) => ({
   ...DEFAULT_UI_STATE,
+  theme: readStoredTheme(),
   setTheme: (theme) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("ndv.theme", theme);
+    }
+
     set({ theme });
   },
   setActiveSidebar: (activeSidebar) => {

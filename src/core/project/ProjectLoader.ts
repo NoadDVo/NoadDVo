@@ -28,7 +28,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function getProjectTheme(value: unknown): ProjectTheme {
-  return value === "light" || value === "high-contrast" ? value : "dark-arctic";
+  return value === "light" || value === "dark" || value === "system" ? value : "dark-arctic";
 }
 
 function getProjectMetadata(project: unknown): ProjectMetadata {
@@ -132,4 +132,3 @@ export function loadProjectDocument(text: string): ProjectLoadResult {
     valid: true,
   };
 }
-

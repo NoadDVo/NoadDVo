@@ -16,7 +16,7 @@ export function DependencySummary({
 }: DependencySummaryProps) {
   if (!selectedObject || !graph) {
     return (
-      <div className="border-t border-white/8 px-4 py-3 text-[11px] font-semibold text-arctic-muted">
+      <div className="border-t border-arctic-border/8 px-4 py-3 text-[11px] font-semibold text-arctic-muted">
         Select an object to inspect dependency links.
       </div>
     );
@@ -27,7 +27,7 @@ export function DependencySummary({
   const chain = graph.getDependentIds(selectedObject.id);
 
   return (
-    <div className="border-t border-white/8 px-4 py-3">
+    <div className="border-t border-arctic-border/8 px-4 py-3">
       <div className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-arctic-muted">
         <GitBranch size={13} strokeWidth={2} />
         Dependencies
@@ -64,7 +64,7 @@ function DependencyLine({
 
 export function EmptySearchState() {
   return (
-    <div className="rounded-[14px] border border-white/8 bg-white/[0.035] px-4 py-4">
+    <div className="rounded-[14px] border border-arctic-border/8 bg-arctic-surface/55 px-4 py-4">
       <FileText size={18} strokeWidth={2} className="text-arctic-ice/80" />
       <p className="mt-2 text-sm font-bold text-arctic-text">No matching objects</p>
       <p className="mt-1 text-xs font-semibold text-arctic-muted">

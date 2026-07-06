@@ -69,14 +69,14 @@ function ActionRow({ item }: { readonly item: Extract<ContextMenuItem, { readonl
       )}
       disabled={item.disabled}
       onClick={() => void contextMenuManager.execute(item.actionId)}
-      title={item.disabled ? item.detail ?? "Coming soon" : undefined}
+      title={item.disabled ? item.detail ?? "Unavailable" : undefined}
       type="button"
     >
       <span
         className={clsx(
           "flex size-7 shrink-0 items-center justify-center rounded-[9px] border",
           item.disabled
-            ? "border-white/5 bg-white/[0.025]"
+            ? "border-arctic-border/5 bg-arctic-surface/30"
             : "border-arctic-ice/15 bg-arctic-ice/[0.075] group-hover:border-arctic-ice/35",
         )}
       >
@@ -93,7 +93,7 @@ function ActionRow({ item }: { readonly item: Extract<ContextMenuItem, { readonl
         )}
       </span>
       {item.shortcut && (
-        <span className="shrink-0 rounded-[7px] border border-white/8 bg-white/[0.035] px-1.5 py-0.5 font-mono text-[10px] text-arctic-muted">
+        <span className="shrink-0 rounded-[7px] border border-arctic-border/8 bg-arctic-surface/45 px-1.5 py-0.5 font-mono text-[10px] text-arctic-muted">
           {item.shortcut}
         </span>
       )}
@@ -142,7 +142,7 @@ export function ContextMenuOverlay() {
       style={{ zIndex: 2147483647 }}
     >
       <div
-        className="fixed w-64 overflow-hidden rounded-[18px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_26px_70px_rgb(0_0_0/0.42)] backdrop-blur-panel"
+        className="fixed w-64 overflow-hidden rounded-[18px] border border-arctic-border/10 bg-arctic-background/95 p-1.5 shadow-[0_26px_70px_rgb(0_0_0/0.42)] backdrop-blur-panel"
         onPointerDown={(event) => event.stopPropagation()}
         style={{
           left: state.position.x,
@@ -152,7 +152,7 @@ export function ContextMenuOverlay() {
         {state.items.map((item) =>
           item.type === "separator" ? (
             <div
-              className="my-1 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+              className="my-1 h-px bg-gradient-to-r from-transparent via-arctic-border/10 to-transparent"
               key={item.id}
             />
           ) : (

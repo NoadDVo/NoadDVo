@@ -3,7 +3,7 @@
 Last reviewed: 2026-07-06  
 Repository root: `D:\Code\MyProject`
 
-Latest engineering update: Geometry Engine coverage was expanded for `arc` and `region` objects, three-point circle support was completed, the remaining documented construction tools were added, the TikZ MVP generation/parser systems were completed for supported geometry, and the Fill Tool was enabled for closed polygonal regions.
+Latest engineering update: Geometry Engine coverage was expanded for `arc` and `region` objects, the documented construction tools and Fill Tool were completed, TikZ generation/parser systems were completed for supported geometry, and Epic 6A added a React-independent synchronization foundation under `src/core/sync/`.
 
 ## 1. Project Overview
 
@@ -70,6 +70,7 @@ Important `src/core` modules:
 - `project/`: `.ndv` project metadata, serialization, loading, autosave, recent projects.
 - `export/`: TikZ/TEX/SVG/JSON/project export helpers.
 - `history/`: snapshot-based history manager and undo/redo commands.
+- `sync/`: Geometry <-> TikZ synchronization foundation, plans, diagnostics, intermediate scene references, and parser/generator orchestration.
 - `selection/`: hit testing and selection helpers.
 - `context/`: context menu registry, manager, and actions.
 - `keyboard/`: shortcut registry and event routing infrastructure.
@@ -102,55 +103,59 @@ Important `src/features` modules:
 - Realtime TikZ generation with modes: minimal, academic, olympiad, colorful; snippet, raw-command, and standalone document output modes; deterministic object ordering; comments/section formatting; sanitized point names; color registries; and warning reporting for skipped invalid objects.
 - TikZ exporters for points, segments, lines, rays, vectors, circles, arcs, polygons, regions, angles, text, and measurements, including fills, opacity, labels, readable sections, and measurement labels.
 - TikZ parser for supported standard TikZ: tokenization, command AST construction, syntax diagnostics, coordinate/name preservation, and geometry recovery for coordinates, segments, vectors, closed draw paths, filled regions, circles, arcs, text nodes, point labels, and angle pics.
+- Synchronization foundation under `src/core/sync/` that wraps Geometry -> TikZ generation and TikZ -> Geometry parsing into pure candidate results with plans, diagnostics, and intermediate scene references.
 - TikZ panel with copy, wrap-as-standalone document, mode selection, auto-update toggle, regenerate, readonly/editable toggle, and selected-object line highlighting.
 - Export manager for TikZ snippets, standalone TEX, JSON/NDV project text, and SVG element export.
 - Project manager with new/open/save/save-as, import from file, recent projects, autosave, autosave recovery, and sample scenes.
+- Clipboard workflow for copy, cut, paste, duplicate, multi-selection cloning, keyboard shortcuts, context menu actions, and project menu actions.
+- Grid and canvas settings for grid visibility, major/minor/adaptive grid, grid size/color, snap toggle/radius, axes, origin, background, coordinate display, measurement preview, infinite canvas flag, and rendering mode.
+- Theme system with Dark Arctic, Dark, Light, and System modes persisted in local storage.
+- Settings dialog with Appearance, Canvas, Grid, Snap, TikZ, Export, Language, and Autosave sections.
+- Help dialog with keyboard shortcuts, documentation link, GitHub link, about text, and version information.
+- Command Palette opened with Ctrl+K for commands, geometry tools, export actions, project actions, themes, settings, and help.
 - Context menu infrastructure with canvas/object/project actions and overlay rendering.
 - Reusable UI primitives: `Button`, `IconButton`, `Panel`, `Tooltip`, `Divider`, and overlay portal.
-- Unit tests covering geometry, measurements, history, selection, text creation, vector renderer, TikZ generation, TikZ parsing, measurement TikZ, and project serialization/loading.
+- Unit tests covering geometry, measurements, history, selection, text creation, vector renderer, sync foundation, TikZ generation, TikZ parsing, measurement TikZ, project serialization/loading, clipboard, and grid settings.
 
 ## 5. Features Partially Implemented
 
-- Theme switching: UI controls exist but some theme buttons are disabled/coming soon.
-- Help: help group exists but is disabled/coming soon.
-- Command palette: folder exists, but no substantial implementation was observed.
-- Settings: folder exists, but no substantial implementation was observed.
 - TikZ direct editing: panel supports editable text, but automatic sync back to geometry is not wired into the UI yet.
-- TikZ parser/import: parser exists for the supported geometry subset, but full TeX/TikZ language coverage and user-facing import/sync workflows are not complete.
+- TikZ parser/import/sync: parser and sync foundation exist for the supported geometry subset, but full TeX/TikZ language coverage, realtime sync, conflict resolution, and user-facing import/apply workflows are not complete.
 - PNG/PDF export: included in product spec but not implemented in `ExportManager`.
 - GeoGebra/SVG import: listed as future in docs; not implemented.
 - Explicit arc creation tools are not exposed yet; arc objects are engine-supported and can round-trip through project data, render, measure, hit-test, and export when present.
 - Construction tools now cover the documented MVP set. Remaining construction work is mostly UX polish, richer previews, and any future non-MVP constructions.
 - Responsive/tablet/mobile behavior: workspace has some responsive hiding, but full tablet drawer/mobile read-only experience is not complete.
-- Keyboard/shortcut architecture exists, but not all documented shortcuts appear fully wired.
+- Keyboard/shortcut architecture exists and core workspace shortcuts are wired; deeper shortcut customization is not implemented.
 - Localization/i18n is only skeletal; many UI strings are still hardcoded.
 
 ## 6. Current User Story Being Worked On
 
 Inferred from the staged git diff, the current active story is:
 
-**Complete the Fill Tool / Region feature while preserving the existing Geometry Engine and TikZ architecture.**
+**Workspace UX Completion Epic: finish visible clipboard, settings, theme, help, and command palette workflows before Epic 6B.**
 
 Evidence:
 
-- `src/core/tools/FillTool.ts` creates dependent region objects from closed polygons and avoids duplicate fills for the same boundary.
-- `ToolManager` registers `fill`, and `LeftToolbar` enables the Fill button.
-- Region hit testing now prioritizes explicit region fills above polygon interiors.
-- `src/tests/interactions/fillTool.test.ts` covers fill detection, region defaults, dependency validation, duplicate lookup, and pointer creation behavior.
+- `src/core/clipboard/GeometryClipboard.ts` implements copy, cut, paste, duplicate, dependency closure copying, ID remapping, and history-compatible application.
+- `src/features/settings/SettingsDialog.tsx`, `HelpDialog.tsx`, and `CommandPalette.tsx` complete the visible workspace dialogs.
+- `viewportStore`, grid rendering, axes rendering, and canvas styling now respond to grid/canvas/snap settings.
+- Theme state supports Dark Arctic, Dark, Light, and System and persists via local storage.
+- Keyboard actions now wire Ctrl+C, Ctrl+X, Ctrl+V, Ctrl+D, and Ctrl+K.
+- `src/tests/workspace/workspaceUx.test.ts` covers clipboard and grid behavior.
 
 Current git state:
 
 - The repository still contains staged UI/object-tree/overlay work from the previous active story.
-- The Geometry Engine, construction-tool, TikZ generator/parser, Fill Tool, tests, and handoff updates from the latest work are unstaged/untracked unless the user stages them.
+- The Geometry Engine, construction-tool, TikZ generator/parser, Fill Tool, sync foundation, Workspace UX, tests, docs, and handoff updates from the latest work are unstaged/untracked unless the user stages them.
 - These changes are not committed yet.
 
 ## 7. Remaining TODOs
 
 Product-level TODOs:
 
-- Wire supported TikZ-to-geometry parsing into an explicit import/sync workflow, or keep UI promises marked experimental until ready.
+- Wire the sync foundation into an explicit preview/apply workflow only after identity mapping and conflict handling are designed.
 - Add PNG/PDF export if still required for v1.
-- Finish settings, command palette, help, and theme switching.
 - Add responsive tablet/mobile behavior beyond hiding desktop panels.
 - Implement localization dictionary usage if multilingual support remains a requirement.
 - Build a more complete construction catalog.
@@ -166,8 +171,9 @@ Engineering TODOs:
 - Consolidate project export file extensions and MIME behavior.
 - Add a manual LaTeX compile smoke test for representative generated TikZ snippets/documents.
 - Expand parser coverage for additional TikZ path operations only when there is a clear geometry mapping.
+- Design Epic 6B identity mapping for point renames, deleted dependencies, edited paths, and parser/generator round trips.
 - Review all docs for outdated folder names versus current `src/core` and `src/features` architecture.
-- Replace hardcoded UI strings with i18n once that system is ready.
+- Replace hardcoded UI strings with i18n once that system is ready; settings currently expose language selection but do not change copy.
 - Consider moving more pointer/interaction state out of React components if canvas complexity grows.
 
 ## 8. Known Bugs
@@ -180,6 +186,7 @@ Known or likely behavior gaps:
 - `ExportManager.exportTikz` downloads a TikZ snippet with a `.tex` filename even though the format key is `tikz`; this may confuse users expecting either `.tikz`/`.tex` consistency.
 - Direct TikZ editing does not automatically update geometry and can diverge from the scene when auto-update is disabled.
 - TikZ parser intentionally supports a geometry-focused subset of standard TikZ, not arbitrary TeX macros or every TikZ library command.
+- Sync foundation is candidate-only; it does not yet apply changes, resolve conflicts, or preserve identity across edited TikZ.
 - Browser clipboard calls in the TikZ panel and export manager can fail outside secure contexts or without user permission; no fallback UI is apparent.
 - `window.alert`/`window.prompt` are used for project load/save-as errors and naming, which is functional but inconsistent with the premium UI direction.
 - Some documented features are visible as disabled controls, which may feel unfinished if shown in a release build.
@@ -374,6 +381,16 @@ TikZ:
 - `src/core/tikz/parser/TikzParser.ts`: public parser orchestration function.
 - `src/core/tikz/parser/TikzParseTypes.ts`: parser token, AST, issue, and result types.
 - `src/core/tikz/exporters/*.ts`: object-specific TikZ exporters for supported geometry, including fills, labels, measurements, and invalid-object warnings.
+
+Sync:
+
+- `src/core/sync/SyncTypes.ts`: shared sync contracts, status values, diagnostics, plans, contexts, intermediate scene types, and result types.
+- `src/core/sync/SyncContext.ts`: sync context creation and intermediate scene construction from Geometry Objects.
+- `src/core/sync/SyncDiagnostics.ts`: normalizes TikZ, parser, and geometry validation diagnostics into sync diagnostics.
+- `src/core/sync/GeometryToTikzSync.ts`: pure Geometry -> TikZ orchestration over the existing generator.
+- `src/core/sync/TikzToGeometrySync.ts`: pure TikZ -> Geometry orchestration over the existing parser and geometry validation.
+- `src/core/sync/SyncEngine.ts`: facade for future UI/project callers.
+- `src/core/sync/index.ts`: sync subsystem barrel exports.
 
 Project, history, export:
 

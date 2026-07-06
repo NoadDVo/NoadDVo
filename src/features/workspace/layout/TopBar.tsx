@@ -20,7 +20,7 @@ export function TopBar() {
 
   return (
     <>
-      <header className="flex h-[60px] shrink-0 items-center gap-4 border-b border-white/8 bg-[#101b24]/70 px-4 backdrop-blur-panel">
+      <header className="flex h-[60px] shrink-0 items-center gap-4 border-b border-arctic-border/8 bg-arctic-surface/72 px-4 backdrop-blur-panel">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-[12px] border border-arctic-ice/25 bg-arctic-ice/10 text-sm font-black text-arctic-ice shadow-[0_0_24px_rgb(168_216_255/0.14)]">
             N

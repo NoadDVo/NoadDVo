@@ -91,7 +91,7 @@ export function RightPanel() {
 
 function EmptyInspectorState() {
   return (
-    <div className="rounded-[14px] border border-white/8 bg-white/[0.035] px-4 py-4">
+    <div className="rounded-[14px] border border-arctic-border/8 bg-arctic-surface/55 px-4 py-4">
       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-arctic-muted">
         Selection
       </p>

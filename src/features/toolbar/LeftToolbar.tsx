@@ -91,7 +91,7 @@ export function LeftToolbar() {
   const activeTool = useGeometryStore((state) => state.activeTool);
 
   return (
-    <aside className="flex min-h-0 w-16 flex-col items-center gap-2 rounded-[20px] border border-white/8 bg-white/[0.045] py-2 shadow-[0_20px_60px_rgb(0_0_0/0.18)] backdrop-blur-panel">
+    <aside className="flex min-h-0 w-16 flex-col items-center gap-2 rounded-[20px] border border-arctic-border/8 bg-arctic-surface/68 py-2 shadow-[0_20px_60px_rgb(0_0_0/0.18)] backdrop-blur-panel">
       <div className="flex min-h-0 flex-1 flex-col items-center gap-2 overflow-y-auto px-1.5">
         {toolGroups.map((group, groupIndex) => (
           <div

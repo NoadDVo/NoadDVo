@@ -52,7 +52,7 @@ export function ExportMenu() {
         Export
       </Button>
       <AnchoredOverlay anchorRef={buttonRef} open={exportOpen} width={176}>
-        <div className="overflow-hidden rounded-[16px] border border-white/10 bg-[#101b24]/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
+        <div className="overflow-hidden rounded-[16px] border border-arctic-border/10 bg-arctic-background/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
           <ExportOption
             label="TikZ"
             onClick={() =>
@@ -106,7 +106,7 @@ function ExportOption({
 }) {
   return (
     <button
-      className="block w-full rounded-[12px] px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-arctic-text transition hover:bg-white/8 hover:text-arctic-ice"
+      className="block w-full rounded-[12px] px-3 py-2 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-arctic-text transition hover:bg-arctic-surface/70 hover:text-arctic-ice"
       onClick={onClick}
       type="button"
     >

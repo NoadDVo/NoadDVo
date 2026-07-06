@@ -16,11 +16,11 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "border-arctic-ice/40 bg-arctic-ice/16 text-arctic-text shadow-[0_0_24px_rgb(168_216_255/0.16)] hover:bg-arctic-ice/22",
   secondary:
-    "border-white/10 bg-white/[0.07] text-arctic-text hover:border-white/16 hover:bg-white/[0.1]",
+    "border-arctic-border/10 bg-arctic-surface/70 text-arctic-text hover:border-arctic-border/18 hover:bg-arctic-surface",
   ghost:
-    "border-transparent bg-transparent text-arctic-muted hover:border-white/10 hover:bg-white/[0.06] hover:text-arctic-text",
+    "border-transparent bg-transparent text-arctic-muted hover:border-arctic-border/10 hover:bg-arctic-surface/55 hover:text-arctic-text",
   outline:
-    "border-white/12 bg-transparent text-arctic-text hover:border-arctic-ice/35 hover:bg-arctic-ice/10",
+    "border-arctic-border/12 bg-transparent text-arctic-text hover:border-arctic-ice/35 hover:bg-arctic-ice/10",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

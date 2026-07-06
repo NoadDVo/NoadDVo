@@ -18,8 +18,8 @@ export function ProjectDialogs({
 
 function NewProjectDialog() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 backdrop-blur-sm">
-      <div className="w-[420px] rounded-[24px] border border-white/10 bg-[#101b24]/95 p-5 shadow-[0_24px_80px_rgb(0_0_0/0.45)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm">
+      <div className="w-[420px] rounded-[24px] border border-arctic-border/10 bg-arctic-background/95 p-5 shadow-[0_24px_80px_rgb(0_0_0/0.45)]">
         <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-arctic-muted">
           New Project
         </p>
@@ -48,7 +48,7 @@ function NewProjectDialog() {
 
 function AutosaveRecoveryDialog() {
   return (
-    <div className="fixed bottom-5 right-5 z-40 w-[360px] rounded-[20px] border border-arctic-ice/15 bg-[#101b24]/95 p-4 shadow-[0_20px_70px_rgb(0_0_0/0.42)] backdrop-blur-panel">
+    <div className="fixed bottom-5 right-5 z-40 w-[360px] rounded-[20px] border border-arctic-ice/15 bg-arctic-background/95 p-4 shadow-[0_20px_70px_rgb(0_0_0/0.42)] backdrop-blur-panel">
       <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-arctic-muted">
         Autosave
       </p>
@@ -66,4 +66,3 @@ function AutosaveRecoveryDialog() {
     </div>
   );
 }
-

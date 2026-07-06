@@ -58,8 +58,8 @@ export function GeometryTreePanel() {
       title="Object Tree"
     >
       <div className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)_auto]">
-        <div className="border-b border-white/8 px-3 py-2">
-          <label className="flex h-8 items-center gap-2 rounded-[12px] border border-white/8 bg-white/[0.045] px-2.5">
+        <div className="border-b border-arctic-border/8 px-3 py-2">
+          <label className="flex h-8 items-center gap-2 rounded-[12px] border border-arctic-border/8 bg-arctic-surface/55 px-2.5">
             <Search size={14} strokeWidth={2} className="text-arctic-muted" />
             <input
               className="min-w-0 flex-1 bg-transparent text-[12px] font-semibold text-arctic-text outline-none placeholder:text-arctic-muted"
@@ -124,14 +124,14 @@ function FilterBar({
   readonly setFilter: (filter: ObjectTreeFilter) => void;
 }) {
   return (
-    <div className="flex gap-1 overflow-x-auto border-b border-white/8 px-3 py-2">
+    <div className="flex gap-1 overflow-x-auto border-b border-arctic-border/8 px-3 py-2">
       {objectTreeFilters.map((item) => (
         <button
           className={clsx(
             "shrink-0 rounded-[10px] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] transition",
             filter === item.id
               ? "bg-arctic-ice/16 text-arctic-text"
-              : "text-arctic-muted hover:bg-white/8 hover:text-arctic-text",
+              : "text-arctic-muted hover:bg-arctic-surface/65 hover:text-arctic-text",
           )}
           key={item.id}
           onClick={() => setFilter(item.id)}
@@ -146,7 +146,7 @@ function FilterBar({
 
 function EmptyTreeState() {
   return (
-    <div className="rounded-[14px] border border-white/8 bg-white/[0.035] px-4 py-4">
+    <div className="rounded-[14px] border border-arctic-border/8 bg-arctic-surface/55 px-4 py-4">
       <Hash size={18} strokeWidth={2} className="text-arctic-ice/80" />
       <p className="mt-2 text-sm font-bold text-arctic-text">No geometry objects</p>
       <p className="mt-1 text-xs font-semibold text-arctic-muted">

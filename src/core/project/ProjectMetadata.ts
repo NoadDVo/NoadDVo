@@ -14,7 +14,7 @@ export type ProjectMetadata = {
   readonly thumbnail?: string;
 };
 
-export type ProjectTheme = "dark-arctic" | "light" | "high-contrast";
+export type ProjectTheme = "dark-arctic" | "dark" | "light" | "system";
 
 export type NoadDVoProjectDocument = {
   readonly version: typeof PROJECT_VERSION;
@@ -73,4 +73,3 @@ export function touchProjectMetadata(metadata: ProjectMetadata): ProjectMetadata
     updatedAt: new Date().toISOString(),
   };
 }
-

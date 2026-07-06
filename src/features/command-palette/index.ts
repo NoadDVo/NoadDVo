@@ -1,1 +1,1 @@
-export {};
+export { CommandPalette } from "./CommandPalette";
