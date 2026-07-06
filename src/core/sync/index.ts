@@ -30,6 +30,13 @@ export {
   type TikzApplyOperation,
   type TikzApplyResult,
 } from "./TikzApplySync";
+export {
+  createTikzApplyPreview,
+  type SyncPreviewGroups,
+  type SyncPreviewOperation,
+  type SyncPreviewOperationType,
+  type TikzApplyPreview,
+} from "./TikzApplyPreview";
 export type {
   GeometryToTikzSyncResult,
   SyncContext,

@@ -6,7 +6,7 @@ import {
   type SegmentObject,
 } from "../../core/geometry";
 import { historyManager } from "../../core/history";
-import { applyTikzToGeometry } from "../../core/sync";
+import { applyTikzToGeometry, createTikzApplyPreview } from "../../core/sync";
 import { assert, assertEqual } from "../assert";
 
 function point(id: string, name: string, x: number, y: number): PointObject {
@@ -58,6 +58,14 @@ export function runTikzApplyTests(): void {
   assertUnsupportedTikzDoesNotCrashOrClearScene();
   assertInvalidTikzProducesDiagnostics();
   assertUndoRestoresPreviousGeometry();
+  assertPreviewPointCoordinateUpdates();
+  assertPreviewNewPointCreation();
+  assertPreviewSegmentUpdates();
+  assertPreviewDuplicateNameWarning();
+  assertPreviewDerivedPointOverwriteWarning();
+  assertPreviewBlocksParseErrors();
+  assertPreviewCancelLeavesSceneUnchanged();
+  assertPreviewApplyCreatesHistoryEntry();
 }
 
 function assertPointCoordinateEditPreservesIdentity(): void {
@@ -192,4 +200,188 @@ function assertUndoRestoresPreviousGeometry(): void {
     throw new Error("undo restores point");
   }
   assertEqual(restoredPoint.x, 0, "undo restores previous x coordinate");
+}
+
+function assertPreviewPointCoordinateUpdates(): void {
+  const preview = createTikzApplyPreview({
+    currentObjects: baseScene(),
+    source: [
+      "\\coordinate (A) at (2,3);",
+      "\\coordinate (B) at (1,0);",
+      "\\draw (A) -- (B);",
+    ].join("\n"),
+  });
+
+  assert(preview.canApply, "point coordinate preview can be applied");
+  assert(
+    preview.groups.updates.some(
+      (operation) =>
+        operation.objectId === "a" &&
+        operation.beforeValue?.includes("(0, 0)") &&
+        operation.afterValue?.includes("(2, 3)"),
+    ),
+    "preview shows point coordinate before and after values",
+  );
+}
+
+function assertPreviewNewPointCreation(): void {
+  const preview = createTikzApplyPreview({
+    currentObjects: baseScene(),
+    source: [
+      "\\coordinate (A) at (0,0);",
+      "\\coordinate (B) at (1,0);",
+      "\\coordinate (C) at (0,1);",
+      "\\draw (A) -- (B);",
+    ].join("\n"),
+  });
+
+  assert(
+    preview.groups.creates.some((operation) => operation.objectId === "point-C"),
+    "preview groups new coordinates as creates",
+  );
+}
+
+function assertPreviewSegmentUpdates(): void {
+  const preview = createTikzApplyPreview({
+    currentObjects: baseScene(),
+    source: [
+      "\\coordinate (A) at (0,0);",
+      "\\coordinate (B) at (2,0);",
+      "\\draw (A) -- (B);",
+    ].join("\n"),
+  });
+
+  assert(
+    preview.groups.updates.some((operation) => operation.objectId === "ab"),
+    "preview reports matched segment as an update",
+  );
+}
+
+function duplicatePointScene(): GeometryObjectRecord {
+  return {
+    a: point("a", "A", 0, 0),
+    a2: point("a2", "A", 4, 4),
+  };
+}
+
+function assertPreviewDuplicateNameWarning(): void {
+  const preview = createTikzApplyPreview({
+    currentObjects: duplicatePointScene(),
+    source: "\\coordinate (A) at (1,1);",
+  });
+
+  assert(
+    preview.groups.conflicts.some((operation) =>
+      operation.reason.includes("matches multiple existing points"),
+    ),
+    "duplicate point names are surfaced as conflicts",
+  );
+}
+
+function derivedPointScene(): GeometryObjectRecord {
+  return {
+    a: point("a", "A", 0, 0),
+    b: point("b", "B", 2, 0),
+    m: {
+      ...point("m", "M", 1, 0),
+      construction: {
+        pointAId: "a",
+        pointBId: "b",
+        type: "midpoint",
+      },
+      dependencies: ["a", "b"],
+      pointKind: "derived",
+    },
+  };
+}
+
+function assertPreviewDerivedPointOverwriteWarning(): void {
+  const preview = createTikzApplyPreview({
+    currentObjects: derivedPointScene(),
+    source: [
+      "\\coordinate (A) at (0,0);",
+      "\\coordinate (B) at (2,0);",
+      "\\coordinate (M) at (1.2,0);",
+    ].join("\n"),
+  });
+
+  assert(
+    preview.groups.conflicts.some((operation) =>
+      operation.diagnostics.some(
+        (diagnostic) => diagnostic.code === "TIKZ_APPLY_POINT_DEPENDENCY_REPLACED",
+      ),
+    ),
+    "derived point overwrite appears as a conflict",
+  );
+}
+
+function assertPreviewBlocksParseErrors(): void {
+  const preview = createTikzApplyPreview({
+    currentObjects: baseScene(),
+    source: "\\coordinate (A) at (0,0)",
+  });
+
+  assert(!preview.canApply, "preview blocks apply when parse errors exist");
+  assert(
+    preview.groups.conflicts.some((operation) =>
+      operation.diagnostics.some((diagnostic) => diagnostic.code === "TIKZ_MISSING_SEMICOLON"),
+    ),
+    "parse errors are grouped as conflicts",
+  );
+}
+
+function assertPreviewCancelLeavesSceneUnchanged(): void {
+  resetGeometryStore(baseScene());
+
+  createTikzApplyPreview({
+    currentObjects: useGeometryStore.getState().objects,
+    source: [
+      "\\coordinate (A) at (9,9);",
+      "\\coordinate (B) at (1,0);",
+      "\\draw (A) -- (B);",
+    ].join("\n"),
+  });
+
+  const pointA = useGeometryStore.getState().objects.a;
+
+  if (pointA?.type !== "point") {
+    throw new Error("point A remains present after preview cancel");
+  }
+
+  assertEqual(pointA.x, 0, "preview without apply leaves scene unchanged");
+  assert(!useGeometryStore.getState().canUndo, "preview without apply does not create history");
+}
+
+function assertPreviewApplyCreatesHistoryEntry(): void {
+  resetGeometryStore(baseScene());
+
+  const preview = createTikzApplyPreview({
+    currentObjects: useGeometryStore.getState().objects,
+    source: [
+      "\\coordinate (A) at (7,8);",
+      "\\coordinate (B) at (1,0);",
+      "\\draw (A) -- (B);",
+    ].join("\n"),
+  });
+
+  assert(preview.canApply, "preview is valid before applying");
+  assert(
+    useGeometryStore.getState().setObjects(
+      preview.applyResult.objectRecord,
+      "Apply TikZ to geometry",
+      preview.applyResult.changedObjectIds,
+    ),
+    "preview apply commits through geometry store",
+  );
+  assert(useGeometryStore.getState().canUndo, "preview apply creates history entry");
+
+  useGeometryStore.getState().undo();
+
+  const restoredPoint = useGeometryStore.getState().objects.a;
+
+  if (restoredPoint?.type !== "point") {
+    throw new Error("undo restores point after preview apply");
+  }
+
+  assertEqual(restoredPoint.x, 0, "undo restores previous geometry after preview apply");
 }
