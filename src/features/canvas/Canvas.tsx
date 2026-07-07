@@ -1,22 +1,22 @@
 import { useEffect, useRef } from "react";
-import { Maximize2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useViewportStore } from "../../app/store/viewportStore";
-import { fitViewportToObjects } from "../../core/context/actions/CanvasActions";
 import { toolManager } from "../../core/tools/ToolManager";
-import { Button, IconButton } from "../../ui/primitives";
+import { Button } from "../../ui/primitives";
 import { ContextMenuOverlay } from "../context-menu/ContextMenuOverlay";
 import { GridLayer } from "./grid";
 import { useCanvasGestures } from "./interactions/GestureLayer";
 import { HoverInfoLayer } from "./overlays/HoverInfoLayer";
 import { PreviewLayer } from "./overlays";
 import { SelectionLayer } from "./overlays/SelectionLayer";
+import { TextCreationOverlay } from "./overlays/TextCreationOverlay";
 import { GeometryLayer } from "./renderers";
 import { AxisLayer } from "./svg";
 
 export function Canvas() {
   const containerRef = useRef<HTMLElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const viewport = useViewportStore((state) => state.viewport);
   const pointerWorld = useViewportStore((state) => state.pointerWorld);
   const gridSize = useViewportStore((state) => state.gridSize);
@@ -25,35 +25,33 @@ export function Canvas() {
   const canvasBackground = useViewportStore((state) => state.canvasBackground);
   const isPanning = useViewportStore((state) => state.isPanning);
   const isSpacePressed = useViewportStore((state) => state.isSpacePressed);
-  const resetViewport = useViewportStore((state) => state.resetViewport);
-  const zoomAt = useViewportStore((state) => state.zoomAt);
   const objects = useGeometryStore((state) => state.objects);
   const loadExample = useGeometryStore((state) => state.loadExample);
   const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
   const activeTool = useGeometryStore((state) => state.activeTool);
   const activeToolCursor = toolManager.getTool(activeTool).cursor;
   const hoveredObject = hoveredObjectId ? objects[hoveredObjectId] ?? null : null;
-  const gestures = useCanvasGestures(containerRef);
+  const gestures = useCanvasGestures(svgRef);
   const objectCount = Object.keys(objects).length;
 
   useEffect(() => {
-    const element = containerRef.current;
+    const element = svgRef.current;
 
     if (!element) {
       return undefined;
     }
 
-    const observer = new ResizeObserver(([entry]) => {
-      if (!entry) {
-        return;
-      }
+    const updateCanvasSize = () => {
+      const rect = element.getBoundingClientRect();
 
       useViewportStore
         .getState()
-        .setCanvasSize(entry.contentRect.width, entry.contentRect.height);
-    });
+        .setCanvasSize(rect.width, rect.height);
+    };
+    const observer = new ResizeObserver(updateCanvasSize);
 
     observer.observe(element);
+    updateCanvasSize();
 
     return () => {
       observer.disconnect();
@@ -79,6 +77,7 @@ export function Canvas() {
       <svg
         aria-label="Geometry canvas"
         className="absolute inset-0 size-full touch-none select-none"
+        ref={svgRef}
         role="img"
         viewBox={`0 0 ${viewport.width} ${viewport.height}`}
       >
@@ -107,42 +106,8 @@ export function Canvas() {
         />
       )}
 
-      <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-[14px] border border-arctic-border/10 bg-arctic-surface/80 p-1 shadow-[0_14px_34px_rgb(15_23_42/0.14)] backdrop-blur-panel">
-        <IconButton
-          className="border-arctic-border/10 bg-arctic-surface/70 text-arctic-muted hover:bg-arctic-surface hover:text-arctic-text"
-          label="Zoom In"
-          onClick={() => zoomAt({ x: viewport.width / 2, y: viewport.height / 2 }, 1.18)}
-          size="sm"
-        >
-          <ZoomIn size={16} strokeWidth={2} />
-        </IconButton>
-        <IconButton
-          className="border-arctic-border/10 bg-arctic-surface/70 text-arctic-muted hover:bg-arctic-surface hover:text-arctic-text"
-          label="Zoom Out"
-          onClick={() => zoomAt({ x: viewport.width / 2, y: viewport.height / 2 }, 1 / 1.18)}
-          size="sm"
-        >
-          <ZoomOut size={16} strokeWidth={2} />
-        </IconButton>
-        <IconButton
-          className="border-arctic-border/10 bg-arctic-surface/70 text-arctic-muted hover:bg-arctic-surface hover:text-arctic-text"
-          label="Reset View"
-          onClick={resetViewport}
-          size="sm"
-        >
-          <RotateCcw size={16} strokeWidth={2} />
-        </IconButton>
-        <IconButton
-          className="border-arctic-border/10 bg-arctic-surface/70 text-arctic-muted hover:bg-arctic-surface hover:text-arctic-text"
-          label="Fit View"
-          onClick={() => fitViewportToObjects(objects)}
-          size="sm"
-        >
-          <Maximize2 size={16} strokeWidth={2} />
-        </IconButton>
-      </div>
-
       <ContextMenuOverlay />
+      <TextCreationOverlay viewport={viewport} />
     </section>
   );
 }

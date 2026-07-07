@@ -1,7 +1,3 @@
-import { Maximize2 } from "lucide-react";
-
-import { IconButton } from "../../ui/primitives";
-
 export function PlaceholderCanvas() {
   return (
     <section className="relative min-h-0 overflow-hidden rounded-[28px] border border-arctic-border/8 bg-arctic-canvas shadow-[0_20px_60px_rgb(0_0_0/0.26)]">
@@ -41,12 +37,6 @@ export function PlaceholderCanvas() {
           strokeWidth="2"
         />
       </svg>
-
-      <div className="absolute right-4 top-4">
-        <IconButton label="Fit View" size="sm">
-          <Maximize2 size={16} strokeWidth={2} />
-        </IconButton>
-      </div>
 
       <div className="absolute bottom-4 left-4 rounded-[16px] border border-arctic-border/8 bg-arctic-background/72 px-4 py-3 backdrop-blur-panel">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-arctic-ice/80">

@@ -17,7 +17,7 @@ import {
   type TextObject,
   type VectorObject,
 } from "../../core/geometry";
-import { clipRayToBounds, type WorldBounds } from "../../core/geometry/viewport";
+import { clipRayToBounds, screenToWorld, worldToScreen, type Viewport, type WorldBounds } from "../../core/geometry/viewport";
 import { toolManager } from "../../core/tools/ToolManager";
 import { assert, assertEqual } from "../assert";
 
@@ -49,6 +49,7 @@ export function runGeometryTests(): void {
   assertEqual(center.y, 2, "midpoint y is averaged");
   assertEqual(polygonArea([pointA, pointB, createPoint("c", 0, 4)]), 6, "polygon area is signed");
   assert(validation.valid, "valid point passes validation");
+  assertViewportConversionsAreInverse();
   assertRayValidationAndClipping();
   assertRayDependencyMetadata();
   assertVectorValidation();
@@ -60,6 +61,22 @@ export function runGeometryTests(): void {
   assertRegionValidationAndDependencies();
   assertAdvancedConstructionRecomputation();
   assertAdvancedConstructionToolsAreRegistered();
+}
+
+function assertViewportConversionsAreInverse(): void {
+  const viewport: Viewport = {
+    height: 420.25,
+    offsetX: -32.5,
+    offsetY: 18.75,
+    scale: 67.25,
+    width: 719.5,
+  };
+  const worldPoint = { x: 2.375, y: -1.625 };
+  const screenPoint = worldToScreen(worldPoint, viewport);
+  const converted = screenToWorld(screenPoint, viewport);
+
+  assert(Math.abs(converted.x - worldPoint.x) < 1e-9, "worldToScreen/screenToWorld preserve x");
+  assert(Math.abs(converted.y - worldPoint.y) < 1e-9, "worldToScreen/screenToWorld preserve y");
 }
 
 function createRay(startPointId: string, throughPointId: string): RayObject {

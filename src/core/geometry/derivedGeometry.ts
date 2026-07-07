@@ -2,7 +2,6 @@ import {
   EPSILON,
   distance,
   isFiniteNumber,
-  polygonArea,
 } from "./math";
 import type {
   ArcObject,
@@ -11,7 +10,6 @@ import type {
   Point2D,
   PointObject,
   PolygonObject,
-  RegionObject,
 } from "./types";
 
 export type CircleGeometry = {
@@ -38,7 +36,7 @@ export function getPointObject(
 }
 
 export function getPolygonPoints(
-  object: PolygonObject | RegionObject,
+  object: PolygonObject | { readonly type: "region"; readonly boundaryPointIds: readonly string[] },
   objects: GeometryObjectRecord,
 ): readonly PointObject[] | null {
   const pointIds = object.type === "polygon" ? object.pointIds : object.boundaryPointIds;
@@ -182,13 +180,4 @@ export function isPointInPolygon(
   }
 
   return inside;
-}
-
-export function getRegionArea(
-  object: RegionObject,
-  objects: GeometryObjectRecord,
-): number | null {
-  const points = getPolygonPoints(object, objects);
-
-  return points ? Math.abs(polygonArea(points)) : null;
 }

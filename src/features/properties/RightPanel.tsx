@@ -47,7 +47,7 @@ export function RightPanel() {
           </IconButton>
         </>
       }
-      className="min-h-0 overflow-hidden max-lg:hidden"
+      className="h-full min-h-0 overflow-hidden max-lg:hidden"
       eyebrow="Inspector"
       title="Properties"
     >

@@ -8,8 +8,8 @@ import {
   getCircleGeometry,
   getPointObject,
   getPolygonPoints,
-  getRegionArea,
 } from "./derivedGeometry";
+import { getRegionArea } from "./regionGeometry";
 import type {
   AngleObject,
   GeometryObject,

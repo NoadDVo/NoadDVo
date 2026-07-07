@@ -137,7 +137,17 @@ export function GeometryPanel({
   }
 
   if (object.type === "text") {
-    return <TextAnnotationPanel object={object} updateSelected={updateSelected} />;
+    return (
+      <TextAnnotationPanel
+        object={object}
+        objects={objects}
+        updateSelected={updateSelected}
+      />
+    );
+  }
+
+  if (object.type === "image") {
+    return <ImageGeometry object={object} updateSelected={updateSelected} />;
   }
 
   if (object.type === "measurement") {
@@ -153,6 +163,115 @@ export function GeometryPanel({
   return (
     <Section title="Geometry">
       <Readout label="Details" value="No editable geometry fields" />
+    </Section>
+  );
+}
+
+function ImageGeometry({
+  object,
+  updateSelected,
+}: Pick<GeometryPanelProps, "updateSelected"> & {
+  readonly object: Extract<GeometryObject, { readonly type: "image" }>;
+}) {
+  return (
+    <Section title="Geometry">
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="X">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "image"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      x: parseNumber(event.target.value, current.x),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.x}
+          />
+        </Field>
+        <Field label="Y">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "image"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      y: parseNumber(event.target.value, current.y),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.y}
+          />
+        </Field>
+        <Field label="Width">
+          <TextInput
+            min={EPSILON}
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "image"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      width: Math.max(EPSILON, parseNumber(event.target.value, current.width)),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.width}
+          />
+        </Field>
+        <Field label="Height">
+          <TextInput
+            min={EPSILON}
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "image"
+                  ? {
+                      ...current,
+                      height: Math.max(EPSILON, parseNumber(event.target.value, current.height)),
+                      updatedAt: Date.now(),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.height}
+          />
+        </Field>
+      </div>
+      <Field label="Opacity">
+        <TextInput
+          max={1}
+          min={0}
+          onChange={(event) =>
+            updateSelected((current) =>
+              current.type === "image"
+                ? {
+                    ...current,
+                    opacity: Math.min(1, Math.max(0, parseNumber(event.target.value, current.opacity))),
+                    updatedAt: Date.now(),
+                  }
+                : current,
+            )
+          }
+          step={0.05}
+          type="number"
+          value={object.opacity}
+        />
+      </Field>
+      <Readout label="Source Type" value={object.mimeType} />
     </Section>
   );
 }

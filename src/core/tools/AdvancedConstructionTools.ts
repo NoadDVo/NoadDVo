@@ -18,6 +18,7 @@ import {
 } from "./ConstructionToolUtils";
 import { createNamedDerivedPoint } from "./PointTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import { renderPointSequencePreview } from "./ToolPreviewPrimitives";
 
 type ConstructionCompleteHandler = (
   points: readonly PointObject[],
@@ -94,6 +95,14 @@ class PointSequenceConstructionTool extends BaseTool {
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
     context.setHoveredObject(getHitPoint(event, context)?.id ?? null);
+  }
+
+  renderPreview(context: ToolContext) {
+    return renderPointSequencePreview({
+      pointerWorld: context.pointerWorld,
+      points: this.points,
+      viewport: context.viewport,
+    });
   }
 
   cancel(_context: ToolContext): void {

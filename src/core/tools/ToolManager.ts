@@ -23,6 +23,7 @@ import { rayTool } from "./RayTool";
 import { segmentTool } from "./SegmentTool";
 import { selectTool } from "./SelectTool";
 import { textTool } from "./TextTool";
+import { trimTool } from "./TrimTool";
 import type { Tool } from "./Tool";
 import { vectorTool } from "./VectorTool";
 import {
@@ -43,6 +44,7 @@ const defaultTools = [
   polygonTool,
   angleTool,
   textTool,
+  trimTool,
   fillTool,
   measurementTool,
   midpointTool,

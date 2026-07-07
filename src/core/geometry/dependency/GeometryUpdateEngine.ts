@@ -4,6 +4,7 @@ import type {
   GeometryObject,
   GeometryObjectRecord,
 } from "../types";
+import { getRegionDependencyIds } from "../regionGeometry";
 import { recomputeConstructedPoint } from "../constructions";
 import { DependencyGraph } from "./DependencyGraph";
 
@@ -42,7 +43,7 @@ function expectedDependenciesForObject(object: GeometryObject): readonly string[
   }
 
   if (object.type === "region") {
-    return object.boundaryPointIds;
+    return getRegionDependencyIds(object);
   }
 
   if (object.type === "line") {

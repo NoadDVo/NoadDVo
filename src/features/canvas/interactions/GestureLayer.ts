@@ -9,7 +9,7 @@ import { hitTest } from "../../../core/selection/HitTest";
 import { toolManager } from "../../../core/tools/ToolManager";
 import { getLocalPoint, getToolPointerEvent } from "./PointerLayer";
 
-export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
+export function useCanvasGestures(interactionSurfaceRef: RefObject<SVGSVGElement | null>) {
   useEffect(() => {
     keyboardEventRouter.attach(window);
 
@@ -19,7 +19,7 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
   }, []);
 
   const handlePointerMove = useCallback((event: PointerEvent<HTMLElement>) => {
-    const element = containerRef.current;
+    const element = interactionSurfaceRef.current;
 
     if (!element) {
       return;
@@ -34,11 +34,11 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
     if (!store.isPanning) {
       toolManager.pointerMove(getToolPointerEvent(event, element));
     }
-  }, [containerRef]);
+  }, [interactionSurfaceRef]);
 
   const handlePointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
-      const element = containerRef.current;
+      const element = interactionSurfaceRef.current;
 
       if (!element) {
         return;
@@ -66,11 +66,11 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
       element.setPointerCapture(event.pointerId);
       useViewportStore.getState().startPan(getLocalPoint(event, element));
     },
-    [containerRef],
+    [interactionSurfaceRef],
   );
 
   const handlePointerUp = useCallback((event: PointerEvent<HTMLElement>) => {
-    const element = containerRef.current;
+    const element = interactionSurfaceRef.current;
 
     if (element?.hasPointerCapture(event.pointerId)) {
       element.releasePointerCapture(event.pointerId);
@@ -84,10 +84,10 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
     if (element && !wasPanning) {
       toolManager.pointerUp(getToolPointerEvent(event, element));
     }
-  }, [containerRef]);
+  }, [interactionSurfaceRef]);
 
   const handleWheel = useCallback((event: WheelEvent<HTMLElement>) => {
-    const element = containerRef.current;
+    const element = interactionSurfaceRef.current;
 
     if (!element) {
       return;
@@ -99,7 +99,7 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
     useViewportStore
       .getState()
       .zoomAt(getLocalPoint(event, element), zoomFactor);
-  }, [containerRef]);
+  }, [interactionSurfaceRef]);
 
   return {
     handlePointerDown,
@@ -109,7 +109,7 @@ export function useCanvasGestures(containerRef: RefObject<HTMLElement | null>) {
   };
 }
 
-function openContextMenu(event: PointerEvent<HTMLElement>, element: HTMLElement): void {
+function openContextMenu(event: PointerEvent<HTMLElement>, element: Element): void {
   const screenPoint = getLocalPoint(event, element);
   const viewportState = useViewportStore.getState();
   const geometryState = useGeometryStore.getState();

@@ -1,9 +1,11 @@
 import { runGeometryTests } from "./geometry/geometry.test";
 import { runMeasurementTests } from "./geometry/measurement.test";
 import { runFillToolTests } from "./interactions/fillTool.test";
+import { runImageAndTrimTests } from "./interactions/imageAndTrim.test";
 import { runHistoryTests } from "./history/history.test";
 import { runSelectionTests } from "./interactions/selection.test";
 import { runTextCreationTests } from "./interactions/textCreation.test";
+import { runToolbarToolsTests } from "./interactions/toolbarTools.test";
 import { runProjectTests } from "./project/project.test";
 import { runVectorRendererTests } from "./renderer/vectorRenderer.test";
 import { runLiveSyncTests } from "./sync/liveSync.test";
@@ -21,7 +23,9 @@ const suites = [
   ["history", runHistoryTests],
   ["selection", runSelectionTests],
   ["fill-tool", runFillToolTests],
+  ["image-and-trim", runImageAndTrimTests],
   ["text-creation", runTextCreationTests],
+  ["toolbar-tools", runToolbarToolsTests],
   ["renderer", runVectorRendererTests],
   ["sync", runSyncTests],
   ["live-sync", runLiveSyncTests],

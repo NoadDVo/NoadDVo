@@ -14,6 +14,7 @@ const objectOrder = {
   angle: 90,
   point: 100,
   text: 110,
+  image: 115,
   measurement: 120,
 } satisfies Record<GeometryObject["type"], number>;
 

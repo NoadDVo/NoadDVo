@@ -9,6 +9,7 @@ type GeometryLayerProps = {
 };
 
 const RENDER_ORDER = {
+  image: 0,
   region: 5,
   polygon: 10,
   circle: 20,

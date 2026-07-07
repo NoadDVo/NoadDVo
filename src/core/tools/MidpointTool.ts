@@ -1,8 +1,11 @@
+import { createElement } from "react";
+
 import { midpoint, pointsAlmostEqual, type PointObject } from "../geometry";
 import { BaseTool } from "./BaseTool";
 import { getHitPoint } from "./ConstructionToolUtils";
 import { createNamedDerivedPoint } from "./PointTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import { renderPreviewPoint, renderPreviewPolyline } from "./ToolPreviewPrimitives";
 
 export class MidpointTool extends BaseTool {
   private firstPoint = null as PointObject | null;
@@ -62,6 +65,26 @@ export class MidpointTool extends BaseTool {
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
     context.setHoveredObject(getHitPoint(event, context)?.id ?? null);
+  }
+
+  renderPreview(context: ToolContext) {
+    if (!this.firstPoint) {
+      return null;
+    }
+
+    return createElement(
+      "g",
+      null,
+      renderPreviewPolyline({
+        points: [this.firstPoint, context.pointerWorld],
+        viewport: context.viewport,
+      }),
+      renderPreviewPoint({
+        point: midpoint(this.firstPoint, context.pointerWorld),
+        r: 4,
+        viewport: context.viewport,
+      }),
+    );
   }
 
   cancel(_context: ToolContext): void {

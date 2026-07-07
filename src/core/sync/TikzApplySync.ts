@@ -188,6 +188,8 @@ function objectIdentityKey(object: GeometryObject, objects: GeometryObjectRecord
       return `arc:${pointName(objects, object.centerPointId)}>${pointName(objects, object.startPointId)}>${pointName(objects, object.endPointId)}`;
     case "text":
       return `text:${object.content}:${object.x}:${object.y}`;
+    case "image":
+      return null;
     case "measurement":
       return null;
   }

@@ -12,6 +12,7 @@ import type {
   GeometryError,
   GeometryObject,
   GeometryObjectRecord,
+  ImageObject,
   MeasurementObject,
   PointObject,
   RegionObject,
@@ -20,6 +21,7 @@ import type {
 } from "./types";
 import { isMeasurementTypeSupported } from "./measurements";
 import { getArcGeometry, getPolygonPoints } from "./derivedGeometry";
+import { getRegionBoundaryPath } from "./regionGeometry";
 
 function invalid(
   code: string,
@@ -205,6 +207,32 @@ function validateRegion(
   object: RegionObject,
   objects: GeometryObjectRecord,
 ): ValidationResult {
+  if (object.regionKind === "boundary") {
+    if (!object.loops?.length) {
+      return invalid(
+        "GEOMETRY_INVALID_REGION",
+        "Boundary region requires at least one closed loop.",
+        object.id,
+      );
+    }
+
+    if (object.loops.some((loop) => !loop.closed || loop.edges.length === 0)) {
+      return invalid(
+        "GEOMETRY_INVALID_REGION",
+        "Boundary region loops must be closed and non-empty.",
+        object.id,
+      );
+    }
+
+    return getRegionBoundaryPath(object, objects)
+      ? valid()
+      : invalid(
+          "GEOMETRY_INVALID_REGION",
+          "Boundary region references an invalid edge.",
+          object.id,
+        );
+  }
+
   if (object.boundaryPointIds.length < 3) {
     return invalid(
       "GEOMETRY_INVALID_REGION",
@@ -324,6 +352,50 @@ function validateText(object: TextObject): ValidationResult {
   return valid();
 }
 
+function validateImage(object: ImageObject): ValidationResult {
+  if (!isFiniteNumber(object.x) || !isFiniteNumber(object.y)) {
+    return invalid(
+      "GEOMETRY_INVALID_IMAGE_POSITION",
+      "Image position must use finite coordinates.",
+      object.id,
+    );
+  }
+
+  if (!isFiniteNumber(object.width) || object.width <= EPSILON) {
+    return invalid(
+      "GEOMETRY_INVALID_IMAGE_SIZE",
+      "Image width must be greater than zero.",
+      object.id,
+    );
+  }
+
+  if (!isFiniteNumber(object.height) || object.height <= EPSILON) {
+    return invalid(
+      "GEOMETRY_INVALID_IMAGE_SIZE",
+      "Image height must be greater than zero.",
+      object.id,
+    );
+  }
+
+  if (!isFiniteNumber(object.opacity) || object.opacity < 0 || object.opacity > 1) {
+    return invalid(
+      "GEOMETRY_INVALID_IMAGE_OPACITY",
+      "Image opacity must be between 0 and 1.",
+      object.id,
+    );
+  }
+
+  if (typeof object.src !== "string" || object.src.length === 0) {
+    return invalid(
+      "GEOMETRY_INVALID_IMAGE_SOURCE",
+      "Image source must be available.",
+      object.id,
+    );
+  }
+
+  return valid();
+}
+
 function validateMeasurement(
   object: MeasurementObject,
   objects: GeometryObjectRecord,
@@ -388,6 +460,8 @@ export function validateGeometryObject(
       return validateAngle(object, sceneObjects);
     case "text":
       return validateText(object);
+    case "image":
+      return validateImage(object);
     case "region":
       return validateRegion(object, sceneObjects);
     case "measurement":

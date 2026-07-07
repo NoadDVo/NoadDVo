@@ -3,8 +3,15 @@ import type { PointerEvent, WheelEvent } from "react";
 import { createToolContext, createToolPointerEvent, type ToolPointerEvent } from "../../../core/tools/ToolContext";
 
 export function getLocalPoint(
-  event: PointerEvent<HTMLElement> | WheelEvent<HTMLElement>,
-  element: HTMLElement,
+  event: PointerEvent<Element> | WheelEvent<Element>,
+  element: Element,
+) {
+  return getCanvasLocalPoint(event, element);
+}
+
+export function getCanvasLocalPoint(
+  event: PointerEvent<Element> | WheelEvent<Element>,
+  element: Element,
 ) {
   const rect = element.getBoundingClientRect();
 
@@ -15,8 +22,8 @@ export function getLocalPoint(
 }
 
 export function getToolPointerEvent(
-  event: PointerEvent<HTMLElement>,
-  element: HTMLElement,
+  event: PointerEvent<Element>,
+  element: Element,
 ): ToolPointerEvent {
   return createToolPointerEvent(
     {
@@ -32,4 +39,3 @@ export function getToolPointerEvent(
     createToolContext(),
   );
 }
-

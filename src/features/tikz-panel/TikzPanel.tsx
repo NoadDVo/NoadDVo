@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Check, Clipboard, Edit3, FileCode2, Lock, RefreshCw, Upload, WrapText, X } from "lucide-react";
+import { AlertTriangle, Check, Clipboard, Edit3, Lock, WrapText, X } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
 import { wrapTikzInStandaloneDocument } from "../../core/export";
 import {
   LIVE_TIKZ_SYNC_DEBOUNCE_MS,
-  createTikzApplyPreview,
   type LiveSyncStamp,
   type SyncDiagnostic,
   type SyncPreviewOperation,
@@ -42,7 +41,7 @@ export function TikzPanel() {
   const [syncPreview, setSyncPreview] = useState<TikzApplyPreview | null>(null);
   const [destructiveConfirmed, setDestructiveConfirmed] = useState(false);
   const [partialConfirmed, setPartialConfirmed] = useState(false);
-  const [liveSyncEnabled, setLiveSyncEnabled] = useState(false);
+  const [liveSyncEnabled] = useState(false);
   const [liveSyncStatus, setLiveSyncStatus] = useState<LiveTikzPanelSyncStatus | "idle">("idle");
   const [manualEditsPending, setManualEditsPending] = useState(false);
   const lastLiveTikzStampRef = useRef<LiveSyncStamp | null>(null);
@@ -115,27 +114,6 @@ export function TikzPanel() {
     window.setTimeout(() => {
       setCopied(false);
     }, 1200);
-  };
-
-  const regenerateFromGeometry = () => {
-    setDraftCode(generatedCode);
-    setAutoUpdate(true);
-    setManualEditsPending(false);
-    setSyncDiagnostics([]);
-    setSyncPreview(null);
-    setLiveSyncStatus("idle");
-  };
-
-  const reviewApplyToGeometry = () => {
-    const preview = createTikzApplyPreview({
-      currentObjects: objects,
-      source: displayedCode,
-    });
-
-    setSyncPreview(preview);
-    setSyncDiagnostics(preview.diagnostics);
-    setDestructiveConfirmed(false);
-    setPartialConfirmed(false);
   };
 
   const applyReviewedPreview = () => {
@@ -215,54 +193,6 @@ export function TikzPanel() {
             {editable ? "Editable" : "Readonly"}
           </Button>
           <Button
-            active={autoUpdate}
-            icon={<FileCode2 size={15} strokeWidth={2} />}
-            onClick={() => {
-              setAutoUpdate((enabled) => {
-                const nextEnabled = !enabled;
-
-                if (nextEnabled) {
-                  setDraftCode(generatedCode);
-                  setManualEditsPending(false);
-                  setSyncPreview(null);
-                  setSyncDiagnostics([]);
-                  setLiveSyncStatus("idle");
-                }
-
-                return nextEnabled;
-              });
-            }}
-            size="sm"
-            variant="ghost"
-          >
-            Auto
-          </Button>
-          <Button
-            active={liveSyncEnabled}
-            icon={<Check size={15} strokeWidth={2} />}
-            onClick={() => setLiveSyncEnabled((enabled) => !enabled)}
-            size="sm"
-            variant="ghost"
-          >
-            Live
-          </Button>
-          <Button
-            icon={<RefreshCw size={15} strokeWidth={2} />}
-            onClick={regenerateFromGeometry}
-            size="sm"
-            variant={autoUpdate ? "ghost" : "primary"}
-          >
-            Regenerate
-          </Button>
-          <Button
-            icon={<Upload size={15} strokeWidth={2} />}
-            onClick={reviewApplyToGeometry}
-            size="sm"
-            variant={editable || !autoUpdate ? "primary" : "ghost"}
-          >
-            Review
-          </Button>
-          <Button
             icon={<Clipboard size={15} strokeWidth={2} />}
             onClick={copyTikz}
             size="sm"
@@ -272,7 +202,7 @@ export function TikzPanel() {
           </Button>
         </div>
       }
-      className="min-h-0 overflow-hidden"
+      className="h-full min-h-0 overflow-hidden"
       eyebrow={editable ? "Editable Mode - Experimental" : "Readonly Mode - Generated TikZ"}
       title="TikZ"
     >
@@ -281,9 +211,9 @@ export function TikzPanel() {
             {syncDiagnostics.length > 0
               ? syncDiagnostics.slice(0, 2).map((diagnostic) => diagnostic.message).join(" ")
             : editable && manualEditsPending
-              ? "Manual edits pending. Live sync will apply safe edits; use Review for guarded changes or Regenerate to restore geometry output."
+              ? "Manual edits pending. Switch back to readonly mode to follow generated geometry output."
             : editable
-              ? "Editing TikZ directly is experimental. Apply changes when ready."
+              ? "Editing TikZ directly is experimental."
               : "Generated from geometry. This is the source of truth."}
         </div>
         {editable ? (

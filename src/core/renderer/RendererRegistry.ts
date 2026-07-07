@@ -9,6 +9,7 @@ import type { Viewport } from "../geometry/viewport";
 import { AngleRenderer } from "./AngleRenderer";
 import { ArcRenderer } from "./ArcRenderer";
 import { CircleRenderer } from "./CircleRenderer";
+import { ImageRenderer } from "./ImageRenderer";
 import { LineRenderer } from "./LineRenderer";
 import { MeasurementRenderer } from "./MeasurementRenderer";
 import { PointRenderer } from "./PointRenderer";
@@ -60,6 +61,7 @@ export class RendererRegistry {
 export const geometryRendererRegistry = new RendererRegistry();
 
 geometryRendererRegistry.register(PolygonRenderer);
+geometryRendererRegistry.register(ImageRenderer);
 geometryRendererRegistry.register(RegionRenderer);
 geometryRendererRegistry.register(CircleRenderer);
 geometryRendererRegistry.register(ArcRenderer);

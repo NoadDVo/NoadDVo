@@ -5,6 +5,7 @@ import {
   FolderClock,
   FolderOpen,
   Menu,
+  FileImage,
   Clipboard,
   Copy,
   Save,
@@ -15,6 +16,9 @@ import {
   useGeometryStore,
   type ExampleSceneId,
 } from "../../../app/store/geometryStore";
+import { useViewportStore } from "../../../app/store/viewportStore";
+import { createReferenceImageObject } from "../../../core/geometry";
+import { screenToWorld } from "../../../core/geometry/viewport";
 import { exportManager } from "../../../core/export";
 import {
   copySelectionToGeometryClipboard,
@@ -32,6 +36,7 @@ type ProjectMenuProps = {
 
 export function ProjectMenu({ projectState }: ProjectMenuProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -56,6 +61,38 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
     setMenuOpen(false);
   };
 
+  const handleImageImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    const dataUrl = await readFileAsDataUrl(file);
+    const viewport = useViewportStore.getState().viewport;
+    const center = screenToWorld(
+      { x: viewport.width / 2, y: viewport.height / 2 },
+      viewport,
+    );
+    const imageObject = createReferenceImageObject({
+      mimeType: file.type || "application/octet-stream",
+      name: file.name.replace(/\.[^.]+$/, "") || "Reference Image",
+      position: center,
+      src: dataUrl,
+    });
+    const geometry = useGeometryStore.getState();
+
+    if (geometry.addObject(imageObject)) {
+      geometry.selectObject(imageObject.id);
+    } else {
+      window.alert("The reference image could not be imported.");
+    }
+
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <input
@@ -63,6 +100,13 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
         className="hidden"
         onChange={handleImport}
         ref={fileInputRef}
+        type="file"
+      />
+      <input
+        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+        className="hidden"
+        onChange={handleImageImport}
+        ref={imageInputRef}
         type="file"
       />
       <Button
@@ -88,6 +132,11 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
             icon={<Upload size={15} strokeWidth={2} />}
             label="Open Project"
             onClick={() => fileInputRef.current?.click()}
+          />
+          <ProjectOption
+            icon={<FileImage size={15} strokeWidth={2} />}
+            label="Import Reference Image"
+            onClick={() => imageInputRef.current?.click()}
           />
           <MenuDivider />
           <MenuHeading icon={<FolderClock size={14} strokeWidth={2} />}>
@@ -195,6 +244,16 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
       </AnchoredOverlay>
     </>
   );
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.addEventListener("error", () => reject(reader.error));
+    reader.addEventListener("load", () => resolve(String(reader.result ?? "")));
+    reader.readAsDataURL(file);
+  });
 }
 
 function ProjectOption({

@@ -53,7 +53,7 @@ export function GeometryTreePanel() {
 
   return (
     <Panel
-      className="min-h-0 overflow-hidden max-lg:hidden"
+      className="h-full min-h-0 overflow-hidden max-lg:hidden"
       eyebrow="Workspace"
       title="Object Tree"
     >

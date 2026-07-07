@@ -1,5 +1,6 @@
 import {
   getTextAlignment,
+  getTextAttachment,
   getTextFontSize,
   getTextOpacity,
   getTextPosition,
@@ -49,6 +50,40 @@ function alignmentToAnchor(alignment: ReturnType<typeof getTextAlignment>): stri
   return alignment === "right" ? "east" : "west";
 }
 
+function attachmentAnchor(object: TextObject): string | null {
+  const attachment = getTextAttachment(object);
+
+  if (!attachment) {
+    return null;
+  }
+
+  if (attachment.placement.includes("above")) {
+    return attachment.placement.includes("left")
+      ? "south east"
+      : attachment.placement.includes("right")
+        ? "south west"
+        : "south";
+  }
+
+  if (attachment.placement.includes("below")) {
+    return attachment.placement.includes("left")
+      ? "north east"
+      : attachment.placement.includes("right")
+        ? "north west"
+        : "north";
+  }
+
+  if (attachment.placement === "left") {
+    return "east";
+  }
+
+  if (attachment.placement === "right") {
+    return "west";
+  }
+
+  return "center";
+}
+
 export const TextExporter: TikzObjectExporter<TextObject> = {
   exportObject: (object, context) => {
     const position = getTextPosition(object, context.scene.objects);
@@ -59,7 +94,7 @@ export const TextExporter: TikzObjectExporter<TextObject> = {
     const opacity = getTextOpacity(object);
     const rotation = getTextRotation(object);
     const options = [
-      `anchor=${alignmentToAnchor(getTextAlignment(object))}`,
+      `anchor=${attachmentAnchor(object) ?? alignmentToAnchor(getTextAlignment(object))}`,
       ...(color ? [`text=${color}`] : []),
       ...(opacity < 1 ? [`opacity=${formatNumber(opacity, 3)}`] : []),
       ...(rotation !== 0 ? [`rotate=${formatNumber(rotation, 2)}`] : []),

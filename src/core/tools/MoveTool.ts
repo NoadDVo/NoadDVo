@@ -1,4 +1,4 @@
-import type { Point2D, PointObject } from "../geometry";
+import type { ImageObject, Point2D, PointObject } from "../geometry";
 import { hitTest } from "../selection/HitTest";
 import { BaseTool } from "./BaseTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
@@ -8,9 +8,15 @@ type MovingPoint = {
   readonly start: Point2D;
 };
 
+type MovingImage = {
+  readonly id: string;
+  readonly start: Point2D;
+};
+
 export class MoveTool extends BaseTool {
   private dragStart = null as Point2D | null;
   private hasDragged = false;
+  private movingImages = [] as readonly MovingImage[];
   private movingPoints = [] as readonly MovingPoint[];
 
   constructor() {
@@ -34,7 +40,12 @@ export class MoveTool extends BaseTool {
       context.viewport,
     );
 
-    if (!hit || hit.object.type !== "point") {
+    if (!hit || (hit.object.type !== "point" && hit.object.type !== "image")) {
+      return;
+    }
+
+    if (hit.object.type === "image") {
+      this.startImageDrag(hit.object, event, context);
       return;
     }
 
@@ -71,7 +82,7 @@ export class MoveTool extends BaseTool {
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
-    if (!this.dragStart || this.movingPoints.length === 0) {
+    if (!this.dragStart || (this.movingPoints.length === 0 && this.movingImages.length === 0)) {
       const hit = hitTest(
         event.screenPoint,
         event.worldPoint,
@@ -94,6 +105,21 @@ export class MoveTool extends BaseTool {
     }
 
     this.hasDragged = true;
+
+    for (const movingImage of this.movingImages) {
+      context.updateObject(movingImage.id, (currentObject) => {
+        if (currentObject.type !== "image" || !this.canMoveImage(currentObject)) {
+          return currentObject;
+        }
+
+        return {
+          ...currentObject,
+          updatedAt: Date.now(),
+          x: movingImage.start.x + delta.x,
+          y: movingImage.start.y + delta.y,
+        };
+      });
+    }
 
     for (const movingPoint of this.movingPoints) {
       context.updateObject(movingPoint.id, (currentObject) => {
@@ -123,6 +149,35 @@ export class MoveTool extends BaseTool {
     return point.visible && !point.locked && point.pointKind === "free";
   }
 
+  private canMoveImage(image: ImageObject): boolean {
+    return image.visible && !image.locked;
+  }
+
+  private startImageDrag(
+    image: ImageObject,
+    event: ToolPointerEvent,
+    context: ToolContext,
+  ): void {
+    if (!this.canMoveImage(image)) {
+      return;
+    }
+
+    if (!context.selectedObjectIds.includes(image.id)) {
+      context.selectObject(image.id);
+    }
+
+    context.beginHistoryTransaction("move", "Move image");
+    this.dragStart = event.snappedWorldPoint;
+    this.movingImages = [
+      {
+        id: image.id,
+        start: { x: image.x, y: image.y },
+      },
+    ];
+    this.movingPoints = [];
+    this.hasDragged = false;
+  }
+
   private stopDrag(context: ToolContext): void {
     if (this.dragStart) {
       if (this.hasDragged) {
@@ -134,6 +189,7 @@ export class MoveTool extends BaseTool {
 
     this.dragStart = null;
     this.hasDragged = false;
+    this.movingImages = [];
     this.movingPoints = [];
   }
 }

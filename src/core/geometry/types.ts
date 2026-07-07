@@ -33,6 +33,7 @@ export type GeometryObjectType =
   | "polygon"
   | "angle"
   | "text"
+  | "image"
   | "region"
   | "measurement";
 
@@ -48,6 +49,7 @@ export type GeometryToolId =
   | "polygon"
   | "angle"
   | "text"
+  | "trim"
   | "fill"
   | "measure"
   | "midpoint"
@@ -275,9 +277,47 @@ export type TextObject = BaseGeometryObject & {
   readonly textMode: TextMode;
 };
 
+export type ImageObject = BaseGeometryObject & {
+  readonly type: "image";
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly src: string;
+  readonly mimeType: string;
+  readonly opacity: number;
+  readonly preserveAspectRatio: boolean;
+};
+
+export type BoundaryEdgeKind =
+  | "segment"
+  | "line"
+  | "ray"
+  | "circle"
+  | "arc"
+  | "polygon-edge";
+
+export type BoundaryEdge = {
+  readonly objectId: string;
+  readonly edgeKind: BoundaryEdgeKind;
+  readonly direction: "forward" | "reverse";
+  readonly sourcePrimitiveId?: string;
+  readonly startPointId?: string;
+  readonly endPointId?: string;
+  readonly startParameter?: number;
+  readonly endParameter?: number;
+};
+
+export type BoundaryLoop = {
+  readonly edges: readonly BoundaryEdge[];
+  readonly closed: boolean;
+};
+
 export type RegionObject = BaseGeometryObject & {
   readonly type: "region";
+  readonly regionKind?: "polygon" | "boundary";
   readonly boundaryPointIds: readonly string[];
+  readonly loops?: readonly BoundaryLoop[];
 };
 
 export type MeasurementObject = BaseGeometryObject & {
@@ -299,6 +339,7 @@ export type GeometryObject =
   | PolygonObject
   | AngleObject
   | TextObject
+  | ImageObject
   | RegionObject
   | MeasurementObject;
 

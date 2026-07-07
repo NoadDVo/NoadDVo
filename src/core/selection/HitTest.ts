@@ -15,6 +15,7 @@ import {
   getMeasurementAnchorPoint,
   getPointObject,
   getPolygonPoints,
+  regionContainsPoint,
   getTextFontSize,
   getTextPosition,
   isPointInPolygon,
@@ -200,6 +201,21 @@ export function hitTest(
     }
   }
 
+  for (const object of visibleObjectsByType(objects, "image")) {
+    const halfWidth = object.width / 2;
+    const halfHeight = object.height / 2;
+    const toleranceWorld = tolerancePx / viewport.scale;
+
+    if (
+      worldPoint.x >= object.x - halfWidth - toleranceWorld &&
+      worldPoint.x <= object.x + halfWidth + toleranceWorld &&
+      worldPoint.y >= object.y - halfHeight - toleranceWorld &&
+      worldPoint.y <= object.y + halfHeight + toleranceWorld
+    ) {
+      return { object, objectId: object.id, type: "image" };
+    }
+  }
+
   for (const object of visibleObjectsByType(objects, "segment")) {
     const start = getPoint(object.startPointId, objects);
     const end = getPoint(object.endPointId, objects);
@@ -220,9 +236,7 @@ export function hitTest(
   }
 
   for (const object of visibleObjectsByType(objects, "region")) {
-    const points = getPolygonPoints(object, objects) ?? [];
-
-    if (points.length >= 3 && isPointInPolygon(worldPoint, points)) {
+    if (regionContainsPoint(object, worldPoint, objects)) {
       return { object, objectId: object.id, type: "region" };
     }
   }

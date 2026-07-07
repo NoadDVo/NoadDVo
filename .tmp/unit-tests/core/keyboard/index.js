@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.normalizeKeyboardEvent = exports.ShortcutRegistry = exports.KeyboardEventRouter = exports.keyboardEventRouter = exports.KeyboardManager = exports.keyboardManager = void 0;
+var KeyboardManager_1 = require("./KeyboardManager");
+Object.defineProperty(exports, "keyboardManager", { enumerable: true, get: function () { return KeyboardManager_1.keyboardManager; } });
+Object.defineProperty(exports, "KeyboardManager", { enumerable: true, get: function () { return KeyboardManager_1.KeyboardManager; } });
+var KeyboardEventRouter_1 = require("./KeyboardEventRouter");
+Object.defineProperty(exports, "keyboardEventRouter", { enumerable: true, get: function () { return KeyboardEventRouter_1.keyboardEventRouter; } });
+Object.defineProperty(exports, "KeyboardEventRouter", { enumerable: true, get: function () { return KeyboardEventRouter_1.KeyboardEventRouter; } });
+var ShortcutRegistry_1 = require("./ShortcutRegistry");
+Object.defineProperty(exports, "ShortcutRegistry", { enumerable: true, get: function () { return ShortcutRegistry_1.ShortcutRegistry; } });
+Object.defineProperty(exports, "normalizeKeyboardEvent", { enumerable: true, get: function () { return ShortcutRegistry_1.normalizeKeyboardEvent; } });

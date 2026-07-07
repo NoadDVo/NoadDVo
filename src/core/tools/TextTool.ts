@@ -1,12 +1,16 @@
 import {
   DEFAULT_GEOMETRY_STYLE,
-  normalizeTextMode,
+  getDefaultTextPlacementForTarget,
+  isTextAttachmentTarget,
   type GeometryObjectRecord,
   type Point2D,
+  type TextAttachmentPlacement,
   type TextMode,
   type TextObject,
 } from "../geometry";
+import { hitTest } from "../selection/HitTest";
 import { BaseTool } from "./BaseTool";
+import { textCreationSession } from "./TextCreationSession";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 let textIdCounter = 0;
@@ -23,7 +27,7 @@ function getNextTextName(objects: GeometryObjectRecord): string {
   return `Text ${count + 1}`;
 }
 
-function inferTextMode(content: string): TextMode {
+export function inferTextMode(content: string): TextMode {
   const trimmed = content.trim();
 
   if (trimmed.startsWith("$") && trimmed.endsWith("$")) {
@@ -37,23 +41,36 @@ function inferTextMode(content: string): TextMode {
   return "plain";
 }
 
+export function normalizeTextContent(content: string): string {
+  const trimmed = content.trim();
+
+  return trimmed.length > 0 ? trimmed : "Text";
+}
+
 export function createTextObject({
   content,
   mode,
   objects,
+  offset,
+  placement,
   point,
+  targetObjectId,
 }: {
   readonly content: string;
   readonly mode: TextMode;
   readonly objects: GeometryObjectRecord;
+  readonly offset?: Point2D;
+  readonly placement?: TextAttachmentPlacement;
   readonly point: Point2D;
+  readonly targetObjectId?: string;
 }): TextObject {
   const now = Date.now();
+  const attached = Boolean(targetObjectId && placement);
 
   return {
     content,
     createdAt: now,
-    dependencies: [],
+    dependencies: targetObjectId ? [targetObjectId] : [],
     dependents: [],
     id: createTextId(),
     locked: false,
@@ -62,6 +79,13 @@ export function createTextObject({
       fontSize: 14,
       opacity: 1,
       rotation: 0,
+      ...(attached
+        ? {
+            offset: offset ?? { x: 0, y: 0 },
+            placement,
+            targetObjectId,
+          }
+        : {}),
     },
     name: getNextTextName(objects),
     style: {
@@ -76,24 +100,6 @@ export function createTextObject({
     visible: true,
     x: point.x,
     y: point.y,
-  };
-}
-
-function requestTextContent(): { readonly content: string; readonly mode: TextMode } | null {
-  const content = window.prompt("Text content", "");
-
-  if (content === null || content.trim().length === 0) {
-    return null;
-  }
-
-  const modeInput = window.prompt(
-    "Text mode: plain, math, latex, coordinate-label, object-label, measurement-label",
-    inferTextMode(content),
-  );
-
-  return {
-    content,
-    mode: normalizeTextMode(modeInput),
   };
 }
 
@@ -112,26 +118,48 @@ export class TextTool extends BaseTool {
       return;
     }
 
-    const requested = requestTextContent();
+    const hit = hitTest(
+      event.screenPoint,
+      event.worldPoint,
+      context.objects,
+      context.viewport,
+    );
+    const target = hit?.object ?? null;
+    const attachedTarget = isTextAttachmentTarget(target) ? target : null;
 
-    if (!requested) {
-      this.transitionState("cancelled", "cancel");
+    textCreationSession.start({
+      point: event.snappedWorldPoint,
+      ...(attachedTarget
+        ? {
+            placement: getDefaultTextPlacementForTarget(attachedTarget),
+            targetObjectId: attachedTarget.id,
+            targetObjectType: attachedTarget.type,
+          }
+        : {}),
+    });
+    context.setHoveredObject(null);
+    this.transitionState("waitingInput", "await-input");
+  }
 
+  keyDown(event: KeyboardEvent, _context: ToolContext): void {
+    if (event.key !== "Escape") {
       return;
     }
 
-    const text = createTextObject({
-      content: requested.content,
-      mode: requested.mode,
-      objects: context.objects,
-      point: event.snappedWorldPoint,
-    });
+    textCreationSession.cancel();
+    this.transitionState("cancelled", "cancel");
+    this.transitionState("waitingInput", "await-input");
+  }
 
-    if (context.addObject(text)) {
-      context.selectObject(text.id);
-      this.transitionState("completed", "complete");
-      this.transitionState("waitingInput", "await-input");
-    }
+  cancel(context: ToolContext): void {
+    textCreationSession.cancel();
+    super.cancel(context);
+    this.transitionState("waitingInput", "await-input");
+  }
+
+  deactivate(context: ToolContext): void {
+    textCreationSession.cancel();
+    super.deactivate(context);
   }
 }
 

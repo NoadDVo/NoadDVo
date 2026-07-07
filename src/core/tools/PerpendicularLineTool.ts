@@ -8,6 +8,7 @@ import {
 } from "./ConstructionToolUtils";
 import { createNamedDerivedPoint } from "./PointTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import { renderPreviewPolyline } from "./ToolPreviewPrimitives";
 
 export class PerpendicularLineTool extends BaseTool {
   private anchorPoint = null as PointObject | null;
@@ -16,7 +17,7 @@ export class PerpendicularLineTool extends BaseTool {
     super({
       cursor: "crosshair",
       id: "perpendicular",
-      name: "Perpendicular",
+      name: "Perpendicular Line",
       shortcut: "N",
     });
   }
@@ -54,6 +55,17 @@ export class PerpendicularLineTool extends BaseTool {
       : getHitPoint(event, context);
 
     context.setHoveredObject(hovered?.id ?? null);
+  }
+
+  renderPreview(context: ToolContext) {
+    if (!this.anchorPoint) {
+      return null;
+    }
+
+    return renderPreviewPolyline({
+      points: [this.anchorPoint, context.pointerWorld],
+      viewport: context.viewport,
+    });
   }
 
   cancel(_context: ToolContext): void {
