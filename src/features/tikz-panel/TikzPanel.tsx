@@ -1,17 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, Check, Clipboard, Edit3, FileCode2, Lock, RefreshCw, Upload, WrapText, X } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
 import { wrapTikzInStandaloneDocument } from "../../core/export";
 import {
+  LIVE_TIKZ_SYNC_DEBOUNCE_MS,
   createTikzApplyPreview,
+  type LiveSyncStamp,
   type SyncDiagnostic,
   type SyncPreviewOperation,
   type TikzApplyPreview,
 } from "../../core/sync";
 import { generateTikz, type TikzMode } from "../../core/tikz";
 import { Button, Panel } from "../../ui/primitives";
+import { runLiveTikzPanelSync, type LiveTikzPanelSyncStatus } from "./liveTikzPanelSync";
+import {
+  getTikzPanelDisplayedCode,
+  getTikzPanelStatusText,
+  shouldFollowGeneratedTikz,
+} from "./tikzPanelState";
 
 const tikzModes = ["minimal", "academic", "olympiad", "colorful"] satisfies readonly TikzMode[];
 
@@ -34,7 +42,22 @@ export function TikzPanel() {
   const [syncPreview, setSyncPreview] = useState<TikzApplyPreview | null>(null);
   const [destructiveConfirmed, setDestructiveConfirmed] = useState(false);
   const [partialConfirmed, setPartialConfirmed] = useState(false);
-  const displayedCode = autoUpdate ? generatedCode : draftCode;
+  const [liveSyncEnabled, setLiveSyncEnabled] = useState(false);
+  const [liveSyncStatus, setLiveSyncStatus] = useState<LiveTikzPanelSyncStatus | "idle">("idle");
+  const [manualEditsPending, setManualEditsPending] = useState(false);
+  const lastLiveTikzStampRef = useRef<LiveSyncStamp | null>(null);
+  const followsGeneratedTikz = shouldFollowGeneratedTikz({
+    autoUpdate,
+    editable,
+    manualEditsPending,
+  });
+  const displayedCode = getTikzPanelDisplayedCode({
+    autoUpdate,
+    draftCode,
+    editable,
+    generatedCode,
+    manualEditsPending,
+  });
   const displayedLines = displayedCode.split("\n");
   const lineCount = displayedLines.length;
   const selectedObject = selectedObjectIds[0] ? objects[selectedObjectIds[0]] : null;
@@ -44,10 +67,47 @@ export function TikzPanel() {
   ].filter((token): token is string => Boolean(token?.trim()));
 
   useEffect(() => {
-    if (autoUpdate) {
+    if (followsGeneratedTikz) {
       setDraftCode(generatedCode);
     }
-  }, [autoUpdate, generatedCode]);
+  }, [followsGeneratedTikz, generatedCode]);
+
+  useEffect(() => {
+    if (!editable || autoUpdate || syncPreview || !liveSyncEnabled) {
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(() => {
+      const result = runLiveTikzPanelSync({
+        commitObjects: (nextObjects, changedObjectIds) =>
+          useGeometryStore.getState().setObjects(
+            nextObjects,
+            "Live TikZ sync",
+            changedObjectIds,
+          ),
+        currentObjects: useGeometryStore.getState().objects,
+        lastStamp: lastLiveTikzStampRef.current,
+        source: draftCode,
+      });
+
+      setLiveSyncStatus(result.status);
+      setSyncDiagnostics(result.preview.diagnostics);
+
+      if (result.status === "applied") {
+        lastLiveTikzStampRef.current = result.stamp;
+        setAutoUpdate(true);
+        setManualEditsPending(false);
+      }
+
+      if (result.status === "unchanged") {
+        setManualEditsPending(false);
+      }
+    }, LIVE_TIKZ_SYNC_DEBOUNCE_MS);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [autoUpdate, draftCode, editable, liveSyncEnabled, syncPreview]);
 
   const copyTikz = async () => {
     await navigator.clipboard.writeText(displayedCode);
@@ -60,8 +120,10 @@ export function TikzPanel() {
   const regenerateFromGeometry = () => {
     setDraftCode(generatedCode);
     setAutoUpdate(true);
+    setManualEditsPending(false);
     setSyncDiagnostics([]);
     setSyncPreview(null);
+    setLiveSyncStatus("idle");
   };
 
   const reviewApplyToGeometry = () => {
@@ -98,6 +160,7 @@ export function TikzPanel() {
     ) {
       setSyncPreview(null);
       setAutoUpdate(true);
+      setManualEditsPending(false);
       setDraftCode(generatedCode);
     }
   };
@@ -136,8 +199,15 @@ export function TikzPanel() {
             active={editable}
             icon={editable ? <Edit3 size={15} strokeWidth={2} /> : <Lock size={15} strokeWidth={2} />}
             onClick={() => {
-              setEditable((enabled) => !enabled);
-              setDraftCode(displayedCode);
+              setEditable((enabled) => {
+                const nextEnabled = !enabled;
+
+                if (nextEnabled) {
+                  setDraftCode(displayedCode);
+                }
+
+                return nextEnabled;
+              });
             }}
             size="sm"
             variant="ghost"
@@ -147,11 +217,34 @@ export function TikzPanel() {
           <Button
             active={autoUpdate}
             icon={<FileCode2 size={15} strokeWidth={2} />}
-            onClick={() => setAutoUpdate((enabled) => !enabled)}
+            onClick={() => {
+              setAutoUpdate((enabled) => {
+                const nextEnabled = !enabled;
+
+                if (nextEnabled) {
+                  setDraftCode(generatedCode);
+                  setManualEditsPending(false);
+                  setSyncPreview(null);
+                  setSyncDiagnostics([]);
+                  setLiveSyncStatus("idle");
+                }
+
+                return nextEnabled;
+              });
+            }}
             size="sm"
             variant="ghost"
           >
             Auto
+          </Button>
+          <Button
+            active={liveSyncEnabled}
+            icon={<Check size={15} strokeWidth={2} />}
+            onClick={() => setLiveSyncEnabled((enabled) => !enabled)}
+            size="sm"
+            variant="ghost"
+          >
+            Live
           </Button>
           <Button
             icon={<RefreshCw size={15} strokeWidth={2} />}
@@ -183,10 +276,12 @@ export function TikzPanel() {
       eyebrow={editable ? "Editable Mode - Experimental" : "Readonly Mode - Generated TikZ"}
       title="TikZ"
     >
-      <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_30px]">
+      <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_32px] overflow-hidden">
         <div className="border-b border-arctic-border/8 px-4 py-2 text-[11px] font-semibold text-arctic-muted">
-          {syncDiagnostics.length > 0
-            ? syncDiagnostics.slice(0, 2).map((diagnostic) => diagnostic.message).join(" ")
+            {syncDiagnostics.length > 0
+              ? syncDiagnostics.slice(0, 2).map((diagnostic) => diagnostic.message).join(" ")
+            : editable && manualEditsPending
+              ? "Manual edits pending. Live sync will apply safe edits; use Review for guarded changes or Regenerate to restore geometry output."
             : editable
               ? "Editing TikZ directly is experimental. Apply changes when ready."
               : "Generated from geometry. This is the source of truth."}
@@ -196,7 +291,10 @@ export function TikzPanel() {
             className="min-h-0 resize-none overflow-auto bg-transparent px-4 py-3 font-mono text-[12px] leading-relaxed text-arctic-text/88 outline-none"
             onChange={(event) => {
               setAutoUpdate(false);
+              setManualEditsPending(true);
               setDraftCode(event.target.value);
+              setSyncPreview(null);
+              setLiveSyncStatus("idle");
             }}
             spellCheck={false}
             value={displayedCode}
@@ -225,7 +323,12 @@ export function TikzPanel() {
           <span>Lines {lineCount} / Chars {displayedCode.length}</span>
           <span className="inline-flex items-center gap-2 text-arctic-ice">
             <Check size={14} strokeWidth={2} />
-            {autoUpdate ? "Auto update on" : "Auto update paused"}
+            {getTikzPanelStatusText({
+              autoUpdate,
+              liveSyncEnabled,
+              liveSyncStatus,
+              manualEditsPending,
+            })}
           </span>
         </footer>
       </div>

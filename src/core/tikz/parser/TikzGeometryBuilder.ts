@@ -1,10 +1,15 @@
 import {
   DEFAULT_GEOMETRY_STYLE,
+  distance,
+  formatMeasurementValue,
+  isMeasurementTypeSupported,
   normalizeDependencyMetadata,
+  pointsAlmostEqual,
   type GeometryObject,
   type GeometryObjectRecord,
   type GeometryStyle,
   type LabelPosition,
+  type MeasurementType,
   type Point2D,
   type PointObject,
 } from "../../geometry";
@@ -52,6 +57,18 @@ const standardColors: Record<string, string> = {
   white: "#ffffff",
   yellow: "#ca8a04",
 };
+const measurementTypes: readonly MeasurementType[] = [
+  "segment-length",
+  "polygon-perimeter",
+  "polygon-area",
+  "circle-radius",
+  "circle-diameter",
+  "circle-circumference",
+  "circle-area",
+  "arc-length",
+  "region-area",
+  "angle-value",
+];
 
 function compact(text: string): string {
   return text.replace(/\s+/g, " ").trim();
@@ -168,6 +185,35 @@ function pointForPathPoint(state: BuilderState, pathPoint: PathPoint): PointObje
   }
 
   return createGeneratedPoint(state, "P", pathPoint.point);
+}
+
+function existingPointAt(state: BuilderState, point: Point2D): PointObject | null {
+  return Array.from(state.objects.values()).find(
+    (object): object is PointObject =>
+      object.type === "point" && pointsAlmostEqual(object, point, 1e-6),
+  ) ?? null;
+}
+
+function namedPoints(state: BuilderState): readonly PointObject[] {
+  return Array.from(state.objects.values()).filter(
+    (object): object is PointObject => object.type === "point" && Boolean(object.name),
+  );
+}
+
+function crossProduct(a: Point2D, b: Point2D, c: Point2D): number {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+function dotProduct(a: Point2D, b: Point2D, c: Point2D): number {
+  return (b.x - a.x) * (c.x - a.x) + (b.y - a.y) * (c.y - a.y);
+}
+
+function pointLiesOnLine(point: Point2D, lineA: Point2D, lineB: Point2D): boolean {
+  return Math.abs(crossProduct(lineA, lineB, point)) <= 1e-5;
+}
+
+function pointLiesOnRay(point: Point2D, start: Point2D, end: Point2D): boolean {
+  return pointLiesOnLine(point, start, end) && dotProduct(start, end, point) >= -1e-6;
 }
 
 function parseOptions(options: readonly string[], state: BuilderState): GeometryStyle {
@@ -311,12 +357,90 @@ function optionHasArrow(options: readonly string[]): boolean {
   return options.some((option) => /Latex|Stealth|->|-{|arrow/i.test(option));
 }
 
+function recoverClippedLinearPath(
+  command: TikzCommandNode,
+  state: BuilderState,
+  pathPoints: readonly PathPoint[],
+): boolean {
+  if (command.name !== "draw" || pathPoints.length !== 2) {
+    return false;
+  }
+
+  const startPath = pathPoints[0];
+  const endPath = pathPoints[1];
+
+  if (startPath?.kind !== "literal" || endPath?.kind !== "literal") {
+    return false;
+  }
+
+  const start = startPath.point;
+  const end = endPath.point;
+  const points = namedPoints(state);
+  const rayStart = points.find((point) => pointsAlmostEqual(point, start, 1e-6));
+
+  if (rayStart) {
+    const through = points.find(
+      (point) =>
+        point.id !== rayStart.id &&
+        !pointsAlmostEqual(point, rayStart, 1e-6) &&
+        pointLiesOnRay(point, rayStart, end),
+    );
+
+    if (through) {
+      const style = parseOptions(command.options, state);
+      const id = nextId(state, "ray", `${rayStart.name ?? rayStart.id}-${through.name ?? through.id}`);
+
+      state.objects.set(id, {
+        ...baseObject(state, id, style),
+        startPointId: rayStart.id,
+        throughPointId: through.id,
+        type: "ray",
+      });
+      return true;
+    }
+  }
+
+  for (let firstIndex = 0; firstIndex < points.length; firstIndex += 1) {
+    const first = points[firstIndex];
+
+    if (!first || !pointLiesOnLine(first, start, end)) {
+      continue;
+    }
+
+    for (let secondIndex = firstIndex + 1; secondIndex < points.length; secondIndex += 1) {
+      const second = points[secondIndex];
+
+      if (!second || pointsAlmostEqual(first, second, 1e-6) || !pointLiesOnLine(second, start, end)) {
+        continue;
+      }
+
+      const style = parseOptions(command.options, state);
+      const id = nextId(state, "line", `${first.name ?? first.id}-${second.name ?? second.id}`);
+
+      state.objects.set(id, {
+        ...baseObject(state, id, style),
+        pointAId: first.id,
+        pointBId: second.id,
+        type: "line",
+      });
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function recoverLinearPath(command: TikzCommandNode, state: BuilderState): boolean {
   if (pathIsPointMarker(command.argumentText)) {
     return true;
   }
 
   const pathPoints = readPathPoints(command.argumentText);
+
+  if (recoverClippedLinearPath(command, state, pathPoints)) {
+    return true;
+  }
+
   const points = pathPoints
     .map((pathPoint) => pointForPathPoint(state, pathPoint))
     .filter((point): point is PointObject => Boolean(point));
@@ -394,6 +518,10 @@ function recoverLinearPath(command: TikzCommandNode, state: BuilderState): boole
 }
 
 function recoverCircle(command: TikzCommandNode, state: BuilderState): boolean {
+  if (command.name !== "draw" && command.name !== "filldraw") {
+    return false;
+  }
+
   const pattern = new RegExp(
     `^\\(\\s*([A-Za-z][A-Za-z0-9]*)\\s*\\)\\s*circle\\s*\\(\\s*(${numberPattern})`,
   );
@@ -405,21 +533,70 @@ function recoverCircle(command: TikzCommandNode, state: BuilderState): boolean {
   const literalMatch = text.match(literalPattern);
   const radius = parseNumber(namedMatch?.[2] ?? literalMatch?.[3]);
   const literalPoint = parsePointPair(literalMatch?.[1], literalMatch?.[2]);
-  const center = namedMatch?.[1]
+  const namedCenter = namedMatch?.[1]
     ? pointForPathPoint(state, { kind: "ref", name: namedMatch[1] })
-    : literalPoint
-      ? pointForPathPoint(state, {
-          kind: "literal",
-          point: literalPoint,
-        })
-      : null;
+    : null;
 
-  if (!center || radius === null) {
+  if ((!namedCenter && !literalPoint) || radius === null) {
     return false;
   }
 
   const style = parseOptions(command.options, state);
+
+  if (!namedCenter && literalPoint) {
+    const circlePoints = namedPoints(state).filter((point) =>
+      Math.abs(distance(point, literalPoint) - radius) <= 1e-5,
+    );
+
+    if (circlePoints.length >= 3) {
+      const [pointA, pointB, pointC] = circlePoints;
+      const id = nextId(state, "circle", `${pointA?.name ?? "A"}-${pointB?.name ?? "B"}-${pointC?.name ?? "C"}`);
+
+      if (pointA && pointB && pointC) {
+        state.objects.set(id, {
+          ...baseObject(state, id, style),
+          pointAId: pointA.id,
+          pointBId: pointB.id,
+          pointCId: pointC.id,
+          type: "circle",
+          circleKind: "three-points",
+        });
+        return true;
+      }
+    }
+  }
+
+  const center = namedCenter ?? (literalPoint
+    ? pointForPathPoint(state, {
+        kind: "literal",
+        point: literalPoint,
+      })
+    : null);
+
+  if (!center) {
+    return false;
+  }
+
   const id = nextId(state, "circle", center.name ?? center.id);
+  const circlePoints = namedPoints(state).filter((point) =>
+    Math.abs(distance(point, center) - radius) <= 1e-5,
+  );
+
+  if (!namedMatch?.[1] && circlePoints.length >= 3) {
+    const [pointA, pointB, pointC] = circlePoints;
+
+    if (pointA && pointB && pointC) {
+      state.objects.set(id, {
+        ...baseObject(state, id, style),
+        pointAId: pointA.id,
+        pointBId: pointB.id,
+        pointCId: pointC.id,
+        type: "circle",
+        circleKind: "three-points",
+      });
+      return true;
+    }
+  }
 
   state.objects.set(id, {
     ...baseObject(state, id, style),
@@ -470,9 +647,9 @@ function recoverArc(command: TikzCommandNode, state: BuilderState): boolean {
     x: center.x + radius * Math.cos(endRadians),
     y: center.y + radius * Math.sin(endRadians),
   };
-  const centerObject = createGeneratedPoint(state, "Oarc", center);
-  const startObject = createGeneratedPoint(state, "Sarc", startPoint);
-  const endObject = createGeneratedPoint(state, "Earc", endPoint);
+  const centerObject = existingPointAt(state, center) ?? createGeneratedPoint(state, "Oarc", center);
+  const startObject = existingPointAt(state, startPoint) ?? createGeneratedPoint(state, "Sarc", startPoint);
+  const endObject = existingPointAt(state, endPoint) ?? createGeneratedPoint(state, "Earc", endPoint);
   const id = nextId(state, "arc", `${centerObject.name}-${startObject.name}-${endObject.name}`);
 
   state.objects.set(id, {
@@ -519,7 +696,81 @@ function labelPositionFromOptions(options: readonly string[]): LabelPosition {
 }
 
 function cleanNodeContent(content: string): string {
-  return content.trim().replace(/^\$/, "").replace(/\$$/, "");
+  const trimmed = content.trim();
+  const mathWrapped = trimmed.startsWith("$") && trimmed.endsWith("$");
+  const cleaned = trimmed.replace(/^\$/, "").replace(/\$$/, "");
+
+  return mathWrapped ? cleaned.replace(/\s+/g, "") : cleaned;
+}
+
+function normalizedMeasurementContent(content: string): string {
+  return cleanNodeContent(content)
+    .replace(/\^\\circ/g, "Â°")
+    .replace(/\s+/g, "");
+}
+
+function recoverMeasurementNode(
+  command: TikzCommandNode,
+  state: BuilderState,
+  point: Point2D,
+  content: string,
+): boolean {
+  if (!command.options.some((option) => option.replace(/\s+/g, "").includes("anchor=center"))) {
+    return false;
+  }
+
+  const normalizedContent = normalizedMeasurementContent(content);
+  const objects = Object.fromEntries(state.objects.entries()) as GeometryObjectRecord;
+  const createProbe = (targetObjectId: string, measurementType: MeasurementType) => ({
+    createdAt: 0,
+    dependencies: [targetObjectId],
+    dependents: [],
+    id: `measurement-probe-${targetObjectId}-${measurementType}`,
+    labelPosition: "above" as const,
+    locked: false,
+    measurementType,
+    style: DEFAULT_GEOMETRY_STYLE,
+    targetObjectId,
+    type: "measurement" as const,
+    updatedAt: 0,
+    visible: true,
+  });
+  const target = Object.values(objects).find((object) =>
+    measurementTypes.some((measurementType) => {
+      if (!isMeasurementTypeSupported(object, measurementType)) {
+        return false;
+      }
+
+      return normalizedMeasurementContent(formatMeasurementValue(createProbe(object.id, measurementType), objects)) === normalizedContent;
+    }),
+  );
+
+  if (!target) {
+    return false;
+  }
+
+  const measurementType = measurementTypes.find((candidate) =>
+    isMeasurementTypeSupported(target, candidate) &&
+    normalizedMeasurementContent(formatMeasurementValue(createProbe(target.id, candidate), objects)) === normalizedContent,
+  );
+
+  if (!measurementType) {
+    return false;
+  }
+
+  const id = nextId(state, "measurement", target.id);
+
+  state.objects.set(id, {
+    ...baseObject(state, id, parseOptions(command.options, state)),
+    labelPosition: "above",
+    measurementType,
+    metadata: {
+      recoveredPosition: point,
+    },
+    targetObjectId: target.id,
+    type: "measurement",
+  });
+  return true;
 }
 
 function recoverNode(command: TikzCommandNode, state: BuilderState): void {
@@ -558,6 +809,10 @@ function recoverNode(command: TikzCommandNode, state: BuilderState): void {
       message: "Only simple labels and positioned text nodes can be recovered.",
       severity: "warning",
     });
+    return;
+  }
+
+  if (recoverMeasurementNode(command, state, literalPoint, content)) {
     return;
   }
 

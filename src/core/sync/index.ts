@@ -37,6 +37,20 @@ export {
   type SyncPreviewOperationType,
   type TikzApplyPreview,
 } from "./TikzApplyPreview";
+export {
+  LIVE_TIKZ_SYNC_DEBOUNCE_MS,
+  createLiveGeometryToTikz,
+  createLiveSyncStamp,
+  createLiveTikzToGeometry,
+  createSyncHash,
+  isSameSyncCycle,
+  shouldAutoApplyPreview,
+  type LiveGeometryToTikzResult,
+  type LiveSyncDirection,
+  type LiveSyncStamp,
+  type LiveTikzToGeometryResult,
+  type SyncProvenanceSource,
+} from "./LiveSyncEngine";
 export type {
   GeometryToTikzSyncResult,
   SyncContext,

@@ -6,9 +6,11 @@ import { runSelectionTests } from "./interactions/selection.test";
 import { runTextCreationTests } from "./interactions/textCreation.test";
 import { runProjectTests } from "./project/project.test";
 import { runVectorRendererTests } from "./renderer/vectorRenderer.test";
+import { runLiveSyncTests } from "./sync/liveSync.test";
 import { runSyncTests } from "./sync/sync.test";
 import { runTikzApplyTests } from "./sync/tikzApply.test";
 import { runMeasurementTikzTests } from "./tikz/measurementTikz.test";
+import { runTikzRoundTripTests } from "./tikz/tikzRoundTrip.test";
 import { runTikzTests } from "./tikz/tikz.test";
 import { runTikzParserTests } from "./tikz/tikzParser.test";
 import { runWorkspaceUxTests } from "./workspace/workspaceUx.test";
@@ -22,8 +24,10 @@ const suites = [
   ["text-creation", runTextCreationTests],
   ["renderer", runVectorRendererTests],
   ["sync", runSyncTests],
+  ["live-sync", runLiveSyncTests],
   ["tikz-apply", runTikzApplyTests],
   ["tikz", runTikzTests],
+  ["tikz-round-trip", runTikzRoundTripTests],
   ["tikz-parser", runTikzParserTests],
   ["measurement-tikz", runMeasurementTikzTests],
   ["project", runProjectTests],

@@ -1,12 +1,12 @@
 # Sync Architecture
 
-Status: Epic 6B.5 preview and apply foundation
+Status: Epic 6D semantic synchronization foundation
 
 The synchronization layer lives under `src/core/sync/`. It is intentionally independent from React, SVG, DOM, Zustand stores, and UI components.
 
 ## Purpose
 
-The sync layer defines the contract between Geometry Objects and TikZ. It does not perform realtime synchronization yet. It produces candidate results, plans, diagnostics, intermediate object references, an explicit apply result for user-accepted TikZ edits, and a reviewable operation preview for confirmation before mutation.
+The sync layer defines the contract between Geometry Objects and TikZ. It now supports conservative live synchronization for safe edits, while preserving the explicit Preview/Apply workflow for ambiguous, destructive, partial, or unsupported changes.
 
 ## Current Scope
 
@@ -17,12 +17,13 @@ The sync layer defines the contract between Geometry Objects and TikZ. It does n
 - Read-only sync plans that describe what would happen.
 - Explicit TikZ apply diffing through `TikzApplySync.ts`, preserving object identity where names/dependencies match.
 - Synchronization preview modeling through `TikzApplyPreview.ts`, grouping creates, updates, deletes, preserved objects, warnings, and conflicts.
+- Live sync orchestration through `LiveSyncEngine.ts`, including provenance stamps, content hashes, loop prevention helpers, debounce constants, and safe-auto-apply decisions.
+- Generator/parser semantic parity for application-generated TikZ covering the MVP geometry set.
 
 ## Non-Goals For Epic 6A
 
-- No realtime synchronization.
 - No incremental updates.
-- No conflict resolution.
+- No automatic conflict resolution.
 - No direct mutation of geometry stores from core sync modules.
 - No direct history entries from core sync modules; UI callers commit accepted apply results through existing geometry store actions.
 - No object tree or inspector updates.
@@ -36,6 +37,7 @@ The sync layer defines the contract between Geometry Objects and TikZ. It does n
 - `TikzToGeometrySync.ts`: wraps `parseTikz`, validates recovered objects, and returns candidate Geometry Objects without applying them.
 - `TikzApplySync.ts`: consumes TikZ-to-Geometry candidates, maps them onto existing object identities, produces create/update/delete/preserve operations, and returns the next scene plus diagnostics without mutating stores.
 - `TikzApplyPreview.ts`: converts apply operations into user-facing preview operations with before/after summaries, diagnostic severity, confirmation requirements, warning grouping, and conflict grouping.
+- `LiveSyncEngine.ts`: creates live sync results, provenance stamps, stable content hashes, debounce policy, loop prevention checks, and safe-auto-apply gating for TikZ editor changes.
 - `SyncEngine.ts`: facade for future callers so UI or project code does not depend on low-level sync modules.
 
 ## Data Flow
@@ -77,6 +79,130 @@ TikZ source + current GeometryObjectRecord
   -> user confirmation
   -> UI commits via geometryStore.setObjects(...)
 ```
+
+Live Geometry to TikZ:
+
+```txt
+Geometry Store update
+  -> React memoized generateTikz(...)
+  -> generated code replaces editor draft while Auto is enabled
+  -> no TikZ-to-Geometry apply is triggered for identical generated content
+```
+
+Live TikZ to Geometry:
+
+```txt
+User types in editable TikZ panel
+  -> draft text updates immediately
+  -> 400 ms debounce
+  -> createLiveTikzToGeometry(...)
+  -> createTikzApplyPreview(...)
+  -> auto-apply only if safe
+  -> otherwise diagnostics update and Preview/Apply remains available
+```
+
+## Live Synchronization Rules
+
+Automatic TikZ-to-Geometry synchronization is allowed only when:
+
+- parsing succeeds
+- validation succeeds
+- preview status is `ready`
+- no conflicts are present
+- no warnings are present
+- no deletes are planned
+- no partial parse confirmation is required
+- no destructive confirmation is required
+
+If any of those conditions fail, the editor preserves the user's text, updates diagnostics, and requires the existing Review Changes workflow.
+
+## Loop Prevention
+
+`LiveSyncEngine.ts` creates `LiveSyncStamp` values containing:
+
+- direction
+- provenance origin
+- content hash
+- timestamp
+
+The TikZ panel stores the last live TikZ-to-Geometry stamp. If the next debounced parse has the same direction, origin, and hash, it is ignored as the same synchronization cycle.
+
+## Provenance Tracking
+
+Current provenance sources are:
+
+- `canvas`
+- `inspector`
+- `object-tree`
+- `tikz-editor`
+- `apply-preview`
+- `import`
+- `system`
+
+The live TikZ editor path stamps changes as `tikz-editor`. Geometry-to-TikZ generation can be stamped by callers as `canvas`, `inspector`, `object-tree`, `import`, or `system` as the application grows more explicit source tracking.
+
+## Debounce Strategy
+
+TikZ editor parsing is debounced by `LIVE_TIKZ_SYNC_DEBOUNCE_MS`, currently `400`.
+
+Typing updates the textarea immediately. Parsing and safe apply happen after the debounce window. Intermediate invalid fragments update diagnostics only after debounce and never block typing.
+
+## Incremental Synchronization
+
+The live engine preserves object identity using the Epic 6B apply mapping:
+
+- points by TikZ coordinate name
+- segments/vectors/polygons/regions/circles/angles by named dependencies
+- existing IDs where mappings are unique
+
+For store compatibility, the UI still commits accepted live changes through `geometryStore.setObjects(...)`, producing one undoable history entry per safe debounced apply. This preserves selection filtering, object tree updates, inspector updates, undo/redo, project serialization compatibility, and export compatibility. Field-level patch commits remain a future optimization.
+
+## Generator/Parser Semantic Parity
+
+Epic 6D treats the TikZ generator as the reference grammar. TikZ emitted by the application must parse back into equivalent Geometry Objects whenever semantic information is present in generated code.
+
+Round-trip recovery now covers:
+
+- points from `\coordinate`
+- point labels from generated `\node[...] at (A) {$A$}`
+- segments from named `\draw (A) -- (B)`
+- vectors from generated arrow draw options
+- infinite lines from generated clipped literal line paths matched against named defining points
+- rays from generated clipped literal ray paths matched against named start/through points
+- center-radius circles from named center circle syntax
+- three-point circles from generated literal center/radius syntax matched against named points on the circle
+- polygons from closed named draw paths
+- regions/fills from closed generated `\fill`, `\filldraw`, or filled polygon paths
+- arcs from generated arc syntax, reusing existing named center/start/end points when coordinates match
+- angles from generated TikZ `\pic` angle/right-angle syntax
+- text nodes from generated text labels
+- measurements from generated measurement nodes matched by formatted measurement value against supported targets
+
+The parser intentionally ignores generated point marker commands such as `\fill (A) circle (1.5pt);` so they do not become geometry circles.
+
+## Round-Trip Coverage
+
+The `tikz-round-trip` unit suite exercises:
+
+| Geometry Type | Generated TikZ Round-Trip |
+|---|---|
+| Point | Supported |
+| Segment | Supported |
+| Infinite Line | Supported for app-generated clipped paths |
+| Ray | Supported for app-generated clipped paths |
+| Vector | Supported |
+| Circle, center-radius | Supported |
+| Circle, three-points | Supported when generated named points lie on emitted circle |
+| Polygon | Supported |
+| Region / Fill | Supported |
+| Angle | Supported |
+| Arc | Supported for app-generated arc syntax |
+| Text | Supported |
+| Labels | Supported for point labels |
+| Measurements | Supported when generated value uniquely matches a supported recovered target |
+| Construction Objects | Partially supported as their emitted geometry; construction definitions are not fully reconstructed unless the emitted semantic geometry is enough |
+
+Round-trip success rate for the tested application-generated MVP geometry set: 13/13 suites pass.
 
 ## Preview Operation Model
 
@@ -154,16 +280,22 @@ Core sync modules remain pure and do not mutate Zustand, history, DOM, React sta
 ## Remaining Limitations
 
 - Preview summaries are concise text summaries, not structural field-by-field diffs.
-- Apply preview is modal and explicit; no realtime update loop exists.
+- Live sync is conservative and safe-only; ambiguous or destructive edits still require preview confirmation.
 - Partial parses preserve unmatched existing geometry and require confirmation before committing recovered changes.
 - Conflict resolution is still user-confirm/cancel, not a merge editor.
 - Arbitrary TikZ macros, scopes, advanced paths, and library-specific constructs remain unsupported.
 - Lines and rays remain limited by parser recovery coverage.
+- Live commits currently use whole-scene `setObjects(...)` with preserved IDs rather than field-level store patches.
+- Geometry-to-TikZ regeneration is still full-output generation through the existing generator, although React memoization avoids unnecessary recomputation between unchanged object records.
+- Measurement recovery is value-based and can be ambiguous for scenes with repeated equal measurements.
+- Construction definitions are not fully reconstructed from TikZ unless represented by ordinary emitted geometry.
+- External TikZ that resembles generated clipped line/ray paths may be inferred as line/ray if it matches named points.
 
-## Epic 6C Recommendations
+## Epic 6E Recommendations
 
-- Track generated TikZ provenance so realtime sync can distinguish user edits from generator refreshes.
-- Add conflict resolution for simultaneous canvas and TikZ edits.
+- Add explicit provenance metadata to geometry store actions so canvas, inspector, object-tree, import, and system changes are first-class sources.
+- Add field-level geometry patch commits for live sync instead of full `setObjects(...)` replacement.
+- Add richer conflict resolution for simultaneous canvas and TikZ edits.
 - Add field-level merge controls for conflicts rather than only confirm/cancel.
 - Add incremental diffing keyed by stable sync identity.
-- Keep realtime synchronization disabled until conflict handling and identity preservation are designed.
+- Expand parser support for lines, rays, scopes, named styles, and common TikZ path forms.
