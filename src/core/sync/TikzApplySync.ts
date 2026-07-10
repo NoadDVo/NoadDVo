@@ -190,7 +190,7 @@ function objectIdentityKey(object: GeometryObject, objects: GeometryObjectRecord
       return `text:${object.content}:${object.x}:${object.y}`;
     case "image":
       return null;
-    case "measurement":
+    default:
       return null;
   }
 }
@@ -323,14 +323,6 @@ function rewireObject<T extends GeometryObject>(
       dependencies,
       endPointId: idMap.get(object.endPointId) ?? object.endPointId,
       startPointId: idMap.get(object.startPointId) ?? object.startPointId,
-    };
-  }
-
-  if (object.type === "measurement") {
-    return {
-      ...object,
-      dependencies,
-      targetObjectId: idMap.get(object.targetObjectId) ?? object.targetObjectId,
     };
   }
 

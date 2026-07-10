@@ -1,5 +1,5 @@
 import type { LineObject, PointObject } from "../../geometry";
-import { clipLineToBounds, type WorldBounds } from "../../geometry/viewport";
+import { getBoundedLineEndpoints } from "../../geometry/derivedGeometry";
 import {
   formatPoint,
   formatStyleOptions,
@@ -7,12 +7,7 @@ import {
 } from "../TikzFormatter";
 import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
 
-const exportBounds: WorldBounds = {
-  maxX: 10,
-  maxY: 10,
-  minX: -10,
-  minY: -10,
-};
+
 
 function getPoint(objectId: string, context: TikzExportContext) {
   const object = context.scene.objects[objectId];
@@ -34,12 +29,12 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
       return;
     }
 
-    const clipped = clipLineToBounds(pointA, pointB, exportBounds);
+    const boundedLine = getBoundedLineEndpoints(object, context.scene.objects);
 
-    if (!clipped) {
+    if (!boundedLine) {
       context.warnings.push({
         code: "TIKZ_INVALID_LINE",
-        message: "Line could not be exported because it is degenerate or outside export bounds.",
+        message: "Line could not be exported because it is degenerate or zero-length.",
         objectId: object.id,
       });
       return;
@@ -47,8 +42,8 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
     const style = styleToTikzParts(object.style, context.options, colorFor);
-    const start = formatPoint(clipped[0], context.options.coordinatePrecision);
-    const end = formatPoint(clipped[1], context.options.coordinatePrecision);
+    const start = formatPoint(boundedLine[0], context.options.coordinatePrecision);
+    const end = formatPoint(boundedLine[1], context.options.coordinatePrecision);
 
     context.scene.sections.shapes.push(
       `\\draw${formatStyleOptions(style)} ${start} -- ${end};`,

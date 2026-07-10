@@ -1,0 +1,60 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\geometry{
+    a4paper,
+    total={170mm,257mm},
+    left=20mm,
+    top=20mm,
+}
+
+\title{\textbf{Danh sách chức năng của NoadDVo Geometry Studio}}
+\author{}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Tổng quan Hệ thống}
+NoadDVo Geometry Studio là một ứng dụng web mô phỏng không gian hình học trực quan, hỗ trợ vẽ hình, phân tích toán học và xuất mã nguồn LaTeX (TikZ) tự động. Ứng dụng cung cấp bảng vẽ (Canvas) vô hạn, lưới tọa độ thông minh và hàng loạt công cụ vẽ chuyên dụng.
+
+\section{Các Công cụ Hình học (Geometry Tools)}
+Hệ thống cung cấp một bộ công cụ toàn diện để khởi tạo và thao tác các đối tượng hình học:
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Chọn \& Di chuyển:} Chọn đối tượng (Select Tool) và Di chuyển đối tượng (Move Tool).
+    \item \textbf{Điểm (Point):} Tạo điểm tự do, lấy trung điểm (Midpoint), lấy giao điểm (Intersection).
+    \item \textbf{Đường thẳng \& Đoạn thẳng:} Vẽ đoạn thẳng (Segment), tia (Ray), và đường thẳng vô hạn (Line).
+    \item \textbf{Công cụ tương quan:} Vẽ đường thẳng song song (Parallel Line), đường vuông góc (Perpendicular Line).
+    \item \textbf{Đường tròn (Circle):} Vẽ đường tròn thông qua tâm và bán kính/điểm trên đường tròn.
+    \item \textbf{Đa giác (Polygon):} Tạo các đa giác khép kín.
+    \item \textbf{Vector:} Khởi tạo và làm việc với vector.
+    \item \textbf{Góc \& Đo lường (Measurement):} Đánh dấu góc (Angle), đo chiều dài, khoảng cách và diện tích.
+    \item \textbf{Cắt xén (Trim):} Công cụ cắt xén (Trim) các phần thừa của đường thẳng/vòng tròn.
+    \item \textbf{Đổ màu (Fill):} Tô màu các vùng giới hạn khép kín.
+    \item \textbf{Văn bản (Text):} Chèn chú thích và văn bản toán học lên bảng vẽ.
+\end{itemize}
+
+\section{Tính năng Cốt lõi (Core Features)}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Lưới \& Snap thông minh:} Lưới tự động thay đổi (Adaptive Grid), chế độ bắt dính điểm thông minh với \textit{Snap Radius} và khoảng cách Euclidean tối ưu.
+    \item \textbf{Quản lý trạng thái (History):} Hỗ trợ Undo/Redo mạnh mẽ.
+    \item \textbf{Cây đối tượng (Object Tree):} Quản lý cấu trúc phân cấp, cho phép ẩn/hiện và khóa (lock) từng đối tượng hình học trên màn hình.
+    \item \textbf{Bảng Thuộc tính (Properties Panel):} Cho phép tùy chỉnh màu viền, màu nền, kích thước điểm, kiểu nét (nét đứt, nét liền) và ẩn/hiện nhãn tên.
+    \item \textbf{Thao tác không gian (Viewport):} Hỗ trợ Pan (kéo thả bảng vẽ bằng phím Space), Zoom in/out mượt mà, và lưới vô hạn.
+\end{itemize}
+
+\section{Tính năng Nâng cao \& Tích hợp}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Đồng bộ TikZ (TikZ Panel):} Xuất mã hình học dưới dạng mã TikZ của LaTeX một cách trực tiếp, hỗ trợ soạn thảo tài liệu toán học chuyên nghiệp.
+    \item \textbf{Bảng lệnh nhanh (Command Palette):} Nhấn phím tắt để kích hoạt bảng tìm kiếm lệnh/công cụ một cách nhanh chóng.
+    \item \textbf{Menu Ngữ cảnh (Context Menu):} Click chuột phải vào đối tượng để truy cập nhanh các lệnh như xóa, xem thông tin, đổi màu.
+    \item \textbf{Trang cài đặt (Settings):} Tuỳ chỉnh màu của lưới, chất lượng render, và các thông số kỹ thuật hiển thị nâng cao.
+\end{itemize}
+
+\end{document}

@@ -1,4 +1,4 @@
-import { isRightAngle, type AngleObject, type PointObject } from "../../geometry";
+import { angleRadians, isRightAngle, type AngleObject, type PointObject } from "../../geometry";
 import {
   formatNumber,
   formatStyleOptions,
@@ -24,14 +24,13 @@ function getPointName(objectId: string, context: TikzExportContext): string | nu
   return context.nameRegistry.getPointName(objectId) ?? null;
 }
 
-function formatLabel(label: string | undefined): string | null {
+function formatLabel(label: string | undefined, degrees: number): string | null {
+  const degreeStr = `${degrees}^\\circ`;
   if (!label) {
-    return null;
+    return `"$${degreeStr}$"`;
   }
-
   const trimmed = label.trim();
-
-  return `"$${greekLabelMap[trimmed] ?? trimmed}$"`;
+  return `"$${greekLabelMap[trimmed] ?? trimmed} = ${degreeStr}$"`;
 }
 
 export const AngleExporter: TikzObjectExporter<AngleObject> = {
@@ -58,7 +57,8 @@ export const AngleExporter: TikzObjectExporter<AngleObject> = {
       .replace(/^\[|\]$/g, "")
       .split(", ")
       .filter(Boolean);
-    const label = formatLabel(object.label ?? object.name);
+    const degrees = Math.round((angleRadians(pointA, vertex, pointC) * 180) / Math.PI);
+    const label = formatLabel(object.label ?? object.name, degrees);
     const options = formatTikzOptions([
       ...(styleOptions.length > 0 ? styleOptions : ["draw"]),
       ...(label ? [label] : []),

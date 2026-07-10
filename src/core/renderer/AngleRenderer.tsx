@@ -132,9 +132,11 @@ export const AngleRenderer: GeometryRenderer<AngleObject> = {
     const radius = Math.max(0.15, object.radius);
     const stroke = isSelected ? "#7ddcff" : object.style.stroke;
     const strokeWidth = object.style.strokeWidth + (isSelected ? 1.25 : 0);
+    const degrees = Math.round((angleRadians(pointA, vertex, pointC) * 180) / Math.PI);
     const label = object.label ?? object.name;
+    const displayLabel = label ? `${label} = ${degrees}°` : `${degrees}°`;
     const labelScreen = worldToScreen(
-      labelPoint(pointA, vertex, pointC, radius * 1.34),
+      labelPoint(pointA, vertex, pointC, radius * 1.5),
       context.viewport,
     );
     const isRight = isRightAngle(pointA, vertex, pointC);
@@ -186,7 +188,7 @@ export const AngleRenderer: GeometryRenderer<AngleObject> = {
             x={labelScreen.x}
             y={labelScreen.y}
           >
-            {label}
+            {displayLabel}
           </text>
         )}
         {isSelected && (

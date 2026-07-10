@@ -1,5 +1,6 @@
 import type { LineObject, PointObject } from "../geometry";
-import { clipLineToBounds, getViewportWorldBounds, worldToScreen } from "../geometry/viewport";
+import { getBoundedLineEndpoints } from "../geometry/derivedGeometry";
+import { worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer, GeometryRendererContext } from "./RendererRegistry";
 
 function getPoint(objectId: string, context: GeometryRendererContext) {
@@ -30,18 +31,14 @@ export const LineRenderer: GeometryRenderer<LineObject> = {
       return null;
     }
 
-    const clippedLine = clipLineToBounds(
-      pointA,
-      pointB,
-      getViewportWorldBounds(context.viewport),
-    );
+    const boundedLine = getBoundedLineEndpoints(object, context.objects);
 
-    if (!clippedLine) {
+    if (!boundedLine) {
       return null;
     }
 
-    const start = worldToScreen(clippedLine[0], context.viewport);
-    const end = worldToScreen(clippedLine[1], context.viewport);
+    const start = worldToScreen(boundedLine[0], context.viewport);
+    const end = worldToScreen(boundedLine[1], context.viewport);
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
 

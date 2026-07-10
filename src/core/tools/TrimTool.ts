@@ -665,7 +665,7 @@ export function getEraseCandidates(
       return;
     }
 
-    if (object.type === "measurement") {
+    if (object.type === "distance" || object.type === "area" || object.type === "slider") {
       candidates.push(candidateForDelete(object, {
         kind: "point",
         point,

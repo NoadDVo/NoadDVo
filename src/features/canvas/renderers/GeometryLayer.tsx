@@ -21,7 +21,12 @@ const RENDER_ORDER = {
   angle: 65,
   point: 70,
   text: 80,
-  measurement: 90,
+  distance: 90,
+  area: 91,
+  slider: 92,
+  ellipse: 21,
+  hyperbola: 22,
+  polynomial: 23,
 } as const;
 
 export const GeometryLayer = memo(function GeometryLayer({

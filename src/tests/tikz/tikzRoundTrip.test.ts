@@ -6,7 +6,6 @@ import {
   type GeometryObject,
   type GeometryObjectRecord,
   type LineObject,
-  type MeasurementObject,
   type PointObject,
   type PolygonObject,
   type RayObject,
@@ -86,7 +85,6 @@ export function runTikzRoundTripTests(): void {
   assertAngleRoundTrip();
   assertArcRoundTrip();
   assertTextRoundTrip();
-  assertMeasurementRoundTrip();
 }
 
 function assertPointRoundTrip(): void {
@@ -376,42 +374,3 @@ function assertTextRoundTrip(): void {
   assertEqual(firstOfType(parsed, "text").content, "x^2+y^2", "text content round-trips");
 }
 
-function assertMeasurementRoundTrip(): void {
-  const segment: SegmentObject = {
-    createdAt: 2,
-    dependencies: ["a", "b"],
-    dependents: ["measure-ab"],
-    endPointId: "b",
-    id: "ab",
-    locked: false,
-    startPointId: "a",
-    style: DEFAULT_GEOMETRY_STYLE,
-    type: "segment",
-    updatedAt: 2,
-    visible: true,
-  };
-  const measurement: MeasurementObject = {
-    createdAt: 3,
-    dependencies: ["ab"],
-    dependents: [],
-    id: "measure-ab",
-    labelPosition: "above",
-    locked: false,
-    measurementType: "segment-length",
-    style: DEFAULT_GEOMETRY_STYLE,
-    targetObjectId: "ab",
-    type: "measurement",
-    updatedAt: 3,
-    visible: true,
-  };
-  const parsed = roundTrip({
-    a: point("a", "A", 0, 0),
-    ab: segment,
-    b: point("b", "B", 4, 0),
-    "measure-ab": measurement,
-  });
-  const parsedMeasurement = firstOfType(parsed, "measurement");
-
-  assertEqual(parsedMeasurement.measurementType, "segment-length", "measurement type round-trips");
-  assertEqual(parsedMeasurement.targetObjectId, firstOfType(parsed, "segment").id, "measurement target round-trips");
-}

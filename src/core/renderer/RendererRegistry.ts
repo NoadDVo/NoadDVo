@@ -11,14 +11,19 @@ import { ArcRenderer } from "./ArcRenderer";
 import { CircleRenderer } from "./CircleRenderer";
 import { ImageRenderer } from "./ImageRenderer";
 import { LineRenderer } from "./LineRenderer";
-import { MeasurementRenderer } from "./MeasurementRenderer";
 import { PointRenderer } from "./PointRenderer";
 import { PolygonRenderer } from "./PolygonRenderer";
+import { DistanceRenderer } from "./DistanceRenderer";
+import { AreaRenderer } from "./AreaRenderer";
 import { RayRenderer } from "./RayRenderer";
 import { RegionRenderer } from "./RegionRenderer";
 import { SegmentRenderer } from "./SegmentRenderer";
 import { TextRenderer } from "./TextRenderer";
 import { VectorRenderer } from "./VectorRenderer";
+import { EllipseRenderer } from "./EllipseRenderer";
+import { HyperbolaRenderer } from "./HyperbolaRenderer";
+import { PolynomialRenderer } from "./PolynomialRenderer";
+import { SliderRenderer } from "./SliderRenderer";
 
 export type GeometryRendererContext = {
   readonly viewport: Viewport;
@@ -60,16 +65,25 @@ export class RendererRegistry {
 
 export const geometryRendererRegistry = new RendererRegistry();
 
-geometryRendererRegistry.register(PolygonRenderer);
-geometryRendererRegistry.register(ImageRenderer);
-geometryRendererRegistry.register(RegionRenderer);
-geometryRendererRegistry.register(CircleRenderer);
-geometryRendererRegistry.register(ArcRenderer);
-geometryRendererRegistry.register(LineRenderer);
-geometryRendererRegistry.register(RayRenderer);
-geometryRendererRegistry.register(SegmentRenderer);
-geometryRendererRegistry.register(VectorRenderer);
-geometryRendererRegistry.register(AngleRenderer);
-geometryRendererRegistry.register(PointRenderer);
-geometryRendererRegistry.register(TextRenderer);
-geometryRendererRegistry.register(MeasurementRenderer);
+[
+  PointRenderer,
+  SegmentRenderer,
+  LineRenderer,
+  RayRenderer,
+  VectorRenderer,
+  CircleRenderer,
+  ArcRenderer,
+  PolygonRenderer,
+  AngleRenderer,
+  TextRenderer,
+  ImageRenderer,
+  RegionRenderer,
+  DistanceRenderer,
+  AreaRenderer,
+  EllipseRenderer,
+  HyperbolaRenderer,
+  PolynomialRenderer,
+  SliderRenderer,
+].forEach((renderer: any) => {
+  geometryRendererRegistry.register(renderer);
+});

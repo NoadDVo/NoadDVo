@@ -15,7 +15,12 @@ const objectOrder = {
   point: 100,
   text: 110,
   image: 115,
-  measurement: 120,
+  ellipse: 120,
+  hyperbola: 121,
+  polynomial: 122,
+  slider: 123,
+  distance: 124,
+  area: 125,
 } satisfies Record<GeometryObject["type"], number>;
 
 export function buildTikzScene(

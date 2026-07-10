@@ -35,7 +35,14 @@ export type GeometryObjectType =
   | "text"
   | "image"
   | "region"
-  | "measurement";
+  | "distance"
+  | "area"
+  | "ellipse"
+  | "hyperbola"
+  | "polynomial"
+  | "slider"
+  | "locus"
+  | "sector";
 
 export type GeometryToolId =
   | "select"
@@ -49,9 +56,12 @@ export type GeometryToolId =
   | "polygon"
   | "angle"
   | "text"
+  | "image"
   | "trim"
   | "fill"
-  | "measure"
+  | "distance"
+  | "area"
+  | "slider"
   | "midpoint"
   | "intersection"
   | "parallel"
@@ -61,7 +71,25 @@ export type GeometryToolId =
   | "median"
   | "altitude"
   | "circumcircle"
-  | "incircle";
+  | "incircle"
+  | "reflect-line"
+  | "reflect-point"
+  | "rotate-point"
+  | "translate-vector"
+  | "dilate-point"
+  | "regular-polygon"
+  | "three-point-circle"
+  | "three-point-arc"
+  | "semicircle"
+  | "circular-sector"
+  | "compass"
+  | "ellipse"
+  | "hyperbola"
+  | "polynomial"
+  | "slider"
+  | "locus"
+  | "distance"
+  | "area";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
 
@@ -75,19 +103,6 @@ export type TextMode =
 
 export type TextAlignment = "left" | "center" | "right";
 
-export type MeasurementType =
-  | "segment-length"
-  | "polygon-perimeter"
-  | "polygon-area"
-  | "circle-radius"
-  | "circle-diameter"
-  | "circle-circumference"
-  | "circle-area"
-  | "arc-length"
-  | "region-area"
-  | "angle-value"
-  | "point-distance"
-  | "coordinate-display";
 
 export type LabelPosition =
   | "above"
@@ -190,6 +205,33 @@ export type ConstructionDefinition =
       readonly centerPointId: string;
       readonly sidePointAId: string;
       readonly sidePointBId: string;
+    }
+  | {
+      readonly type: "reflect-line-point";
+      readonly pointId: string;
+      readonly lineId: string;
+    }
+  | {
+      readonly type: "reflect-point-point";
+      readonly pointId: string;
+      readonly centerPointId: string;
+    }
+  | {
+      readonly type: "rotate-point";
+      readonly pointId: string;
+      readonly centerPointId: string;
+      readonly angle: number | string;
+    }
+  | {
+      readonly type: "translate-vector-point";
+      readonly pointId: string;
+      readonly vectorId: string;
+    }
+  | {
+      readonly type: "dilate-point";
+      readonly pointId: string;
+      readonly centerPointId: string;
+      readonly factor: number | string;
     };
 
 export type PointObject = BaseGeometryObject & {
@@ -289,13 +331,47 @@ export type ImageObject = BaseGeometryObject & {
   readonly preserveAspectRatio: boolean;
 };
 
+export type EllipseObject = BaseGeometryObject & {
+  readonly type: "ellipse";
+  readonly focusAId: string;
+  readonly focusBId: string;
+  readonly pointOnEllipseId: string;
+};
+
+export type HyperbolaObject = BaseGeometryObject & {
+  readonly type: "hyperbola";
+  readonly focusAId: string;
+  readonly focusBId: string;
+  readonly pointOnHyperbolaId: string;
+};
+
+export type PolynomialObject = BaseGeometryObject & {
+  readonly type: "polynomial";
+  readonly pointIds: readonly string[];
+};
+
+export type SliderObject = BaseGeometryObject & {
+  readonly type: "slider";
+  readonly x: number;
+  readonly y: number;
+  readonly widthPx: number;
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
+  readonly value: number;
+  readonly variableName: string;
+};
+
 export type BoundaryEdgeKind =
   | "segment"
   | "line"
   | "ray"
   | "circle"
   | "arc"
-  | "polygon-edge";
+  | "polygon-edge"
+  | "ellipse"
+  | "hyperbola"
+  | "polynomial";
 
 export type BoundaryEdge = {
   readonly objectId: string;
@@ -320,10 +396,19 @@ export type RegionObject = BaseGeometryObject & {
   readonly loops?: readonly BoundaryLoop[];
 };
 
-export type MeasurementObject = BaseGeometryObject & {
-  readonly type: "measurement";
-  readonly measurementType: MeasurementType;
-  readonly targetObjectId: string;
+export type DistanceObject = BaseGeometryObject & {
+  readonly type: "distance";
+  readonly distanceKind: "two-points" | "segment";
+  readonly pointAId?: string;
+  readonly pointBId?: string;
+  readonly segmentId?: string;
+  readonly labelPosition: LabelPosition;
+  readonly precision?: number;
+};
+
+export type AreaObject = BaseGeometryObject & {
+  readonly type: "area";
+  readonly polygonId: string;
   readonly labelPosition: LabelPosition;
   readonly precision?: number;
 };
@@ -341,7 +426,12 @@ export type GeometryObject =
   | TextObject
   | ImageObject
   | RegionObject
-  | MeasurementObject;
+  | DistanceObject
+  | AreaObject
+  | EllipseObject
+  | HyperbolaObject
+  | PolynomialObject
+  | SliderObject;
 
 export type GeometryObjectRecord = Readonly<Record<string, GeometryObject>>;
 

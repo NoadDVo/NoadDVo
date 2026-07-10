@@ -47,11 +47,6 @@ const sectionLabels: readonly {
   { accepts: (object) => object.type === "angle", id: "angles", label: "Angles" },
   { accepts: (object) => object.type === "text", id: "text", label: "Text" },
   {
-    accepts: (object) => object.type === "measurement",
-    id: "measurements",
-    label: "Measurements",
-  },
-  {
     accepts: (object) => object.dependencies.length > 0,
     id: "construction",
     label: "Construction",
@@ -84,7 +79,7 @@ function matchesFilter(object: GeometryObject, filter: ObjectTreeFilter): boolea
   }
 
   if (filter === "measurements") {
-    return object.type === "measurement";
+    return false;
   }
 
   if (filter === "hidden") {

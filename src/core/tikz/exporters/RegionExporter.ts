@@ -6,6 +6,7 @@ import {
   type BoundaryEdge,
   type RegionObject,
 } from "../../geometry";
+
 import {
   formatNumber,
   formatPoint,
@@ -31,14 +32,18 @@ function edgeToTikz(edge: BoundaryEdge, context: TikzExportContext, first: boole
       edge.edgeKind === "segment" ||
       edge.edgeKind === "polygon-edge" ||
       edge.edgeKind === "line" ||
-      edge.edgeKind === "ray"
+      edge.edgeKind === "ray" ||
+      edge.edgeKind === "ellipse" ||
+      edge.edgeKind === "hyperbola" ||
+      edge.edgeKind === "polynomial"
     ) &&
     edge.startParameter !== undefined &&
     edge.endParameter !== undefined
   ) {
     const primitive = collectBoundaryPrimitives(context.scene.objects).find((candidate) =>
-      candidate.id === edge.sourcePrimitiveId ||
-      candidate.objectId === edge.objectId,
+      edge.sourcePrimitiveId
+        ? candidate.id === edge.sourcePrimitiveId
+        : candidate.objectId === edge.objectId,
     );
 
     if (primitive?.kind === "linear" && primitive.origin && primitive.vector) {
@@ -158,12 +163,13 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
         fill: fillVisible ? style.fill : undefined,
         fillOpacity: fillVisible ? style.fillOpacity : undefined,
       });
-      const command = fillVisible ? (strokeVisible ? "\\filldraw" : "\\fill") : "\\draw";
+      const command = `\\${fillVisible && strokeVisible ? "filldraw" : fillVisible ? "fill" : "draw"}`;
       const section = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
-
-      section.push(`${command}${options} ${path};`);
+      section.push(`${command} ${options} ${path};`);
       return;
     }
+
+
 
     const names = object.boundaryPointIds
       .map((pointId) => context.nameRegistry.getPointName(pointId))

@@ -2,8 +2,9 @@ import type { GeometryObject, GeometryObjectRecord } from "../geometry";
 import { AngleExporter } from "./exporters/AngleExporter";
 import { ArcExporter } from "./exporters/ArcExporter";
 import { CircleExporter } from "./exporters/CircleExporter";
+import { DistanceExporter } from "./exporters/DistanceExporter";
+import { AreaExporter } from "./exporters/AreaExporter";
 import { LineExporter } from "./exporters/LineExporter";
-import { MeasurementExporter } from "./exporters/MeasurementExporter";
 import { PointExporter } from "./exporters/PointExporter";
 import { PolygonExporter } from "./exporters/PolygonExporter";
 import { RayExporter } from "./exporters/RayExporter";
@@ -11,6 +12,10 @@ import { RegionExporter } from "./exporters/RegionExporter";
 import { SegmentExporter } from "./exporters/SegmentExporter";
 import { TextExporter } from "./exporters/TextExporter";
 import { VectorExporter } from "./exporters/VectorExporter";
+import { EllipseExporter } from "./exporters/EllipseExporter";
+import { HyperbolaExporter } from "./exporters/HyperbolaExporter";
+import { PolynomialExporter } from "./exporters/PolynomialExporter";
+import { SliderExporter } from "./exporters/SliderExporter";
 import { formatTikzDocument } from "./TikzFormatter";
 import { getTikzOptions, type TikzOptions } from "./TikzOptions";
 import { TikzColorRegistry } from "./TikzColorRegistry";
@@ -46,11 +51,6 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
       LineExporter.exportObject(object, context);
     }
   },
-  measurement: (object, context) => {
-    if (object.type === "measurement") {
-      MeasurementExporter.exportObject(object, context);
-    }
-  },
   polygon: (object, context) => {
     if (object.type === "polygon") {
       PolygonExporter.exportObject(object, context);
@@ -76,9 +76,39 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
       VectorExporter.exportObject(object, context);
     }
   },
+  distance: (object, context) => {
+    if (object.type === "distance") {
+      DistanceExporter.exportObject(object, context);
+    }
+  },
+  area: (object, context) => {
+    if (object.type === "area") {
+      AreaExporter.exportObject(object, context);
+    }
+  },
   text: (object, context) => {
     if (object.type === "text") {
       TextExporter.exportObject(object, context);
+    }
+  },
+  ellipse: (object, context) => {
+    if (object.type === "ellipse") {
+      EllipseExporter.exportObject(object as any, context);
+    }
+  },
+  hyperbola: (object, context) => {
+    if (object.type === "hyperbola") {
+      HyperbolaExporter.exportObject(object as any, context);
+    }
+  },
+  polynomial: (object, context) => {
+    if (object.type === "polynomial") {
+      PolynomialExporter.exportObject(object as any, context);
+    }
+  },
+  slider: (object, context) => {
+    if (object.type === "slider") {
+      SliderExporter.exportObject(object as any, context);
     }
   },
 };

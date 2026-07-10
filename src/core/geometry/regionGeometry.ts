@@ -1,4 +1,5 @@
 import { polygonArea } from "./math";
+
 import {
   getCircleGeometry,
   getArcGeometry,
@@ -60,8 +61,9 @@ function edgeStartEnd(
 ): readonly [Point2D, Point2D] | null {
   if (edge.startParameter !== undefined && edge.endParameter !== undefined) {
     const primitive = collectBoundaryPrimitives(objects).find((candidate) =>
-      candidate.id === edge.sourcePrimitiveId ||
-      candidate.objectId === edge.objectId,
+      edge.sourcePrimitiveId
+        ? candidate.id === edge.sourcePrimitiveId
+        : candidate.objectId === edge.objectId,
     );
 
     if (primitive?.kind === "linear" && primitive.origin && primitive.vector) {
@@ -125,7 +127,10 @@ function edgePath(edge: BoundaryEdge, objects: GeometryObjectRecord, first: bool
     edge.edgeKind === "segment" ||
     edge.edgeKind === "polygon-edge" ||
     edge.edgeKind === "line" ||
-    edge.edgeKind === "ray"
+    edge.edgeKind === "ray" ||
+    edge.edgeKind === "ellipse" ||
+    edge.edgeKind === "hyperbola" ||
+    edge.edgeKind === "polynomial"
   ) {
     const endpoints = edgeStartEnd(edge, objects);
 
@@ -209,6 +214,8 @@ export function getRegionDependencyIds(object: RegionObject): readonly string[] 
 
     return Array.from(new Set(ids));
   }
+
+
 
   return object.boundaryPointIds;
 }

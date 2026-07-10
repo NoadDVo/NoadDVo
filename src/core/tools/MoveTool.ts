@@ -1,4 +1,4 @@
-import type { ImageObject, Point2D, PointObject } from "../geometry";
+import type { ImageObject, Point2D, PointObject, SliderObject } from "../geometry";
 import { hitTest } from "../selection/HitTest";
 import { BaseTool } from "./BaseTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
@@ -13,11 +13,19 @@ type MovingImage = {
   readonly start: Point2D;
 };
 
+type MovingSlider = {
+  readonly id: string;
+  readonly startValue: number;
+  readonly start: Point2D;
+  readonly isKnob: boolean;
+};
+
 export class MoveTool extends BaseTool {
   private dragStart = null as Point2D | null;
   private hasDragged = false;
   private movingImages = [] as readonly MovingImage[];
   private movingPoints = [] as readonly MovingPoint[];
+  private movingSliders = [] as readonly MovingSlider[];
 
   constructor() {
     super({
@@ -40,7 +48,12 @@ export class MoveTool extends BaseTool {
       context.viewport,
     );
 
-    if (!hit || (hit.object.type !== "point" && hit.object.type !== "image")) {
+    if (!hit || (hit.object.type !== "point" && hit.object.type !== "image" && hit.object.type !== "slider")) {
+      return;
+    }
+
+    if (hit.object.type === "slider") {
+      this.startSliderDrag(hit.object, hit.type === "slider-knob", event, context);
       return;
     }
 
@@ -78,11 +91,12 @@ export class MoveTool extends BaseTool {
     context.beginHistoryTransaction("move", "Move point");
     this.dragStart = event.snappedWorldPoint;
     this.movingPoints = movingPoints;
+    this.movingSliders = [];
     this.hasDragged = false;
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
-    if (!this.dragStart || (this.movingPoints.length === 0 && this.movingImages.length === 0)) {
+    if (!this.dragStart || (this.movingPoints.length === 0 && this.movingImages.length === 0 && this.movingSliders.length === 0)) {
       const hit = hitTest(
         event.screenPoint,
         event.worldPoint,
@@ -135,6 +149,42 @@ export class MoveTool extends BaseTool {
         };
       });
     }
+
+    for (const movingSlider of this.movingSliders) {
+      context.updateObject(movingSlider.id, (currentObject) => {
+        if (currentObject.type !== "slider" || !this.canMoveSlider(currentObject)) {
+          return currentObject;
+        }
+
+        if (movingSlider.isKnob) {
+          // delta.x is in world units, we need it in pixels if widthPx is fixed, 
+          // but slider width is in pixels. So we use the viewport scale to convert.
+          const deltaXPx = delta.x * context.viewport.scale;
+          const ratioDelta = deltaXPx / currentObject.widthPx;
+          const valueDelta = ratioDelta * (currentObject.max - currentObject.min);
+          let newValue = movingSlider.startValue + valueDelta;
+          
+          // clamp and step
+          if (currentObject.step > 0) {
+            newValue = Math.round(newValue / currentObject.step) * currentObject.step;
+          }
+          newValue = Math.max(currentObject.min, Math.min(currentObject.max, newValue));
+
+          return {
+            ...currentObject,
+            updatedAt: Date.now(),
+            value: newValue,
+          };
+        } else {
+          return {
+            ...currentObject,
+            updatedAt: Date.now(),
+            x: movingSlider.start.x + delta.x,
+            y: movingSlider.start.y + delta.y,
+          };
+        }
+      });
+    }
   }
 
   pointerUp(_event: ToolPointerEvent, context: ToolContext): void {
@@ -151,6 +201,10 @@ export class MoveTool extends BaseTool {
 
   private canMoveImage(image: ImageObject): boolean {
     return image.visible && !image.locked;
+  }
+
+  private canMoveSlider(slider: SliderObject): boolean {
+    return slider.visible && !slider.locked;
   }
 
   private startImageDrag(
@@ -175,6 +229,37 @@ export class MoveTool extends BaseTool {
       },
     ];
     this.movingPoints = [];
+    this.movingSliders = [];
+    this.hasDragged = false;
+  }
+
+  private startSliderDrag(
+    slider: SliderObject,
+    isKnob: boolean,
+    event: ToolPointerEvent,
+    context: ToolContext,
+  ): void {
+    if (!this.canMoveSlider(slider)) {
+      return;
+    }
+
+    if (!context.selectedObjectIds.includes(slider.id)) {
+      context.selectObject(slider.id);
+    }
+
+    context.beginHistoryTransaction("move", isKnob ? "Change slider value" : "Move slider");
+    // Do not use snappedWorldPoint for slider knob, it feels jumpy.
+    this.dragStart = isKnob ? event.worldPoint : event.snappedWorldPoint;
+    this.movingSliders = [
+      {
+        id: slider.id,
+        startValue: slider.value,
+        start: { x: slider.x, y: slider.y },
+        isKnob,
+      },
+    ];
+    this.movingImages = [];
+    this.movingPoints = [];
     this.hasDragged = false;
   }
 
@@ -191,6 +276,7 @@ export class MoveTool extends BaseTool {
     this.hasDragged = false;
     this.movingImages = [];
     this.movingPoints = [];
+    this.movingSliders = [];
   }
 }
 

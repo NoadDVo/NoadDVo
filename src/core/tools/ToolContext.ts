@@ -87,7 +87,7 @@ export function createToolContext(): ToolContext {
     snapEnabled: viewportState.snapEnabled && !viewportState.snapTemporarilyDisabled,
     snapPoint: (point) =>
       viewportState.snapEnabled && !viewportState.snapTemporarilyDisabled
-        ? snapToGrid(point, viewportState.gridSize)
+        ? snapToGrid(point, viewportState.gridSize, viewportState.snapRadius / viewportState.viewport.scale)
         : point,
     updateObject: geometryState.updateObject,
     viewport: viewportState.viewport,

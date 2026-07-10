@@ -9,7 +9,6 @@ import type {
 import {
   getArcGeometry,
   getCircleGeometry,
-  getMeasurementAnchorPoint,
   getPointObject,
   getPolygonPoints,
   getTextPosition,
@@ -111,10 +110,6 @@ export function getBoundingBox(
 
   if (object.type === "text") {
     return boxFromPoints([getTextPosition(object, objects)]);
-  }
-
-  if (object.type === "measurement") {
-    return boxFromPoints([getMeasurementAnchorPoint(object, objects)]);
   }
 
   return null;

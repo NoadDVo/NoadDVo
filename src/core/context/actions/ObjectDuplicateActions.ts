@@ -1,7 +1,7 @@
 import { duplicateSelection } from "../../clipboard";
 import type { ContextMenuAction } from "../ContextMenuTypes";
 
-const geometryTargets = ["point", "segment", "line", "ray", "vector", "circle", "polygon", "region", "arc", "angle", "text", "measurement"] as const;
+const geometryTargets = ["point", "segment", "line", "ray", "vector", "circle", "polygon", "region", "arc", "angle", "text", "distance", "area"] as const;
 
 export const duplicateObjectAction: ContextMenuAction = {
   execute: () => {

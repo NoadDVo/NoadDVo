@@ -16,7 +16,7 @@ import {
 } from "../ContextMenuHelpers";
 import { duplicateObjectAction } from "./ObjectDuplicateActions";
 
-const geometryTargets = ["point", "segment", "line", "ray", "vector", "circle", "polygon", "region", "arc", "angle", "text", "measurement"] as const;
+const geometryTargets = ["point", "segment", "line", "ray", "vector", "circle", "polygon", "region", "arc", "angle", "text", "distance", "area"] as const;
 
 export const objectContextMenuActions: readonly ContextMenuAction[] = [
   {

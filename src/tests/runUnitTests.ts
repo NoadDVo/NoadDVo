@@ -1,5 +1,4 @@
 import { runGeometryTests } from "./geometry/geometry.test";
-import { runMeasurementTests } from "./geometry/measurement.test";
 import { runFillToolTests } from "./interactions/fillTool.test";
 import { runImageAndTrimTests } from "./interactions/imageAndTrim.test";
 import { runHistoryTests } from "./history/history.test";
@@ -11,7 +10,6 @@ import { runVectorRendererTests } from "./renderer/vectorRenderer.test";
 import { runLiveSyncTests } from "./sync/liveSync.test";
 import { runSyncTests } from "./sync/sync.test";
 import { runTikzApplyTests } from "./sync/tikzApply.test";
-import { runMeasurementTikzTests } from "./tikz/measurementTikz.test";
 import { runTikzRoundTripTests } from "./tikz/tikzRoundTrip.test";
 import { runTikzTests } from "./tikz/tikz.test";
 import { runTikzParserTests } from "./tikz/tikzParser.test";
@@ -19,7 +17,6 @@ import { runWorkspaceUxTests } from "./workspace/workspaceUx.test";
 
 const suites = [
   ["geometry", runGeometryTests],
-  ["measurements", runMeasurementTests],
   ["history", runHistoryTests],
   ["selection", runSelectionTests],
   ["fill-tool", runFillToolTests],
@@ -33,7 +30,6 @@ const suites = [
   ["tikz", runTikzTests],
   ["tikz-round-trip", runTikzRoundTripTests],
   ["tikz-parser", runTikzParserTests],
-  ["measurement-tikz", runMeasurementTikzTests],
   ["project", runProjectTests],
   ["workspace-ux", runWorkspaceUxTests],
 ] as const;

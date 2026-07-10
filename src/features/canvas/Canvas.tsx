@@ -19,7 +19,6 @@ export function Canvas() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const viewport = useViewportStore((state) => state.viewport);
   const pointerWorld = useViewportStore((state) => state.pointerWorld);
-  const gridSize = useViewportStore((state) => state.gridSize);
   const showGrid = useViewportStore((state) => state.showGrid);
   const showAxes = useViewportStore((state) => state.showAxes);
   const canvasBackground = useViewportStore((state) => state.canvasBackground);
@@ -86,7 +85,6 @@ export function Canvas() {
         <GeometryLayer viewport={viewport} />
         <SelectionLayer />
         <PreviewLayer
-          gridSize={gridSize}
           pointerWorld={pointerWorld}
           viewport={viewport}
         />

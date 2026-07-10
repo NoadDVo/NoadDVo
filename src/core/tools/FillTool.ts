@@ -18,6 +18,7 @@ import {
   type BoundaryFillFace,
 } from "../geometry/regions/BoundaryFillEngine";
 import { worldToScreen } from "../geometry/viewport";
+import { getHitObject } from "./ConstructionToolUtils";
 import { BaseTool } from "./BaseTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
@@ -282,6 +283,27 @@ export class FillTool extends BaseTool {
       return;
     }
 
+
+
+    const hitObject = getHitObject(event, context);
+    if (hitObject && ["circle", "ellipse", "polynomial", "hyperbola", "polygon"].includes(hitObject.type)) {
+      context.beginHistoryTransaction("update", "Fill object");
+      context.updateObject(hitObject.id, (obj) => ({
+        ...obj,
+        style: {
+          ...obj.style,
+          fill: "#7ddcff",
+          fillOpacity: 0.22,
+        },
+      }));
+      context.selectObject(hitObject.id);
+      context.setHoveredObject(hitObject.id);
+      context.commitHistoryTransaction();
+      this.transitionState("completed", "complete");
+      this.transitionState("waitingInput", "await-input");
+      return;
+    }
+
     if (!this.diagnostics.length) {
       context.setHoveredObject(null);
     }
@@ -298,12 +320,15 @@ export class FillTool extends BaseTool {
     const existingBoundaryRegion = boundaryCandidate
       ? findExistingBoundaryRegion(boundaryCandidate.loopEdges, context.objects)
       : null;
+    const hitObject = getHitObject(event, context);
+    const fillableHitObject = hitObject && ["circle", "ellipse", "polynomial", "hyperbola", "polygon"].includes(hitObject.type) ? hitObject : null;
 
     context.setHoveredObject(
       existingRegion?.id ??
       polygon?.id ??
       existingBoundaryRegion?.id ??
       boundaryCandidate?.source.id ??
+      fillableHitObject?.id ??
       null,
     );
   }
@@ -341,47 +366,55 @@ export class FillTool extends BaseTool {
 
   renderPreview(context: ToolContext): ReactNode {
     const candidate = this.candidates[this.candidateIndex];
+    let previewRegion: RegionObject | null = null;
+    let label = "Region";
 
-    if (!candidate) {
+    if (candidate) {
+      previewRegion = {
+        boundaryPointIds: [],
+        createdAt: 0,
+        dependencies: candidate.dependencies,
+        dependents: [],
+        id: "__fill-preview__",
+        locked: false,
+        loops: [
+          {
+            closed: true,
+            edges: candidate.loopEdges,
+          },
+        ],
+        name: "Fill Preview",
+        regionKind: "boundary",
+        style: {
+          ...DEFAULT_GEOMETRY_STYLE,
+          fill: "#7ddcff",
+          fillOpacity: 0.2,
+          stroke: "#7ddcff",
+          strokeOpacity: 0.9,
+          strokeWidth: 2,
+        },
+        type: "region",
+        updatedAt: 0,
+        visible: true,
+      };
+      label = this.candidates.length > 1
+        ? `Region ${this.candidateIndex + 1} of ${this.candidates.length}`
+        : "Region";
+    }
+
+    if (!previewRegion) {
       return this.diagnostics.length > 0
         ? renderDiagnosticLabel(this.diagnostics[0] ?? "No closed region found", context.pointerWorld, context)
         : null;
     }
 
-    const previewRegion: RegionObject = {
-      boundaryPointIds: [],
-      createdAt: 0,
-      dependencies: candidate.dependencies,
-      dependents: [],
-      id: "__fill-preview__",
-      locked: false,
-      loops: [
-        {
-          closed: true,
-          edges: candidate.loopEdges,
-        },
-      ],
-      name: "Fill Preview",
-      regionKind: "boundary",
-      style: {
-        ...DEFAULT_GEOMETRY_STYLE,
-        fill: "#7ddcff",
-        fillOpacity: 0.2,
-        stroke: "#7ddcff",
-        strokeOpacity: 0.9,
-        strokeWidth: 2,
-      },
-      type: "region",
-      updatedAt: 0,
-      visible: true,
-    };
     const boundary = getRegionBoundaryPath(previewRegion, context.objects);
 
     if (!boundary) {
       return null;
     }
 
-    const labelPoint = worldToScreen(candidate.centroid, context.viewport);
+    const labelPoint = candidate ? worldToScreen(candidate.centroid, context.viewport) : worldToScreen(context.pointerWorld, context.viewport);
     const path = boundary.kind === "polygon"
       ? boundary.points.map((point, index) => {
           const screen = worldToScreen(point, context.viewport);
@@ -389,10 +422,8 @@ export class FillTool extends BaseTool {
           return `${index === 0 ? "M" : "L"} ${screen.x} ${screen.y}`;
         }).join(" ") + " Z"
       : worldPathToScreenPath(boundary.path, context);
-    const label = this.candidates.length > 1
-      ? `Region ${this.candidateIndex + 1} of ${this.candidates.length}`
-      : "Region";
-    const diagnostic = this.diagnostics[0];
+    
+    const diagnostic = !candidate ? this.diagnostics[0] : null;
 
     return createElement(
       "g",
@@ -448,7 +479,7 @@ export class FillTool extends BaseTool {
     this.candidateIndex = previousPointerKey === this.pointerKey
       ? Math.min(this.candidateIndex, Math.max(0, this.candidates.length - 1))
       : 0;
-
+      
     if (this.candidates.length > 0) {
       this.transitionState("preview", "preview");
     } else {

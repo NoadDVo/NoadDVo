@@ -1,15 +1,11 @@
 import {
   DEFAULT_GEOMETRY_STYLE,
   distance,
-  formatMeasurementValue,
-  isMeasurementTypeSupported,
-  normalizeDependencyMetadata,
   pointsAlmostEqual,
   type GeometryObject,
   type GeometryObjectRecord,
   type GeometryStyle,
   type LabelPosition,
-  type MeasurementType,
   type Point2D,
   type PointObject,
 } from "../../geometry";
@@ -18,6 +14,7 @@ import type {
   TikzCommandNode,
   TikzParseIssue,
 } from "./TikzParseTypes";
+import { normalizeDependencyMetadata } from "../../geometry/dependency";
 
 type BuildResult = {
   readonly issues: readonly TikzParseIssue[];
@@ -57,19 +54,6 @@ const standardColors: Record<string, string> = {
   white: "#ffffff",
   yellow: "#ca8a04",
 };
-const measurementTypes: readonly MeasurementType[] = [
-  "segment-length",
-  "polygon-perimeter",
-  "polygon-area",
-  "circle-radius",
-  "circle-diameter",
-  "circle-circumference",
-  "circle-area",
-  "arc-length",
-  "region-area",
-  "angle-value",
-];
-
 function compact(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
@@ -703,75 +687,6 @@ function cleanNodeContent(content: string): string {
   return mathWrapped ? cleaned.replace(/\s+/g, "") : cleaned;
 }
 
-function normalizedMeasurementContent(content: string): string {
-  return cleanNodeContent(content)
-    .replace(/\^\\circ/g, "Â°")
-    .replace(/\s+/g, "");
-}
-
-function recoverMeasurementNode(
-  command: TikzCommandNode,
-  state: BuilderState,
-  point: Point2D,
-  content: string,
-): boolean {
-  if (!command.options.some((option) => option.replace(/\s+/g, "").includes("anchor=center"))) {
-    return false;
-  }
-
-  const normalizedContent = normalizedMeasurementContent(content);
-  const objects = Object.fromEntries(state.objects.entries()) as GeometryObjectRecord;
-  const createProbe = (targetObjectId: string, measurementType: MeasurementType) => ({
-    createdAt: 0,
-    dependencies: [targetObjectId],
-    dependents: [],
-    id: `measurement-probe-${targetObjectId}-${measurementType}`,
-    labelPosition: "above" as const,
-    locked: false,
-    measurementType,
-    style: DEFAULT_GEOMETRY_STYLE,
-    targetObjectId,
-    type: "measurement" as const,
-    updatedAt: 0,
-    visible: true,
-  });
-  const target = Object.values(objects).find((object) =>
-    measurementTypes.some((measurementType) => {
-      if (!isMeasurementTypeSupported(object, measurementType)) {
-        return false;
-      }
-
-      return normalizedMeasurementContent(formatMeasurementValue(createProbe(object.id, measurementType), objects)) === normalizedContent;
-    }),
-  );
-
-  if (!target) {
-    return false;
-  }
-
-  const measurementType = measurementTypes.find((candidate) =>
-    isMeasurementTypeSupported(target, candidate) &&
-    normalizedMeasurementContent(formatMeasurementValue(createProbe(target.id, candidate), objects)) === normalizedContent,
-  );
-
-  if (!measurementType) {
-    return false;
-  }
-
-  const id = nextId(state, "measurement", target.id);
-
-  state.objects.set(id, {
-    ...baseObject(state, id, parseOptions(command.options, state)),
-    labelPosition: "above",
-    measurementType,
-    metadata: {
-      recoveredPosition: point,
-    },
-    targetObjectId: target.id,
-    type: "measurement",
-  });
-  return true;
-}
 
 function recoverNode(command: TikzCommandNode, state: BuilderState): void {
   const text = compact(command.argumentText);
@@ -812,9 +727,7 @@ function recoverNode(command: TikzCommandNode, state: BuilderState): void {
     return;
   }
 
-  if (recoverMeasurementNode(command, state, literalPoint, content)) {
-    return;
-  }
+
 
   const id = nextId(state, "text", content.slice(0, 16) || "node");
 
@@ -925,6 +838,6 @@ export function buildGeometryFromTikzAst(ast: TikzAst): BuildResult {
 
   return {
     issues: state.issues,
-    objects: Object.values(normalized).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id)),
+    objects: (Object.values(normalized) as GeometryObject[]).sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id)),
   };
 }

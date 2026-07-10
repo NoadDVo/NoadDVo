@@ -10,17 +10,25 @@ import {
   getPointObject,
   isPointInPolygon,
 } from "../derivedGeometry";
+import {
+  discretizeEllipseObject,
+  discretizeHyperbolaObject,
+  discretizePolynomialObject,
+} from "../curveDiscretization";
 import type {
   BoundaryEdge,
+  EllipseObject,
   GeometryObject,
   GeometryObjectRecord,
   GeometryStyle,
+  HyperbolaObject,
   Point2D,
+  PolynomialObject,
 } from "../types";
 
 const GEOMETRY_EPSILON = 1e-6;
 const NODE_PRECISION = 1e6;
-const MAX_LOOP_EDGES = 48;
+const MAX_LOOP_EDGES = 1000;
 
 export type BoundaryFillLimits = {
   readonly maxDirectedEdges: number;
@@ -32,12 +40,12 @@ export type BoundaryFillLimits = {
 };
 
 const DEFAULT_LIMITS: BoundaryFillLimits = {
-  maxDirectedEdges: 700,
-  maxFaces: 300,
-  maxIntersections: 1800,
-  maxPrimitives: 180,
-  maxTraversalSteps: 18_000,
-  timeoutMs: 48,
+  maxDirectedEdges: 10_000,
+  maxFaces: 2_000,
+  maxIntersections: 50_000,
+  maxPrimitives: 3_000,
+  maxTraversalSteps: 500_000,
+  timeoutMs: 500,
 };
 
 const faceCache = new Map<string, BoundaryFillFacesResult>();
@@ -194,6 +202,12 @@ function objectSignature(object: GeometryObject): string {
     case "arc":
       return `${base}:${object.centerPointId}:${object.startPointId}:${object.endPointId}:${object.direction}`;
     case "polygon":
+      return `${base}:${object.pointIds.join(",")}`;
+    case "ellipse":
+      return `${base}:${object.focusAId}:${object.focusBId}:${object.pointOnEllipseId}`;
+    case "hyperbola":
+      return `${base}:${object.focusAId}:${object.focusBId}:${object.pointOnHyperbolaId}`;
+    case "polynomial":
       return `${base}:${object.pointIds.join(",")}`;
     default:
       return base;
@@ -522,6 +536,67 @@ export function collectBoundaryPrimitives(objects: GeometryObjectRecord): readon
         radius: geometry.radius,
         style: object.style,
       });
+      continue;
+    }
+
+    if (object.type === "ellipse") {
+      const segments = discretizeEllipseObject(object as EllipseObject, objects);
+      if (!segments || segments.length === 0) continue;
+
+      for (let index = 0; index < segments.length; index++) {
+        const seg = segments[index];
+        if (!seg) continue;
+        const primitive = createLinearPrimitive({
+          dependencies: [object.id, ...object.dependencies],
+          edgeKind: "ellipse",
+          end: seg.end,
+          id: `${object.id}:eseg:${index}`,
+          object,
+          start: seg.start,
+        });
+        if (primitive) primitives.push(primitive);
+      }
+      continue;
+    }
+
+    if (object.type === "hyperbola") {
+      const segments = discretizeHyperbolaObject(object as HyperbolaObject, objects);
+      if (!segments || segments.length === 0) continue;
+
+      for (let index = 0; index < segments.length; index++) {
+        const seg = segments[index];
+        if (!seg) continue;
+        const primitive = createLinearPrimitive({
+          dependencies: [object.id, ...object.dependencies],
+          edgeKind: "hyperbola",
+          end: seg.end,
+          id: `${object.id}:hseg:${index}`,
+          object,
+          start: seg.start,
+        });
+        if (primitive) primitives.push(primitive);
+      }
+      continue;
+    }
+
+    if (object.type === "polynomial") {
+      const segments = discretizePolynomialObject(object as PolynomialObject, objects);
+      if (!segments || segments.length === 0) continue;
+
+      for (let index = 0; index < segments.length; index++) {
+        const seg = segments[index];
+        if (!seg) continue;
+        const primitive = createLinearPrimitive({
+          dependencies: [object.id, ...object.dependencies],
+          edgeKind: "polynomial",
+          end: seg.end,
+          id: `${object.id}:pseg:${index}`,
+          object,
+          start: seg.start,
+        });
+        if (primitive) primitives.push(primitive);
+      }
+      continue;
     }
   }
 
@@ -951,57 +1026,68 @@ function traceClosedFacesWithBudget(
     outgoing.set(edge.from, [...(outgoing.get(edge.from) ?? []), edge]);
   }
 
-  function walk(
-    start: DirectedPiece,
-    current: DirectedPiece,
-    path: readonly DirectedPiece[],
-    visitedNodes: ReadonlySet<string>,
-  ): void {
-    if (budget) {
-      budget.traversalSteps += 1;
+  const visitedDirectedEdges = new Set<string>();
 
-      if (isBudgetExpired(budget) || cycles.size >= budget.limits.maxFaces) {
-        return;
-      }
-    }
-
-    if (path.length > MAX_LOOP_EDGES) {
-      return;
-    }
-
-    for (const next of outgoing.get(current.to) ?? []) {
-      if (next.baseId === current.baseId) {
-        continue;
-      }
-
-      if (next.to === start.from) {
-        const cycle = [...path, next];
-        const samples = loopSamples(cycle);
-        const area = Math.abs(polygonArea(samples));
-
-        if (area > GEOMETRY_EPSILON) {
-          cycles.set(canonicalCycleKey(cycle), cycle);
-        }
-        continue;
-      }
-
-      if (visitedNodes.has(next.to)) {
-        continue;
-      }
-
-      walk(start, next, [...path, next], new Set([...visitedNodes, next.to]));
-    }
-  }
-
-  for (const edge of edgeById.values()) {
+  for (const startEdge of edgeById.values()) {
     if (budget && isBudgetExpired(budget)) {
-      return null;
+      break;
     }
 
-    walk(edge, edge, [edge], new Set([edge.from, edge.to]));
+    if (visitedDirectedEdges.has(startEdge.id)) {
+      continue;
+    }
 
-    if (budget && cycles.size >= budget.limits.maxFaces) {
-      return null;
+    const cycle: DirectedPiece[] = [];
+    let current = startEdge;
+    let valid = true;
+
+    while (true) {
+      if (budget) {
+        budget.traversalSteps += 1;
+      }
+
+      cycle.push(current);
+      visitedDirectedEdges.add(current.id);
+
+      if (cycle.length > MAX_LOOP_EDGES) {
+        valid = false;
+        break;
+      }
+
+      if (current.to === startEdge.from) {
+        break; // Cycle completed
+      }
+
+      const incomingAngle = current.angle;
+      const refAngle = incomingAngle + Math.PI;
+
+      const nextEdges = (outgoing.get(current.to) ?? []).slice().sort((a, b) => {
+          let diffA = (a.angle - refAngle) % (2 * Math.PI);
+          if (diffA < 0) diffA += 2 * Math.PI;
+          if (diffA <= 1e-6) diffA += 2 * Math.PI;
+
+          let diffB = (b.angle - refAngle) % (2 * Math.PI);
+          if (diffB < 0) diffB += 2 * Math.PI;
+          if (diffB <= 1e-6) diffB += 2 * Math.PI;
+
+          return diffA - diffB;
+        });
+
+      if (nextEdges.length === 0) {
+        valid = false;
+        break;
+      }
+
+      current = nextEdges[0]!;
+    }
+
+    if (valid) {
+      const samples = loopSamples(cycle);
+      const area = Math.abs(polygonArea(samples));
+
+      if (area > GEOMETRY_EPSILON) {
+        cycles.set(canonicalCycleKey(cycle), cycle);
+      }
     }
   }
 
@@ -1174,16 +1260,7 @@ export function getBoundaryFillFaces(
     return cacheBoundaryFillResult(cacheKey, result, options.useCache !== false);
   }
 
-  const maxPairs = (primitives.length * (primitives.length - 1)) / 2;
 
-  if (maxPairs > limits.maxIntersections) {
-    const result = {
-      diagnostics: [tooManyIntersectionsDiagnostic()],
-      faces: [],
-    };
-
-    return cacheBoundaryFillResult(cacheKey, result, options.useCache !== false);
-  }
 
   const intersections = computeIntersectionsWithBudget(primitives, budget);
 

@@ -8,11 +8,8 @@ import type {
 import {
   angleRadians,
   distance,
-  distanceSquared,
-  formatMeasurementValue,
   getArcGeometry,
   getCircleGeometry,
-  getMeasurementAnchorPoint,
   getPointObject,
   getPolygonPoints,
   regionContainsPoint,
@@ -25,8 +22,10 @@ import { worldToScreen, type Viewport } from "../geometry/viewport";
 export type HitTestResult = {
   readonly object: GeometryObject;
   readonly objectId: string;
-  readonly type: GeometryObject["type"] | "label" | "grid";
+  readonly type: GeometryObject["type"] | "label" | "grid" | "slider-knob";
 };
+
+export const HIT_RADIUS = 8;
 
 type HitTestOptions = {
   readonly tolerancePx?: number;
@@ -138,9 +137,11 @@ export function hitTest(
 
   for (const object of visibleObjectsByType(objects, "point")) {
     const point = worldToScreen(object, viewport);
-    const radius = object.style.pointSize + tolerancePx;
+    const distance = Math.sqrt(
+      Math.pow(screenPoint.x - point.x, 2) + Math.pow(screenPoint.y - point.y, 2)
+    );
 
-    if (distanceSquared(screenPoint, point) <= radius * radius) {
+    if (distance <= HIT_RADIUS) {
       return { object, objectId: object.id, type: "point" };
     }
   }
@@ -184,22 +185,7 @@ export function hitTest(
     }
   }
 
-  for (const object of visibleObjectsByType(objects, "measurement")) {
-    const position = worldToScreen(getMeasurementAnchorPoint(object, objects), viewport);
-    const fontSize = object.style.labelSize;
-    const text = formatMeasurementValue(object, objects);
-    const width = Math.max(32, text.length * fontSize * 0.62);
-    const height = fontSize * 1.45;
 
-    if (
-      screenPoint.x >= position.x - width / 2 - tolerancePx &&
-      screenPoint.x <= position.x + width / 2 + tolerancePx &&
-      screenPoint.y >= position.y - height - tolerancePx &&
-      screenPoint.y <= position.y + tolerancePx
-    ) {
-      return { object, objectId: object.id, type: "measurement" };
-    }
-  }
 
   for (const object of visibleObjectsByType(objects, "image")) {
     const halfWidth = object.width / 2;
@@ -346,6 +332,27 @@ export function hitTest(
       Math.abs(splitAngle - targetAngle) <= (3 * Math.PI) / 180
     ) {
       return { object, objectId: object.id, type: "angle" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "slider")) {
+    const trackStart = worldToScreen({ x: object.x, y: object.y }, viewport);
+    const trackEnd = { x: trackStart.x + object.widthPx, y: trackStart.y };
+    
+    // Check knob (higher priority)
+    const ratio = (object.value - object.min) / (object.max - object.min);
+    const knobX = trackStart.x + object.widthPx * ratio;
+    const knobDistance = Math.hypot(screenPoint.x - knobX, screenPoint.y - trackStart.y);
+    
+    if (knobDistance <= HIT_RADIUS + tolerancePx) {
+      return { object, objectId: object.id, type: "slider-knob" };
+    }
+    
+    // Check track
+    if (
+      distanceToSegmentPx(screenPoint, trackStart, trackEnd) <= tolerancePx
+    ) {
+      return { object, objectId: object.id, type: "slider" };
     }
   }
 

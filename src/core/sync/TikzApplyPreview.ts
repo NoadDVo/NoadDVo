@@ -96,8 +96,6 @@ function summarizeObject(
       return `arc ${pointLabel(objects, object.centerPointId)}:${pointLabel(objects, object.startPointId)}-${pointLabel(objects, object.endPointId)}`;
     case "text":
       return `text "${object.content}" at (${object.x}, ${object.y})`;
-    case "measurement":
-      return `${object.measurementType} of ${object.targetObjectId}`;
   }
 }
 

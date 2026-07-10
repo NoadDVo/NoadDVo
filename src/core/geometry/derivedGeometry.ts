@@ -181,3 +181,70 @@ export function isPointInPolygon(
 
   return inside;
 }
+
+export function getBoundedLineEndpoints(
+  line: import("./types").LineObject,
+  objects: import("./types").GeometryObjectRecord,
+): [import("./types").Point2D, import("./types").Point2D] | null {
+  const pointA = objects[line.pointAId];
+  const pointB = objects[line.pointBId];
+
+  if (pointA?.type !== "point" || pointB?.type !== "point") {
+    return null;
+  }
+
+  const dx = pointB.x - pointA.x;
+  const dy = pointB.y - pointA.y;
+  const length = Math.hypot(dx, dy);
+
+  if (length < 1e-9) {
+    return null;
+  }
+
+  const dirX = dx / length;
+  const dirY = dy / length;
+
+  // 1. Perpendicular Line (from C to foot H)
+  if (pointB.construction?.type === "perpendicular-line-point") {
+    return [pointA, pointB];
+  }
+
+  // 2. Perpendicular Bisector (centered at midpoint, length = original AB)
+  if (
+    pointA.construction?.type === "midpoint" &&
+    pointB.construction?.type === "perpendicular-bisector-point"
+  ) {
+    const origA = objects[pointB.construction.pointAId];
+    const origB = objects[pointB.construction.pointBId];
+    if (origA?.type === "point" && origB?.type === "point") {
+      const origLength = Math.hypot(origB.x - origA.x, origB.y - origA.y);
+      const halfLength = origLength / 2;
+      return [
+        { x: pointA.x - dirX * halfLength, y: pointA.y - dirY * halfLength },
+        { x: pointA.x + dirX * halfLength, y: pointA.y + dirY * halfLength },
+      ];
+    }
+  }
+
+  // 3. Angle Bisector (from vertex to min length of sides)
+  if (pointB.construction?.type === "angle-bisector-point") {
+    const origA = objects[pointB.construction.pointAId];
+    const origC = objects[pointB.construction.pointCId];
+    if (origA?.type === "point" && origC?.type === "point") {
+      const lenA = Math.hypot(origA.x - pointA.x, origA.y - pointA.y);
+      const lenC = Math.hypot(origC.x - pointA.x, origC.y - pointA.y);
+      const minLength = Math.min(lenA, lenC);
+      return [
+        pointA,
+        { x: pointA.x + dirX * minLength, y: pointA.y + dirY * minLength },
+      ];
+    }
+  }
+
+  // 4. Default: extend by 20% past A and B
+  const extension = length * 0.2;
+  return [
+    { x: pointA.x - dirX * extension, y: pointA.y - dirY * extension },
+    { x: pointB.x + dirX * extension, y: pointB.y + dirY * extension },
+  ];
+}

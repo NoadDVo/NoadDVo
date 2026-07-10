@@ -8,7 +8,6 @@ import {
   polygonArea,
   type GeometryObject,
 } from "../../core/geometry";
-import { MeasurementPanel } from "./MeasurementPanel";
 import { TextAnnotationPanel } from "./TextAnnotationPanel";
 import {
   Field,
@@ -148,16 +147,6 @@ export function GeometryPanel({
 
   if (object.type === "image") {
     return <ImageGeometry object={object} updateSelected={updateSelected} />;
-  }
-
-  if (object.type === "measurement") {
-    return (
-      <MeasurementPanel
-        object={object}
-        objects={objects}
-        updateSelected={updateSelected}
-      />
-    );
   }
 
   return (

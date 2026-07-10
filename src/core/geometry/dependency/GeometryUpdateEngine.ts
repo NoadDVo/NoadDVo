@@ -66,10 +66,6 @@ function expectedDependenciesForObject(object: GeometryObject): readonly string[
     return object.dependencies;
   }
 
-  if (object.type === "measurement") {
-    return [object.targetObjectId];
-  }
-
   return object.dependencies;
 }
 

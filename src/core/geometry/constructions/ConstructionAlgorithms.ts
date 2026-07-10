@@ -29,6 +29,28 @@ function getPoint(objects: GeometryObjectRecord, objectId: string): PointObject 
   return object?.type === "point" ? object : null;
 }
 
+function resolveVariable(
+  objects: GeometryObjectRecord,
+  valueOrVariable: number | string,
+  defaultValue: number,
+): number {
+  if (typeof valueOrVariable === "number") {
+    return valueOrVariable;
+  }
+
+  // Find slider by variableName
+  const sliders = Object.values(objects).filter(
+    (obj): obj is import("../types").SliderObject => obj.type === "slider"
+  );
+  const slider = sliders.find((s) => s.variableName === valueOrVariable);
+
+  if (slider) {
+    return slider.value;
+  }
+
+  return parseFloat(valueOrVariable) || defaultValue;
+}
+
 function getLinearPoints(
   object: LinearObject,
   objects: GeometryObjectRecord,
@@ -397,7 +419,8 @@ export function recomputeConstructedPoint(
   }
 
   const point = getPoint(objects, construction.pointId);
-  const line = objects[construction.lineId];
+  const lineId = "lineId" in construction ? construction.lineId : undefined;
+  const line = lineId ? objects[lineId] : undefined;
 
   if (!point || line?.type !== "line") {
     return null;
@@ -420,6 +443,103 @@ export function recomputeConstructedPoint(
   }
 
   const candidate = { x: point.x + vector.x, y: point.y + vector.y };
+
+  if (construction.type === "reflect-line-point") {
+    const point = getPoint(objects, construction.pointId);
+    const line = objects[construction.lineId];
+
+    if (!point || line?.type !== "line") {
+      return null;
+    }
+
+    const linePoints = getLinearPoints(line, objects);
+
+    if (!linePoints) {
+      return null;
+    }
+
+    const projection = projectPointToLine(point, linePoints[0], linePoints[1]);
+
+    if (!projection) {
+      return null;
+    }
+
+    return {
+      x: point.x + 2 * (projection.x - point.x),
+      y: point.y + 2 * (projection.y - point.y),
+    };
+  }
+
+  if (construction.type === "reflect-point-point") {
+    const point = getPoint(objects, construction.pointId);
+    const center = getPoint(objects, construction.centerPointId);
+
+    if (!point || !center) {
+      return null;
+    }
+
+    return {
+      x: 2 * center.x - point.x,
+      y: 2 * center.y - point.y,
+    };
+  }
+
+  if (construction.type === "rotate-point") {
+    const point = getPoint(objects, construction.pointId);
+    const center = getPoint(objects, construction.centerPointId);
+
+    if (!point || !center) {
+      return null;
+    }
+
+    let angleDegrees = resolveVariable(objects, construction.angle, 0);
+
+    const rad = (angleDegrees * Math.PI) / 180;
+    const dx = point.x - center.x;
+    const dy = point.y - center.y;
+
+    return {
+      x: center.x + dx * Math.cos(rad) - dy * Math.sin(rad),
+      y: center.y + dx * Math.sin(rad) + dy * Math.cos(rad),
+    };
+  }
+
+  if (construction.type === "translate-vector-point") {
+    const point = getPoint(objects, construction.pointId);
+    const vector = objects[construction.vectorId];
+
+    if (!point || vector?.type !== "vector") {
+      return null;
+    }
+
+    const start = getPoint(objects, vector.startPointId);
+    const end = getPoint(objects, vector.endPointId);
+
+    if (!start || !end) {
+      return null;
+    }
+
+    return {
+      x: point.x + (end.x - start.x),
+      y: point.y + (end.y - start.y),
+    };
+  }
+
+  if (construction.type === "dilate-point") {
+    const point = getPoint(objects, construction.pointId);
+    const center = getPoint(objects, construction.centerPointId);
+
+    if (!point || !center) {
+      return null;
+    }
+
+    let factor = resolveVariable(objects, construction.factor, 1);
+
+    return {
+      x: center.x + factor * (point.x - center.x),
+      y: center.y + factor * (point.y - center.y),
+    };
+  }
 
   return pointsAlmostEqual(point, candidate) ? null : candidate;
 }

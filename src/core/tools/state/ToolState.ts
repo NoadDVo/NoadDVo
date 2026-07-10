@@ -11,4 +11,5 @@ export type ToolStateTransitionReason =
   | "preview"
   | "complete"
   | "cancel"
-  | "reset";
+  | "reset"
+  | (string & {});

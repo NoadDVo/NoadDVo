@@ -13,13 +13,13 @@ import type {
   GeometryObject,
   GeometryObjectRecord,
   ImageObject,
-  MeasurementObject,
+  DistanceObject,
+  AreaObject,
   PointObject,
   RegionObject,
   TextObject,
   ValidationResult,
 } from "./types";
-import { isMeasurementTypeSupported } from "./measurements";
 import { getArcGeometry, getPolygonPoints } from "./derivedGeometry";
 import { getRegionBoundaryPath } from "./regionGeometry";
 
@@ -396,20 +396,33 @@ function validateImage(object: ImageObject): ValidationResult {
   return valid();
 }
 
-function validateMeasurement(
-  object: MeasurementObject,
+function validateDistance(
+  object: DistanceObject,
   objects: GeometryObjectRecord,
 ): ValidationResult {
-  const target = objects[object.targetObjectId];
-
-  if (!target) {
-    return invalid("GEOMETRY_MISSING_TARGET", "Measurement target does not exist.", object.id);
+  if (object.distanceKind === "segment") {
+    const segment = objects[object.segmentId!];
+    if (!segment || segment.type !== "segment") {
+      return invalid("GEOMETRY_MISSING_TARGET", "Distance target segment not found.", object.id);
+    }
+  } else if (object.distanceKind === "two-points") {
+    const pointA = objects[object.pointAId!];
+    const pointB = objects[object.pointBId!];
+    if (!pointA || pointA.type !== "point" || !pointB || pointB.type !== "point") {
+      return invalid("GEOMETRY_MISSING_TARGET", "Distance target points not found.", object.id);
+    }
   }
+  return valid();
+}
 
-  if (!isMeasurementTypeSupported(target, object.measurementType)) {
-    return invalid("GEOMETRY_INVALID_MEASUREMENT", "Measurement type is not supported by target.", object.id);
+function validateArea(
+  object: AreaObject,
+  objects: GeometryObjectRecord,
+): ValidationResult {
+  const target = objects[object.polygonId];
+  if (!target || target.type !== "polygon") {
+    return invalid("GEOMETRY_MISSING_TARGET", "Area target polygon not found.", object.id);
   }
-
   return valid();
 }
 
@@ -464,8 +477,12 @@ export function validateGeometryObject(
       return validateImage(object);
     case "region":
       return validateRegion(object, sceneObjects);
-    case "measurement":
-      return validateMeasurement(object, sceneObjects);
+    case "distance":
+      return validateDistance(object, objects);
+    case "area":
+      return validateArea(object, objects);
+    default:
+      return valid();
   }
 }
 

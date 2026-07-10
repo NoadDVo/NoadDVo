@@ -10,9 +10,10 @@ import {
 import { angleTool } from "./AngleTool";
 import { circleTool } from "./CircleTool";
 import { fillTool } from "./FillTool";
+import { distanceTool } from "./DistanceTool";
+import { areaTool } from "./AreaTool";
 import { intersectionTool } from "./IntersectionTool";
 import { lineTool } from "./LineTool";
-import { measurementTool } from "./MeasurementTool";
 import { midpointTool } from "./MidpointTool";
 import { moveTool } from "./MoveTool";
 import { parallelLineTool } from "./ParallelLineTool";
@@ -26,6 +27,15 @@ import { textTool } from "./TextTool";
 import { trimTool } from "./TrimTool";
 import type { Tool } from "./Tool";
 import { vectorTool } from "./VectorTool";
+import { reflectLineTool } from "./ReflectLineTool";
+import { reflectPointTool } from "./ReflectPointTool";
+import { rotatePointTool } from "./RotatePointTool";
+import { translateVectorTool } from "./TranslateVectorTool";
+import { dilatePointTool } from "./DilatePointTool";
+import { ellipseTool } from "./EllipseTool";
+import { hyperbolaTool } from "./HyperbolaTool";
+import { polynomialTool } from "./PolynomialTool";
+import { sliderTool } from "./SliderTool";
 import {
   createToolContext,
   type ToolContext,
@@ -46,8 +56,9 @@ const defaultTools = [
   textTool,
   trimTool,
   fillTool,
-  measurementTool,
   midpointTool,
+  distanceTool,
+  areaTool,
   intersectionTool,
   parallelLineTool,
   perpendicularLineTool,
@@ -57,6 +68,15 @@ const defaultTools = [
   altitudeTool,
   circumcircleTool,
   incircleTool,
+  reflectLineTool,
+  reflectPointTool,
+  rotatePointTool,
+  translateVectorTool,
+  dilatePointTool,
+  ellipseTool,
+  hyperbolaTool,
+  polynomialTool,
+  sliderTool,
 ] satisfies readonly Tool[];
 
 export class ToolManager {

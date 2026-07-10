@@ -1,6 +1,6 @@
 export * from "./math";
+export * from "./polynomialGeometry";
 export * from "./derivedGeometry";
-export * from "./measurements";
 export * from "./regionGeometry";
 export * from "./regions/BoundaryFillEngine";
 export * from "./imageObject";
@@ -10,3 +10,4 @@ export * from "./validation";
 export * from "./vectorStyle";
 export * from "./dependency";
 export * from "./constructions";
+export * from "./curveInterface";
