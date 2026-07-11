@@ -1,0 +1,37 @@
+import { memo } from "react";
+
+import { toolManager } from "../../../core/tools/ToolManager";
+import { createToolContext } from "../../../core/tools/ToolContext";
+import { worldToScreen, type Viewport } from "../../../core/geometry/viewport";
+import type { Point2D } from "../../../core/geometry/types";
+
+type PreviewLayerProps = {
+  readonly gridSize: number;
+  readonly pointerWorld: Point2D;
+  readonly viewport: Viewport;
+};
+
+export const PreviewLayer = memo(function PreviewLayer({
+  pointerWorld,
+  viewport,
+}: Omit<PreviewLayerProps, "gridSize">) {
+  const context = createToolContext();
+  const snapped = context.snapPoint(pointerWorld);
+  const screen = worldToScreen(snapped, viewport);
+  const toolPreview = toolManager.renderPreview(context);
+
+  return (
+    <g data-layer="preview">
+      <circle
+        cx={screen.x}
+        cy={screen.y}
+        fill="rgb(168 216 255 / 0.16)"
+        r={8}
+        stroke="rgb(168 216 255 / 0.68)"
+        strokeDasharray="3 3"
+        strokeWidth={1.5}
+      />
+      {toolPreview}
+    </g>
+  );
+});

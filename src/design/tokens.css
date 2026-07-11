@@ -1,0 +1,27 @@
+:root,
+[data-theme="light"],
+[data-theme="dark-arctic"],
+[data-theme="dark"] {
+  /* Neo-Brutalism Global Theme */
+  --color-bg: 244 239 230; /* #F4EFE6 */
+  --color-bg-secondary: 244 239 230;
+  --color-canvas: 244 239 230;
+  --color-surface: 244 239 230; /* #F4EFE6 */
+  --color-surface-strong: 255 255 255;
+  --color-border: 0 0 0; /* Black borders */
+  --color-primary: 241 122 60; /* Orange #F17A3C */
+  --color-primary-hover: 244 208 76; /* Yellow #F4D04C */
+  --color-success: 16 185 129;
+  --color-warning: 245 158 11;
+  --color-danger: 239 68 68;
+  --color-text: 0 0 0; /* Black */
+  --color-text-secondary: 0 0 0;
+  --color-text-muted: 64 64 64; /* Dark gray */
+  --color-shadow: 0 0 0;
+  --radius-panel: 0px;
+  --radius-button: 0px;
+  --blur-panel: 0px;
+  --transition-fast: 150ms ease-out;
+}
+
+

@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pasteGeometryClipboard = exports.hasGeometryClipboard = exports.getGeometryClipboardSnapshot = exports.duplicateSelection = exports.cutSelectionToGeometryClipboard = exports.copySelectionToGeometryClipboard = void 0;
+var GeometryClipboard_1 = require("./GeometryClipboard");
+Object.defineProperty(exports, "copySelectionToGeometryClipboard", { enumerable: true, get: function () { return GeometryClipboard_1.copySelectionToGeometryClipboard; } });
+Object.defineProperty(exports, "cutSelectionToGeometryClipboard", { enumerable: true, get: function () { return GeometryClipboard_1.cutSelectionToGeometryClipboard; } });
+Object.defineProperty(exports, "duplicateSelection", { enumerable: true, get: function () { return GeometryClipboard_1.duplicateSelection; } });
+Object.defineProperty(exports, "getGeometryClipboardSnapshot", { enumerable: true, get: function () { return GeometryClipboard_1.getGeometryClipboardSnapshot; } });
+Object.defineProperty(exports, "hasGeometryClipboard", { enumerable: true, get: function () { return GeometryClipboard_1.hasGeometryClipboard; } });
+Object.defineProperty(exports, "pasteGeometryClipboard", { enumerable: true, get: function () { return GeometryClipboard_1.pasteGeometryClipboard; } });

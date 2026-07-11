@@ -1,0 +1,23 @@
+import type { ReactNode } from "react";
+
+import type { GeometryToolId } from "../geometry";
+import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import type { ToolState } from "./state/ToolState";
+import type { ToolStateMachine } from "./state/ToolStateMachine";
+
+export type Tool = {
+  readonly id: GeometryToolId;
+  readonly name: string;
+  readonly cursor: string;
+  readonly shortcut: string | undefined;
+  readonly state: ToolState;
+  readonly stateMachine: ToolStateMachine;
+  activate: (context: ToolContext) => void;
+  deactivate: (context: ToolContext) => void;
+  pointerDown: (event: ToolPointerEvent, context: ToolContext) => void;
+  pointerMove: (event: ToolPointerEvent, context: ToolContext) => void;
+  pointerUp: (event: ToolPointerEvent, context: ToolContext) => void;
+  keyDown: (event: KeyboardEvent, context: ToolContext) => void;
+  cancel: (context: ToolContext) => void;
+  renderPreview: (context: ToolContext) => ReactNode;
+};

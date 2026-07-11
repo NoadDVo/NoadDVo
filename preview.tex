@@ -1,0 +1,90 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+
+\geometry{
+    a4paper,
+    total={170mm,257mm},
+    left=20mm,
+    top=20mm,
+    bottom=20mm
+}
+
+\title{\textbf{Giới thiệu NoadDVo Geometry Studio}}
+\author{NoadDVo}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{tcolorbox}[colback=blue!5,colframe=blue!40!black,title=Tổng quan (Overview)]
+\textbf{NoadDVo Geometry Studio} là một ứng dụng web mô phỏng hình học không gian 2D tương tác trực quan và mạnh mẽ. Được thiết kế dành cho giáo viên, học sinh và các nhà nghiên cứu toán học, ứng dụng giúp vẽ hình học, phân tích trực quan và \textbf{đặc biệt là khả năng đồng bộ, xuất mã nguồn LaTeX (TikZ) tự động} theo thời gian thực.
+\end{tcolorbox}
+
+\section{Các Tính năng Nổi bật (Key Features)}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Bảng vẽ vô hạn (Infinite Canvas):} Không gian làm việc rộng lớn, hỗ trợ thao tác thu phóng (Zoom in/out) mượt mà và di chuyển (Pan).
+    \item \textbf{Lưới thông minh (Adaptive Grid \& Snapping):} Tự động hiển thị tọa độ dựa trên mức độ thu phóng, bắt dính điểm cực kì chính xác giúp việc vẽ hình trở nên dễ dàng.
+    \item \textbf{Trích xuất mã TikZ tự động:} Toàn bộ nét vẽ trên Canvas sẽ ngay lập tức được biên dịch sang mã lệnh TikZ chuẩn xác để chèn vào các tài liệu LaTeX.
+    \item \textbf{Đổ màu linh hoạt (Smart Boundary Fill):} Thuật toán đổ màu thông minh quét tìm các khu vực khép kín được tạo ra từ sự giao cắt phức tạp giữa các hình (Đường thẳng, Elip, Hyperbol, Đa thức,...).
+    \item \textbf{Hỗ trợ nhiều loại đường cong phức tạp:} Không chỉ giới hạn ở đường thẳng hay đường tròn, hệ thống cho phép khởi tạo đa thức nội suy, Elip, Hyperbol với khả năng tương tác (Hit-test) chính xác tuyệt đối.
+\end{itemize}
+
+\section{Hệ thống Công cụ Hình học (Tools)}
+NoadDVo Geometry Studio cung cấp thanh công cụ chuyên nghiệp và đầy đủ:
+\begin{itemize}[label=$\circ$]
+    \item \textbf{Công cụ Cơ bản:} Điểm (Point), Đoạn thẳng (Segment), Đường thẳng (Line), Tia (Ray).
+    \item \textbf{Đường cong conic:} Đường tròn (Circle qua tâm và bán kính/điểm), Elip (Ellipse), Hyperbol.
+    \item \textbf{Đa giác \& Đa thức:} Vẽ Đa giác tự do (Polygon), Đa thức Lagrange (Polynomial) đi qua nhiều điểm.
+    \item \textbf{Phép biến hình \& Tương quan:} Giao điểm (Intersection), Trung điểm (Midpoint), Đường song song (Parallel), Đường vuông góc (Perpendicular).
+    \item \textbf{Phép quay \& Phản xạ:} Phản xạ qua điểm, phản xạ qua trục, quay điểm quanh tâm.
+    \item \textbf{Đo lường \& Tính toán:} Đo khoảng cách, diện tích đa giác, đánh dấu và đo góc (Angle).
+    \item \textbf{Tinh chỉnh \& Trang trí:} Cắt xén đoạn thừa (Trim), Đổ màu vùng kín (Fill), Chèn văn bản, Chèn Slider thay đổi tham số.
+\end{itemize}
+
+\section{Hướng dẫn Sử dụng (How to Use)}
+Để làm chủ không gian làm việc của Geometry Studio, bạn chỉ cần thực hiện các thao tác sau:
+
+\subsection*{1. Tạo đối tượng mới}
+\begin{enumerate}
+    \item Chọn một công cụ ở thanh công cụ bên trái (Ví dụ: Công cụ "Circle").
+    \item Click vào Canvas để tạo Tâm, kéo chuột ra và click thêm lần nữa để tạo một điểm trên đường tròn.
+\end{enumerate}
+
+\subsection*{2. Chỉnh sửa thuộc tính}
+Sử dụng công cụ "Select", nhấp vào bất kỳ đối tượng nào trên Canvas. Ở bảng bên phải (Properties Panel), bạn có thể:
+\begin{itemize}[label=-]
+    \item Thay đổi màu sắc (màu viền, màu nền).
+    \item Đổi kiểu nét đứt, nét liền, chỉnh độ dày viền.
+    \item Ẩn/Hiện tên nhãn, khóa đối tượng khỏi bị di chuyển vô tình.
+\end{itemize}
+
+\subsection*{3. Làm việc với mã TikZ}
+Khi bạn vẽ xong một mô hình toán học:
+\begin{enumerate}
+    \item Nhấn vào tab \textbf{TikZ} ở góc màn hình.
+    \item Bạn sẽ thấy toàn bộ mã lệnh LaTeX tương ứng. Chỉ cần copy đoạn mã này dán vào Overleaf hoặc file `.tex` của bạn.
+    \item Hỗ trợ đồng bộ hai chiều: Nếu bạn sửa tọa độ trực tiếp trong mã TikZ, hình trên Canvas sẽ cập nhật ngay lập tức!
+\end{enumerate}
+
+\subsection*{4. Phím tắt thao tác nhanh}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Giữ phím Space + Kéo chuột:} Di chuyển nhanh bảng vẽ (Pan).
+    \item \textbf{Lăn chuột giữa:} Thu phóng màn hình (Zoom).
+    \item \textbf{Ctrl + Z / Ctrl + Y:} Hoàn tác (Undo/Redo).
+    \item \textbf{Delete / Backspace:} Xóa đối tượng đang được chọn.
+\end{itemize}
+
+\vspace{1cm}
+\begin{center}
+    \textit{Cảm ơn bạn đã tin dùng NoadDVo Geometry Studio để hỗ trợ công việc học tập và nghiên cứu hình học!}
+\end{center}
+
+\end{document}
