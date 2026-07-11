@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { clsx } from "clsx";
 import { AlertTriangle, Check, Clipboard, Edit3, Lock, WrapText, X } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
@@ -28,6 +29,7 @@ export function TikzPanel() {
   const selectedObjectIds = useGeometryStore((state) => state.selectedObjectIds);
   const mode = useUiStore((state) => state.tikzMode);
   const setMode = useUiStore((state) => state.setTikzMode);
+  const appTheme = useUiStore((state) => state.appTheme);
   const [wrapDocument, setWrapDocument] = useState(false);
   const [autoUpdate, setAutoUpdate] = useState(true);
   const [editable, setEditable] = useState(false);
@@ -147,13 +149,13 @@ export function TikzPanel() {
     <Panel
       actions={
         <div className="flex flex-wrap items-center justify-end gap-1.5">
-          <label className="flex h-8 items-center gap-1.5 rounded-[10px] border border-arctic-border/10 bg-arctic-surface/70 px-2">
-            <span className="text-[9px] font-black uppercase tracking-[0.14em] text-arctic-muted">
+          <label className={clsx("flex h-8 cursor-pointer items-center gap-1.5 rounded-none border-[3px] border-transparent bg-transparent transition", appTheme === "theme2" ? "hover:bg-zinc-800" : "hover:border-arctic-border hover:bg-arctic-primary-hover px-2")}>
+            <span className={clsx("text-[9px] font-black uppercase tracking-[0.14em]", appTheme === "theme2" ? "text-zinc-500" : "text-arctic-muted")}>
               Mode
             </span>
             <select
               aria-label="TikZ mode"
-              className="bg-transparent text-[10px] font-bold uppercase tracking-[0.1em] text-arctic-text outline-none"
+              className={clsx("bg-transparent text-[10px] font-bold uppercase tracking-[0.1em] outline-none", appTheme === "theme2" ? "text-zinc-300" : "text-arctic-text")}
               onChange={(event) => setMode(event.target.value as TikzMode)}
               value={mode}
             >
@@ -207,7 +209,7 @@ export function TikzPanel() {
       title="TikZ"
     >
       <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_32px] overflow-hidden">
-        <div className="border-b border-arctic-border/8 px-4 py-2 text-[11px] font-semibold text-arctic-muted">
+        <div className={clsx("border-b px-4 py-2 text-[11px] font-semibold", appTheme === "theme2" ? "border-zinc-800 text-zinc-500" : "border-arctic-border/8 text-arctic-muted")}>
             {syncDiagnostics.length > 0
               ? syncDiagnostics.slice(0, 2).map((diagnostic) => diagnostic.message).join(" ")
             : editable && manualEditsPending
@@ -218,7 +220,7 @@ export function TikzPanel() {
         </div>
         {editable ? (
           <textarea
-            className="min-h-0 resize-none overflow-auto bg-transparent px-4 py-3 font-mono text-[12px] leading-relaxed text-arctic-text/88 outline-none"
+            className={clsx("min-h-0 resize-none overflow-auto bg-transparent px-4 py-3 font-mono text-[12px] leading-relaxed outline-none", appTheme === "theme2" ? "text-zinc-300" : "text-arctic-text/88")}
             onChange={(event) => {
               setAutoUpdate(false);
               setManualEditsPending(true);
@@ -230,7 +232,7 @@ export function TikzPanel() {
             value={displayedCode}
           />
         ) : (
-          <pre className="min-h-0 overflow-auto px-4 py-3 font-mono text-[12px] leading-relaxed text-arctic-text/88">
+          <pre className={clsx("min-h-0 overflow-auto px-4 py-3 font-mono text-[12px] leading-relaxed", appTheme === "theme2" ? "text-zinc-300" : "text-arctic-text/88")}>
             <code>
               {displayedLines.map((line, index) => {
                 const highlighted = selectedTokens.some((token) =>
@@ -306,7 +308,7 @@ function OperationGroup({
       <div className="grid gap-2">
         {operations.map((operation, index) => (
           <div
-            className="rounded-[12px] border border-arctic-border/8 bg-arctic-surface/45 px-3 py-2"
+            className="border border-arctic-border/8 bg-arctic-surface/45 px-3 py-2"
             key={`${operation.operation}-${operation.objectId ?? operation.reason}-${index}`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -318,7 +320,7 @@ function OperationGroup({
                   {operation.reason}
                 </p>
               </div>
-              <span className="shrink-0 rounded-[7px] border border-arctic-border/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-arctic-muted">
+              <span className="shrink-0 border border-arctic-border/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-arctic-muted">
                 {operation.severity}
               </span>
             </div>
@@ -364,7 +366,7 @@ function SyncPreviewDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-5 backdrop-blur-sm">
-      <div className="flex max-h-[86vh] w-[760px] max-w-full flex-col overflow-hidden rounded-[22px] border border-arctic-border/10 bg-arctic-background/96 shadow-[0_24px_80px_rgb(0_0_0/0.42)]">
+      <div className="flex max-h-[86vh] w-[760px] max-w-full flex-col overflow-hidden border border-arctic-border/10 bg-arctic-background/96 shadow-[0_24px_80px_rgb(0_0_0/0.42)]">
         <header className="flex items-center justify-between border-b border-arctic-border/8 px-4 py-3">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-arctic-muted">
@@ -376,7 +378,7 @@ function SyncPreviewDialog({
           </div>
           <button
             aria-label="Cancel sync preview"
-            className="inline-flex size-9 items-center justify-center rounded-[12px] border border-arctic-border/8 bg-arctic-surface/65 text-arctic-muted hover:text-arctic-text"
+            className="inline-flex size-9 items-center justify-center border border-arctic-border/8 bg-arctic-surface/65 text-arctic-muted hover:text-arctic-text"
             onClick={onCancel}
             type="button"
           >

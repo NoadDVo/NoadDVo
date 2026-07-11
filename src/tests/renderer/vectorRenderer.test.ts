@@ -97,6 +97,7 @@ function assertVectorRenderer(): void {
     objects,
     selectedObjectIds: [],
     viewport: defaultViewport(),
+    appTheme: "theme1",
   });
 
   assert(
@@ -136,6 +137,7 @@ function assertThreePointCircleRenderer(): void {
     objects,
     selectedObjectIds: [],
     viewport: defaultViewport(),
+    appTheme: "theme1",
   });
 
   assert(hasPropValue(rendered, "r", 10), "three-point circle renderer computes screen radius");
@@ -168,6 +170,7 @@ function assertArcRenderer(): void {
     objects,
     selectedObjectIds: [],
     viewport: defaultViewport(),
+    appTheme: "theme1",
   });
 
   assert(hasPropValue(rendered, "data-object-type", "arc"), "arc renderer emits an arc object group");
@@ -197,6 +200,7 @@ function assertRegionRenderer(): void {
     objects,
     selectedObjectIds: [],
     viewport: defaultViewport(),
+    appTheme: "theme1",
   });
 
   assert(hasPropValue(rendered, "data-object-type", "region"), "region renderer emits a region object group");

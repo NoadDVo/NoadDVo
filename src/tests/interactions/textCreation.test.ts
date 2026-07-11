@@ -236,6 +236,7 @@ function hasPropValue(node: unknown, propName: string, expected: unknown): boole
 
 function assertTextRenderingData(text: TextObject): void {
   const rendered = TextRenderer.render(text, {
+    appTheme: "theme1",
     hoveredObjectId: null,
     objects: { [text.id]: text },
     selectedObjectIds: [text.id],

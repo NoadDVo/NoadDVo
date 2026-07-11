@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, PanelRightOpen, PanelBottomOpen } from "lucide-react";
+import { clsx } from "clsx";
 
 import { projectManager } from "../../core/project";
 import { Canvas } from "../canvas";
@@ -22,8 +23,8 @@ export function AppShell() {
   });
   const rightPanelVisible = !collapsedPanels.objectTree || !collapsedPanels.inspector;
   const workspaceColumns = rightPanelVisible
-    ? "grid-cols-[96px_minmax(0,1fr)_320px] max-lg:grid-cols-[96px_minmax(0,1fr)]"
-    : "grid-cols-[96px_minmax(0,1fr)]";
+    ? "grid-cols-[minmax(0,1fr)_320px]"
+    : "grid-cols-[minmax(0,1fr)]";
   const centerRows = collapsedPanels.tikz
     ? "grid-rows-[minmax(0,1fr)_40px]"
     : "grid-rows-[minmax(0,0.56fr)_minmax(0,0.44fr)]";
@@ -66,12 +67,22 @@ export function AppShell() {
     };
   }, [theme]);
 
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
-    <main className="h-screen overflow-hidden bg-arctic-background text-arctic-text">
-      <div className="relative flex h-full flex-col bg-[radial-gradient(circle_at_50%_-10%,rgb(var(--color-primary)/0.13),transparent_34%),linear-gradient(135deg,rgb(var(--color-bg-secondary)),rgb(var(--color-bg))_65%,rgb(var(--color-canvas)))]">
+    <main className={clsx(
+      "h-screen overflow-hidden text-arctic-text font-mono",
+      appTheme === "theme1" ? "bg-[#F4EFE6]" : "",
+      appTheme === "theme2" ? "bg-[#0D0E12]" : ""
+    )}>
+      <div className={clsx(
+        "relative flex h-full flex-col",
+        appTheme === "theme1" ? "bg-[#F4EFE6]" : "",
+        appTheme === "theme2" ? "bg-[#0D0E12]" : ""
+      )}>
         <TopBar />
-        <div className="relative min-h-0 flex-1 overflow-hidden px-3 pb-2.5 max-lg:pr-3">
-          <div className={`grid h-full min-h-0 ${workspaceColumns} gap-2.5 overflow-hidden`}>
+        <div className="relative min-h-0 flex-1 px-3 pb-2.5 max-lg:pr-3">
+          <div className={`grid h-full min-h-0 ${workspaceColumns} gap-2.5`}>
             <LeftToolbar />
             <div className={`grid min-h-0 ${centerRows} gap-2.5 overflow-hidden`}>
               <Canvas />

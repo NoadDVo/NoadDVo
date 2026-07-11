@@ -1,4 +1,5 @@
 import { Fragment, memo } from "react";
+import { useUiStore } from "../../../app/store/uiStore";
 
 import { useGeometryStore } from "../../../app/store/geometryStore";
 import { geometryRendererRegistry } from "../../../core/renderer/RendererRegistry";
@@ -35,6 +36,7 @@ export const GeometryLayer = memo(function GeometryLayer({
   const objects = useGeometryStore((state) => state.objects);
   const selectedObjectIds = useGeometryStore((state) => state.selectedObjectIds);
   const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
+  const appTheme = useUiStore((state) => state.appTheme);
   const orderedObjects = Object.values(objects).sort(
     (a, b) => RENDER_ORDER[a.type] - RENDER_ORDER[b.type],
   );
@@ -48,6 +50,7 @@ export const GeometryLayer = memo(function GeometryLayer({
             hoveredObjectId,
             selectedObjectIds,
             viewport,
+            appTheme,
           })}
         </Fragment>
       ))}

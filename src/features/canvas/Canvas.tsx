@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { clsx } from "clsx";
+import { useUiStore } from "../../app/store/uiStore";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useViewportStore } from "../../app/store/viewportStore";
@@ -32,6 +34,7 @@ export function Canvas() {
   const hoveredObject = hoveredObjectId ? objects[hoveredObjectId] ?? null : null;
   const gestures = useCanvasGestures(svgRef);
   const objectCount = Object.keys(objects).length;
+  const appTheme = useUiStore((state) => state.appTheme);
 
   useEffect(() => {
     const element = svgRef.current;
@@ -70,7 +73,7 @@ export function Canvas() {
       ref={containerRef}
       style={{
         cursor: isPanning ? "grabbing" : isSpacePressed ? "grab" : activeToolCursor,
-        backgroundColor: canvasBackground,
+        backgroundColor: appTheme === "theme2" ? "#F0F2F5" : canvasBackground,
       }}
     >
       <svg
@@ -117,29 +120,40 @@ function EmptyWorkspacePrompt({
   readonly loadExample: () => void;
   readonly startPointTool: () => void;
 }) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
     <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-6">
-      <div className="pointer-events-auto rounded-[18px] border border-arctic-border/10 bg-arctic-surface/82 px-4 py-3 text-center text-arctic-text shadow-[0_18px_48px_rgb(15_23_42/0.14)] backdrop-blur-panel">
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-arctic-muted">
+      <div className={clsx(
+        "pointer-events-auto px-4 py-3 text-center",
+        appTheme === "theme1" ? "rounded-none border-[3px] border-arctic-border bg-arctic-surface text-arctic-text shadow-brutal-lg" : "",
+        appTheme === "theme2" ? "rounded-xl border border-zinc-800/60 bg-[#18191E]/90 backdrop-blur text-zinc-200 shadow-2xl" : ""
+      )}>
+        <p className={clsx(
+          "text-[10px] font-black uppercase tracking-[0.18em] mb-2",
+          appTheme === "theme1" ? "text-arctic-text bg-arctic-primary-hover inline-block px-2 py-0.5 border-[3px] border-arctic-border" : "",
+          appTheme === "theme2" ? "text-zinc-500" : ""
+        )}>
           Empty Workspace
         </p>
-        <p className="mt-1 text-sm font-bold">Create your first object</p>
-        <div className="mt-3 flex items-center justify-center gap-2">
+        <p className={clsx(
+          "mt-1",
+          appTheme === "theme1" ? "text-base font-black uppercase tracking-[0.05em]" : "text-sm font-bold"
+        )}>Create your first object</p>
+        <div className="mt-4 flex items-center justify-center gap-3">
           <Button
-            className="border-arctic-border/10 bg-arctic-ice text-arctic-background hover:bg-arctic-ice/85"
             onClick={startPointTool}
             size="sm"
-            variant="secondary"
+            variant="primary"
           >
             Create a point
           </Button>
           <Button
-            className="border-arctic-border/10 bg-arctic-surface text-arctic-text hover:bg-arctic-surface/85"
             onClick={loadExample}
             size="sm"
             variant="secondary"
           >
-            Load an example
+            Load Example
           </Button>
         </div>
       </div>

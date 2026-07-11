@@ -6,6 +6,8 @@ import type {
   PointObject,
 } from "../../core/geometry";
 import { getCircleGeometry } from "../../core/geometry";
+import { clsx } from "clsx";
+import { useUiStore } from "../../app/store/uiStore";
 
 export const dashOptions = ["solid", "dashed", "dotted"] satisfies readonly DashStyle[];
 export const labelPositions = [
@@ -58,9 +60,15 @@ export function Field({
   readonly children: React.ReactNode;
   readonly label: string;
 }) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
-    <label className="grid gap-1">
-      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-arctic-muted">
+    <label className="grid gap-1.5">
+      <span className={clsx(
+        "text-[11px] font-bold uppercase tracking-wider",
+        appTheme === "theme1" ? "text-black" : "",
+        appTheme === "theme2" ? "text-zinc-400" : ""
+      )}>
         {label}
       </span>
       {children}
@@ -69,19 +77,31 @@ export function Field({
 }
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
     <input
       {...props}
-      className="h-8 w-full rounded-[9px] border border-arctic-border/10 bg-arctic-surface/60 px-2.5 font-mono text-[11px] text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
+      className={clsx(
+        "h-8 w-full px-2 font-mono text-[11px] outline-none transition-colors disabled:opacity-50",
+        appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] text-black focus:bg-[#F4D04C]" : "",
+        appTheme === "theme2" ? "rounded-md border border-zinc-700 bg-[#0D0E12] text-zinc-200 focus:border-zinc-500" : ""
+      )}
     />
   );
 }
 
 export function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
     <select
       {...props}
-      className="h-8 w-full rounded-[9px] border border-arctic-border/10 bg-arctic-surface px-2.5 text-[11px] font-semibold text-arctic-text outline-none transition focus:border-arctic-ice/45 disabled:opacity-45"
+      className={clsx(
+        "h-8 w-full px-2 text-[11px] font-bold outline-none transition-colors disabled:opacity-50",
+        appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] text-black focus:bg-[#F4D04C]" : "",
+        appTheme === "theme2" ? "rounded-md border border-zinc-700 bg-[#0D0E12] text-zinc-200 focus:border-zinc-500" : ""
+      )}
     />
   );
 }
@@ -97,12 +117,26 @@ export function ToggleRow({
   readonly label: string;
   readonly onChange: (checked: boolean) => void;
 }) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
-    <label className="flex h-8 items-center justify-between rounded-[10px] border border-arctic-border/8 bg-arctic-surface/55 px-2.5">
-      <span className="text-[11px] font-semibold text-arctic-muted">{label}</span>
+    <label className={clsx(
+      "flex h-8 items-center justify-between px-1.5 cursor-pointer transition-colors",
+      appTheme === "theme1" ? "rounded-none border-[3px] border-transparent hover:border-black hover:bg-[#F4D04C]" : "",
+      appTheme === "theme2" ? "rounded-md border border-transparent hover:bg-zinc-800/50" : ""
+    )}>
+      <span className={clsx(
+        "text-[11px] font-bold uppercase tracking-wider",
+        appTheme === "theme1" ? "text-black" : "",
+        appTheme === "theme2" ? "text-zinc-400" : ""
+      )}>{label}</span>
       <input
         checked={checked}
-        className="size-4 accent-arctic-ice"
+        className={clsx(
+          "size-3.5 outline-none",
+          appTheme === "theme1" ? "rounded-none accent-black focus:ring-2 focus:ring-black" : "",
+          appTheme === "theme2" ? "rounded-[4px] accent-zinc-500 focus:ring-2 focus:ring-zinc-500" : ""
+        )}
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
         type="checkbox"
@@ -118,12 +152,26 @@ export function Readout({
   readonly label: string;
   readonly value: string;
 }) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
-    <div className="rounded-[10px] border border-arctic-border/8 bg-arctic-surface/55 px-2.5 py-2">
-      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-arctic-muted">
+    <div className={clsx(
+      "flex flex-col gap-0.5 px-2 py-1.5",
+      appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6]" : "",
+      appTheme === "theme2" ? "rounded-md border border-zinc-800/60 bg-[#0D0E12]" : ""
+    )}>
+      <p className={clsx(
+        "text-[10px] font-bold uppercase tracking-wider",
+        appTheme === "theme1" ? "text-black" : "",
+        appTheme === "theme2" ? "text-zinc-500" : ""
+      )}>
         {label}
       </p>
-      <p className="mt-0.5 break-all font-mono text-[11px] text-arctic-text">{value}</p>
+      <p className={clsx(
+        "break-all font-mono text-[11px] font-bold",
+        appTheme === "theme1" ? "text-black" : "",
+        appTheme === "theme2" ? "text-zinc-200" : ""
+      )}>{value}</p>
     </div>
   );
 }
@@ -135,12 +183,18 @@ export function Section({
   readonly children: React.ReactNode;
   readonly title: string;
 }) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
     <section>
-      <h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-arctic-text">
+      <h3 className={clsx(
+        "text-[11px] font-bold uppercase tracking-wider inline-block px-1.5 py-0.5 mb-1",
+        appTheme === "theme1" ? "text-black bg-[#F4D04C] border-[3px] border-black" : "",
+        appTheme === "theme2" ? "text-zinc-300 bg-zinc-800/50 rounded-sm" : ""
+      )}>
         {title}
       </h3>
-      <div className="mt-3 space-y-2.5">{children}</div>
+      <div className="mt-2 space-y-2">{children}</div>
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { AppTheme } from "../../app/store/uiStore";
 
 import type {
   GeometryObject,
@@ -30,6 +31,7 @@ export type GeometryRendererContext = {
   readonly objects: GeometryObjectRecord;
   readonly selectedObjectIds: readonly string[];
   readonly hoveredObjectId: string | null;
+  readonly appTheme: AppTheme;
 };
 
 export type GeometryRenderer<TObject extends GeometryObject = GeometryObject> = {

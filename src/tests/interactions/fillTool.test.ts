@@ -700,6 +700,7 @@ function assertSvgPathAndTikz(region: RegionObject, objects: GeometryObjectRecor
     objects,
     selectedObjectIds: [region.id],
     viewport: DEFAULT_VIEWPORT,
+    appTheme: "theme1",
   });
   const code = generateTikz(objects, "academic").code;
 

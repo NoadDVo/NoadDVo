@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { clsx } from "clsx";
+import { useUiStore } from "../../app/store/uiStore";
 
 import { Tooltip } from "./Tooltip";
 
@@ -28,15 +29,23 @@ export function IconButton({
   type = "button",
   ...props
 }: IconButtonProps) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
     <Tooltip label={label}>
       <button
         aria-label={label}
         className={clsx(
-          "inline-flex shrink-0 items-center justify-center rounded-[14px] border border-arctic-border/8 bg-arctic-surface/65 text-arctic-muted transition duration-150 ease-out hover:border-arctic-ice/30 hover:bg-arctic-ice/10 hover:text-arctic-text hover:shadow-[0_0_22px_rgb(168_216_255/0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arctic-ice active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40",
+          "inline-flex shrink-0 items-center justify-center transition-colors duration-150 ease-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-40",
+          appTheme === "theme1" ? "border-[3px] border-black text-black" : "",
+          appTheme === "theme1" && active ? "bg-[#F4D04C] text-black" : "",
+          appTheme === "theme1" && !active ? "bg-transparent hover:bg-[#F17A3C] hover:text-black" : "",
+
+          appTheme === "theme2" ? "border border-zinc-800/60 rounded-md text-zinc-400" : "",
+          appTheme === "theme2" && active ? "bg-[#1A252C] text-[#00F5FF] border-[#00F5FF]/40 shadow-[0_0_12px_rgba(0,245,255,0.15)]" : "",
+          appTheme === "theme2" && !active ? "bg-[#18191E] hover:bg-[#2C2D35] hover:text-zinc-200" : "",
+
           sizeClasses[size],
-          active &&
-            "border-arctic-ice/70 bg-arctic-ice/24 text-arctic-text shadow-[0_0_0_1px_rgb(168_216_255/0.22),0_0_28px_rgb(168_216_255/0.28),inset_0_1px_0_rgb(255_255_255/0.08)]",
           className,
         )}
         type={type}

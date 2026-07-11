@@ -14,6 +14,7 @@ export const GridLayer = memo(function GridLayer({ viewport }: GridLayerProps) {
   const gridSize = useViewportStore((state) => state.gridSize);
   const majorGrid = useViewportStore((state) => state.majorGrid);
   const minorGrid = useViewportStore((state) => state.minorGrid);
+
   const lines = useMemo(
     () => createGridLines(viewport, { adaptiveGrid, gridSize, majorGrid, minorGrid }),
     [adaptiveGrid, gridSize, majorGrid, minorGrid, viewport],

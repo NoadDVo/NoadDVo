@@ -15,6 +15,7 @@ import {
 import clsx from "clsx";
 
 import type { GeometryObject } from "../../core/geometry";
+import { useUiStore } from "../../app/store/uiStore";
 import { IconButton } from "../../ui/primitives";
 import { getObjectDisplayName } from "./objectTreeUtils";
 
@@ -70,16 +71,24 @@ export function ObjectTreeItem({
   updateObject,
 }: ObjectTreeItemProps) {
   const [draftName, setDraftName] = useState(getObjectDisplayName(object));
+  const appTheme = useUiStore((state) => state.appTheme);
+  const isDark = appTheme === "theme2";
 
   return (
     <div
       className={clsx(
         "group flex min-h-10 items-center gap-2 rounded-[12px] border px-2 transition",
-        selected
-          ? "border-arctic-ice/35 bg-arctic-ice/13 text-arctic-text shadow-[0_0_18px_rgb(168_216_255/0.12)]"
-          : hovered
-            ? "border-arctic-ice/20 bg-arctic-ice/8 text-arctic-text"
-            : "border-transparent bg-arctic-surface/35 text-arctic-muted hover:bg-arctic-surface/65",
+        isDark
+          ? selected
+            ? "border-orange-500/40 bg-orange-500/10 text-zinc-100"
+            : hovered
+              ? "border-zinc-600/50 bg-zinc-700/30 text-zinc-200"
+              : "border-transparent bg-zinc-800/40 text-zinc-300 hover:bg-zinc-700/50"
+          : selected
+            ? "border-arctic-ice/35 bg-arctic-ice/13 text-arctic-text shadow-[0_0_18px_rgb(168_216_255/0.12)]"
+            : hovered
+              ? "border-arctic-ice/20 bg-arctic-ice/8 text-arctic-text"
+              : "border-transparent bg-arctic-surface/35 text-arctic-muted hover:bg-arctic-surface/65"
       )}
       onDoubleClick={() => {
         setDraftName(getObjectDisplayName(object));
@@ -93,7 +102,12 @@ export function ObjectTreeItem({
         onClick={(event) => selectObject(object.id, event.ctrlKey || event.metaKey)}
         type="button"
       >
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-[9px] border border-arctic-border/8 bg-arctic-surface/55 text-arctic-ice">
+        <span className={clsx(
+          "flex size-7 shrink-0 items-center justify-center rounded-[9px] border",
+          isDark
+            ? "border-zinc-700/60 bg-zinc-700/50 text-orange-400"
+            : "border-arctic-border/8 bg-arctic-surface/55 text-arctic-ice"
+        )}>
           {iconForObject(object)}
         </span>
         {renaming ? (
@@ -118,7 +132,10 @@ export function ObjectTreeItem({
             <span className="block truncate text-[12px] font-bold">
               {getObjectDisplayName(object)}
             </span>
-            <span className="block truncate font-mono text-[9px] uppercase tracking-[0.1em] text-arctic-muted/75">
+            <span className={clsx(
+              "block truncate font-mono text-[9px] uppercase tracking-[0.1em]",
+              isDark ? "text-zinc-500" : "text-arctic-muted/75"
+            )}>
               {object.type}
             </span>
           </span>

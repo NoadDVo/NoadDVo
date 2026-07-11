@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { clsx } from "clsx";
+import { useUiStore } from "../../app/store/uiStore";
 
 type PanelProps = HTMLAttributes<HTMLElement> & {
   readonly title?: string;
@@ -16,24 +17,38 @@ export function Panel({
   className,
   ...props
 }: PanelProps) {
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
     <section
       className={clsx(
-        "flex min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-arctic-border/8 bg-arctic-surface/82 shadow-[0_20px_60px_rgb(0_0_0/0.24)] backdrop-blur-panel",
+        "flex min-h-0 flex-col overflow-hidden",
+        appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] shadow-none" : "",
+        appTheme === "theme2" ? "rounded-md border border-zinc-800/60 bg-[#18191E] shadow-none" : "",
         className,
       )}
       {...props}
     >
       {(title || eyebrow || actions) && (
-        <header className="flex min-h-14 shrink-0 items-center justify-between gap-4 border-b border-arctic-border/8 px-5">
+        <header className={clsx(
+          "flex min-h-14 shrink-0 items-center justify-between gap-4 px-5",
+          appTheme === "theme1" ? "border-b-[3px] border-black bg-[#F17A3C]" : "",
+          appTheme === "theme2" ? "border-b border-zinc-800/60 bg-[#18191E]" : ""
+        )}>
           <div className="min-w-0">
             {eyebrow && (
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-arctic-ice/80">
+              <p className={clsx(
+                "text-[10px] font-bold uppercase tracking-[0.18em]",
+                appTheme === "theme1" ? "text-black" : "text-zinc-500"
+              )}>
                 {eyebrow}
               </p>
             )}
             {title && (
-              <h2 className="truncate text-sm font-bold uppercase tracking-[0.12em] text-arctic-text">
+              <h2 className={clsx(
+                "truncate text-sm font-bold uppercase tracking-[0.12em]",
+                appTheme === "theme1" ? "text-black" : "text-zinc-200"
+              )}>
                 {title}
               </h2>
             )}

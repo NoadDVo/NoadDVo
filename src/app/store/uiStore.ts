@@ -4,11 +4,13 @@ import type { TikzMode } from "../../core/tikz";
 
 export type ThemeMode = "dark-arctic" | "dark" | "light" | "system";
 export type ResolvedThemeMode = Exclude<ThemeMode, "system">;
+export type AppTheme = "theme1" | "theme2";
 type SidebarPanel = "tools" | "layers" | "history" | "settings";
 type DialogId = "settings" | "export" | "help" | null;
 type KeyboardModeHint = "pan" | "snap-off" | "constraint" | null;
 
 type UIState = {
+  readonly appTheme: AppTheme;
   readonly theme: ThemeMode;
   readonly activeSidebar: SidebarPanel;
   readonly openDialog: DialogId;
@@ -16,6 +18,9 @@ type UIState = {
   readonly hoveredToolId: string | null;
   readonly keyboardModeHint: KeyboardModeHint;
   readonly tikzMode: TikzMode;
+  readonly inspectorLocked: boolean;
+  readonly lockedObjectId: string | null;
+  readonly setAppTheme: (theme: AppTheme) => void;
   readonly setTheme: (theme: ThemeMode) => void;
   readonly setActiveSidebar: (sidebar: SidebarPanel) => void;
   readonly setOpenDialog: (dialog: DialogId) => void;
@@ -23,26 +28,34 @@ type UIState = {
   readonly setHoveredToolId: (toolId: string | null) => void;
   readonly setKeyboardModeHint: (hint: KeyboardModeHint) => void;
   readonly setTikzMode: (mode: TikzMode) => void;
+  readonly setInspectorLocked: (locked: boolean) => void;
+  readonly setLockedObjectId: (id: string | null) => void;
   readonly resetUi: () => void;
 };
 
 const DEFAULT_UI_STATE = {
   activeSidebar: "tools",
+  appTheme: "theme1" as AppTheme,
   commandPaletteOpen: false,
   hoveredToolId: null,
   keyboardModeHint: null,
   openDialog: null,
   theme: "dark-arctic",
   tikzMode: "academic",
+  inspectorLocked: false,
+  lockedObjectId: null,
 } satisfies Pick<
   UIState,
   | "activeSidebar"
+  | "appTheme"
   | "commandPaletteOpen"
   | "hoveredToolId"
   | "keyboardModeHint"
   | "openDialog"
   | "theme"
   | "tikzMode"
+  | "inspectorLocked"
+  | "lockedObjectId"
 >;
 
 function readStoredTheme(): ThemeMode {
@@ -67,6 +80,12 @@ export function resolveThemeMode(
 export const useUiStore = create<UIState>((set) => ({
   ...DEFAULT_UI_STATE,
   theme: readStoredTheme(),
+  setAppTheme: (appTheme) => {
+    set({ appTheme });
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("ndv.appTheme", appTheme);
+    }
+  },
   setTheme: (theme) => {
     if (typeof window !== "undefined") {
       window.localStorage.setItem("ndv.theme", theme);
@@ -80,6 +99,7 @@ export const useUiStore = create<UIState>((set) => ({
   setOpenDialog: (openDialog) => {
     set({ openDialog });
   },
+
   setCommandPaletteOpen: (commandPaletteOpen) => {
     set({ commandPaletteOpen });
   },
@@ -91,6 +111,12 @@ export const useUiStore = create<UIState>((set) => ({
   },
   setTikzMode: (tikzMode) => {
     set({ tikzMode });
+  },
+  setInspectorLocked: (inspectorLocked) => {
+    set({ inspectorLocked });
+  },
+  setLockedObjectId: (lockedObjectId) => {
+    set({ lockedObjectId });
   },
   resetUi: () => {
     set(DEFAULT_UI_STATE);
