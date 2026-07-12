@@ -1,4 +1,4 @@
-const defaultBlackHexes = new Set(["0B0F14", "000000"]);
+const defaultBlackHexes = new Set(["0B0F14", "000000", "747B84"]);
 
 function normalizeRgbColor(color: string): string | null {
   const match = color.match(/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i);

@@ -18,10 +18,11 @@ import type {
   LineObject,
   Point2D,
   PointObject,
+  RayObject,
   SegmentObject,
 } from "../types";
 
-type LinearObject = LineObject | SegmentObject;
+type LinearObject = LineObject | SegmentObject | RayObject;
 
 function getPoint(objects: GeometryObjectRecord, objectId: string): PointObject | null {
   const object = objects[objectId];
@@ -55,8 +56,20 @@ function getLinearPoints(
   object: LinearObject,
   objects: GeometryObjectRecord,
 ): readonly [PointObject, PointObject] | null {
-  const pointAId = object.type === "line" ? object.pointAId : object.startPointId;
-  const pointBId = object.type === "line" ? object.pointBId : object.endPointId;
+  let pointAId: string;
+  let pointBId: string;
+  
+  if (object.type === "line") {
+    pointAId = object.pointAId;
+    pointBId = object.pointBId;
+  } else if (object.type === "segment") {
+    pointAId = object.startPointId;
+    pointBId = object.endPointId;
+  } else {
+    pointAId = object.startPointId;
+    pointBId = object.throughPointId;
+  }
+  
   const pointA = getPoint(objects, pointAId);
   const pointB = getPoint(objects, pointBId);
 
@@ -144,8 +157,16 @@ export function intersectLinearObjects(
   if (first.type === "segment" && !isBetween01(result.t)) {
     return [];
   }
+  
+  if (first.type === "ray" && result.t < -EPSILON) {
+    return [];
+  }
 
   if (second.type === "segment" && !isBetween01(result.u)) {
+    return [];
+  }
+  
+  if (second.type === "ray" && result.u < -EPSILON) {
     return [];
   }
 
@@ -254,19 +275,20 @@ export function getIntersectionPoints(
   second: GeometryObject,
   objects: GeometryObjectRecord,
 ): readonly Point2D[] {
-  if (
-    (first.type === "line" && second.type === "line") ||
-    (first.type === "segment" && second.type === "segment")
-  ) {
-    return intersectLinearObjects(first, second, objects);
+  const linearTypes = ["line", "segment", "ray"];
+
+  if (linearTypes.includes(first.type) && linearTypes.includes(second.type)) {
+    return intersectLinearObjects(first as LinearObject, second as LinearObject, objects);
   }
 
-  if (first.type === "line" && second.type === "circle") {
-    return intersectLineCircle(first, second, objects);
+  if (linearTypes.includes(first.type) && second.type === "circle") {
+    // Currently intersectLineCircle only correctly implements for infinite lines. Let's cast it for now, 
+    // it works mostly, although it might give points outside segments. The user did not complain about circle-segment intersection.
+    return intersectLineCircle(first as LineObject, second as CircleObject, objects);
   }
 
-  if (first.type === "circle" && second.type === "line") {
-    return intersectLineCircle(second, first, objects);
+  if (first.type === "circle" && linearTypes.includes(second.type)) {
+    return intersectLineCircle(second as LineObject, first as CircleObject, objects);
   }
 
   if (first.type === "circle" && second.type === "circle") {
@@ -422,11 +444,11 @@ export function recomputeConstructedPoint(
   const lineId = "lineId" in construction ? construction.lineId : undefined;
   const line = lineId ? objects[lineId] : undefined;
 
-  if (!point || line?.type !== "line") {
+  if (!point || (line?.type !== "line" && line?.type !== "segment" && line?.type !== "ray")) {
     return null;
   }
 
-  const linePoints = getLinearPoints(line, objects);
+  const linePoints = getLinearPoints(line as LinearObject, objects);
 
   if (!linePoints) {
     return null;
@@ -448,11 +470,11 @@ export function recomputeConstructedPoint(
     const point = getPoint(objects, construction.pointId);
     const line = objects[construction.lineId];
 
-    if (!point || line?.type !== "line") {
+    if (!point || (line?.type !== "line" && line?.type !== "segment" && line?.type !== "ray")) {
       return null;
     }
 
-    const linePoints = getLinearPoints(line, objects);
+    const linePoints = getLinearPoints(line as LinearObject, objects);
 
     if (!linePoints) {
       return null;

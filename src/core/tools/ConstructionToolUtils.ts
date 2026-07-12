@@ -5,6 +5,7 @@ import {
   type GeometryObjectRecord,
   type LineObject,
   type PointObject,
+  type RayObject,
   type SegmentObject,
 } from "../geometry";
 import { hitTest } from "../selection/HitTest";
@@ -12,7 +13,7 @@ import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 let constructionIdCounter = 0;
 
-export type IntersectionSource = LineObject | SegmentObject | CircleObject;
+export type IntersectionSource = LineObject | SegmentObject | RayObject | CircleObject;
 
 export function getHitObject(
   event: ToolPointerEvent,
@@ -51,9 +52,27 @@ export function getHitIntersectionSource(
   if (
     object?.type === "line" ||
     object?.type === "segment" ||
+    object?.type === "ray" ||
     object?.type === "circle"
   ) {
-    return object;
+    return object as IntersectionSource;
+  }
+
+  return null;
+}
+
+export function getHitLinearSource(
+  event: ToolPointerEvent,
+  context: ToolContext,
+): LineObject | SegmentObject | RayObject | null {
+  const object = getHitObject(event, context);
+
+  if (
+    object?.type === "line" ||
+    object?.type === "segment" ||
+    object?.type === "ray"
+  ) {
+    return object as LineObject | SegmentObject | RayObject;
   }
 
   return null;
@@ -69,6 +88,7 @@ export function createConstructionLine(
   pointA: PointObject,
   pointB: PointObject,
   name: string,
+  extra?: Partial<Omit<LineObject, "id" | "type" | "pointAId" | "pointBId" | "createdAt" | "updatedAt" | "name" | "style" | "dependencies" | "dependents" | "locked" | "visible">>,
 ): LineObject {
   const now = Date.now();
 
@@ -89,6 +109,7 @@ export function createConstructionLine(
       strokeWidth: 1.4,
     },
     type: "line",
+    ...extra,
     updatedAt: now,
     visible: true,
   };

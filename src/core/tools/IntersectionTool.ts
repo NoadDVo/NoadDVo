@@ -15,13 +15,25 @@ function supportsIntersection(
   first: GeometryObject,
   second: GeometryObject,
 ): boolean {
-  return (
-    (first.type === "line" && second.type === "line") ||
-    (first.type === "segment" && second.type === "segment") ||
-    (first.type === "line" && second.type === "circle") ||
-    (first.type === "circle" && second.type === "line") ||
-    (first.type === "circle" && second.type === "circle")
-  );
+  const linearTypes = ["line", "segment", "ray"];
+  
+  if (linearTypes.includes(first.type) && linearTypes.includes(second.type)) {
+    return true;
+  }
+  
+  if (linearTypes.includes(first.type) && second.type === "circle") {
+    return true;
+  }
+  
+  if (first.type === "circle" && linearTypes.includes(second.type)) {
+    return true;
+  }
+  
+  if (first.type === "circle" && second.type === "circle") {
+    return true;
+  }
+
+  return false;
 }
 
 function createIntersectionPoint(

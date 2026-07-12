@@ -13,7 +13,7 @@
     top=20mm,
 }
 
-\title{\textbf{Danh sách chức năng của NoadDVo Geometry Studio}}
+\title{\textbf{Tài liệu Hướng dẫn \& Chức năng\\NOADDVO UNTITLED GEOMETRY}}
 \author{}
 \date{\today}
 
@@ -21,40 +21,66 @@
 
 \maketitle
 
-\section{Tổng quan Hệ thống}
-NoadDVo Geometry Studio là một ứng dụng web mô phỏng không gian hình học trực quan, hỗ trợ vẽ hình, phân tích toán học và xuất mã nguồn LaTeX (TikZ) tự động. Ứng dụng cung cấp bảng vẽ (Canvas) vô hạn, lưới tọa độ thông minh và hàng loạt công cụ vẽ chuyên dụng.
+\section{Giới thiệu Tổng quan}
+\textbf{NoadDVo Untitled Geometry} là một ứng dụng thiết kế và mô phỏng hình học trực quan, nổi bật với phong cách thiết kế \textbf{Neo-Brutalism} (viền đen dày, đổ bóng cứng, màu nhấn cam đặc trưng). Ứng dụng cung cấp một không gian làm việc chuyên nghiệp để vẽ hình toán học và tự động sinh mã nguồn LaTeX (TikZ).
 
-\section{Các Công cụ Hình học (Geometry Tools)}
-Hệ thống cung cấp một bộ công cụ toàn diện để khởi tạo và thao tác các đối tượng hình học:
+\section{Cấu trúc Giao diện Chính (Workspace Layout)}
+Giao diện của ứng dụng được bố trí thông minh thành 5 khu vực chính:
+
+\subsection{1. Thanh Điều Hướng (Top Bar)}
+Nằm ở trên cùng, chứa các nút chức năng tổng thể:
 \begin{itemize}[label=\textbullet]
-    \item \textbf{Chọn \& Di chuyển:} Chọn đối tượng (Select Tool) và Di chuyển đối tượng (Move Tool).
-    \item \textbf{Điểm (Point):} Tạo điểm tự do, lấy trung điểm (Midpoint), lấy giao điểm (Intersection).
-    \item \textbf{Đường thẳng \& Đoạn thẳng:} Vẽ đoạn thẳng (Segment), tia (Ray), và đường thẳng vô hạn (Line).
-    \item \textbf{Công cụ tương quan:} Vẽ đường thẳng song song (Parallel Line), đường vuông góc (Perpendicular Line).
-    \item \textbf{Đường tròn (Circle):} Vẽ đường tròn thông qua tâm và bán kính/điểm trên đường tròn.
-    \item \textbf{Đa giác (Polygon):} Tạo các đa giác khép kín.
-    \item \textbf{Vector:} Khởi tạo và làm việc với vector.
-    \item \textbf{Góc \& Đo lường (Measurement):} Đánh dấu góc (Angle), đo chiều dài, khoảng cách và diện tích.
-    \item \textbf{Cắt xén (Trim):} Công cụ cắt xén (Trim) các phần thừa của đường thẳng/vòng tròn.
-    \item \textbf{Đổ màu (Fill):} Tô màu các vùng giới hạn khép kín.
-    \item \textbf{Văn bản (Text):} Chèn chú thích và văn bản toán học lên bảng vẽ.
+    \item \textbf{Logo \& Tên dự án:} NOADDVO UNTITLED GEOMETRY.
+    \item \textbf{Undo / Redo:} Hai nút mũi tên quay lại/tiến tới giúp hoàn tác các thao tác vẽ.
+    \item \textbf{Menu Công cụ (Góc phải):} Bao gồm \textbf{PROJECT} (quản lý file dự án), \textbf{EXPORT} (xuất hình ảnh/mã), \textbf{THEME} (đổi giao diện), và nút \textbf{Help (?)}.
 \end{itemize}
 
-\section{Tính năng Cốt lõi (Core Features)}
+\subsection{2. Bảng Vẽ Trung Tâm (Main Canvas)}
+Khu vực lưới (Grid) vô hạn chiếm phần lớn diện tích màn hình.
 \begin{itemize}[label=\textbullet]
-    \item \textbf{Lưới \& Snap thông minh:} Lưới tự động thay đổi (Adaptive Grid), chế độ bắt dính điểm thông minh với \textit{Snap Radius} và khoảng cách Euclidean tối ưu.
-    \item \textbf{Quản lý trạng thái (History):} Hỗ trợ Undo/Redo mạnh mẽ.
-    \item \textbf{Cây đối tượng (Object Tree):} Quản lý cấu trúc phân cấp, cho phép ẩn/hiện và khóa (lock) từng đối tượng hình học trên màn hình.
-    \item \textbf{Bảng Thuộc tính (Properties Panel):} Cho phép tùy chỉnh màu viền, màu nền, kích thước điểm, kiểu nét (nét đứt, nét liền) và ẩn/hiện nhãn tên.
-    \item \textbf{Thao tác không gian (Viewport):} Hỗ trợ Pan (kéo thả bảng vẽ bằng phím Space), Zoom in/out mượt mà, và lưới vô hạn.
+    \item Khi chưa có đối tượng nào, bảng vẽ hiển thị hộp thoại \textbf{EMPTY WORKSPACE} với thông điệp "CREATE YOUR FIRST OBJECT" cùng 2 nút hành động nhanh: \textbf{CREATE A POINT} (Tạo điểm đầu tiên) và \textbf{LOAD EXAMPLE} (Tải một hình mẫu có sẵn).
+    \item Bạn có thể dùng chuột để vẽ, kéo thả, hoặc giữ phím Space để Pan (di chuyển) góc nhìn.
 \end{itemize}
 
-\section{Tính năng Nâng cao \& Tích hợp}
+\subsection{3. Thanh Công Cụ (Left Toolbar)}
+Thanh công cụ nổi nằm bên trái màn hình, chứa các nhóm công cụ hình học (có menu xổ ra khi click):
 \begin{itemize}[label=\textbullet]
-    \item \textbf{Đồng bộ TikZ (TikZ Panel):} Xuất mã hình học dưới dạng mã TikZ của LaTeX một cách trực tiếp, hỗ trợ soạn thảo tài liệu toán học chuyên nghiệp.
-    \item \textbf{Bảng lệnh nhanh (Command Palette):} Nhấn phím tắt để kích hoạt bảng tìm kiếm lệnh/công cụ một cách nhanh chóng.
-    \item \textbf{Menu Ngữ cảnh (Context Menu):} Click chuột phải vào đối tượng để truy cập nhanh các lệnh như xóa, xem thông tin, đổi màu.
-    \item \textbf{Trang cài đặt (Settings):} Tuỳ chỉnh màu của lưới, chất lượng render, và các thông số kỹ thuật hiển thị nâng cao.
+    \item \textbf{Action (Mũi tên chuột):} Chứa công cụ Select (chọn) và Move (di chuyển).
+    \item \textbf{Point (Điểm):} Khởi tạo Point, Midpoint, Intersection.
+    \item \textbf{Line (Đường chéo):} Vẽ Line, Segment, Ray, Vector, và các đường tương quan (Parallel, Perpendicular...).
+    \item \textbf{Shape (Đường tròn):} Vẽ Circle, Circumcircle, Incircle, Polygon.
+    \item \textbf{Conic (Quỹ đạo):} Khởi tạo Ellipse, Hyperbola, Polynomial.
+    \item \textbf{Transform (Phép biến hình):} Reflect, Rotate, Translate, Dilate.
+    \item \textbf{Measure \& Utils (Đồng hồ đo):} Angle, Distance, Area, Text, Trim, Fill, Slider.
 \end{itemize}
+
+\subsection{4. Thanh Quản Lý (Right Sidebar)}
+Nằm ở bên phải màn hình, chia làm 2 panel xếp chồng lên nhau:
+\begin{itemize}[label=\textbullet]
+    \item \textbf{WORKSPACE / OBJECT TREE:}
+    \begin{itemize}
+        \item Cung cấp thanh tìm kiếm (\textit{Search objects}).
+        \item Hệ thống bộ lọc (Filters) phân loại đối tượng: \textbf{ALL, POINTS, LINES, CIRCLES, CONST}...
+        \item Hiển thị danh sách toàn bộ các cấu phần hình học và xem xét mối liên hệ phụ thuộc (\textit{Dependency links}) giữa chúng.
+    \end{itemize}
+    \item \textbf{INSPECTOR / PROPERTIES:}
+    \begin{itemize}
+        \item Hiển thị thuộc tính của đối tượng đang được chọn (màu sắc, độ dày nét, hiển thị nhãn...).
+        \item Cung cấp chức năng \textbf{Lock Panel} (Biểu tượng ổ khóa ở tiêu đề): Giúp ghim chặt bảng thuộc tính cho đối tượng hiện hành, không bị mất tiêu điểm khi click ra ngoài.
+    \end{itemize}
+\end{itemize}
+
+\subsection{5. Khung Xuất Mã (Bottom Panel) \& Thanh Trạng Thái (Status Bar)}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{GENERATED TIKZ:} Khung hiển thị nằm ngang ở dưới cùng, tự động sinh mã nguồn LaTeX/TikZ (VD: \texttt{\textbackslash begin\{tikzpicture\}...}). Hỗ trợ tùy chỉnh \textit{FORM: ACADEMIC, WRAP, READONLY} và nút \textbf{COPY} nhanh.
+    \item \textbf{Status Bar:} Nằm sát mép dưới cùng, hiển thị các thông số thời gian thực: \textit{ZOOM 100\%, Tọa độ X/Y của chuột, Số lượng đối tượng đang chọn (SELECTION), Chế độ SNAP (Grid 1), MODE, và trạng thái TIKZ.}
+\end{itemize}
+
+\section{Hướng dẫn Thao tác Nhanh}
+\begin{enumerate}
+    \item \textbf{Tạo đối tượng:} Bắt đầu bằng cách chọn công cụ \textit{Line} (như trên ảnh đang được chọn màu cam), click 2 điểm trên Canvas để vẽ một đoạn thẳng.
+    \item \textbf{Kiểm soát thuộc tính:} Khi đoạn thẳng được chọn, \textit{INSPECTOR} sẽ hiện lên thông số để bạn đổi nét liền thành nét đứt.
+    \item \textbf{Lấy mã LaTeX:} Toàn bộ thay đổi sẽ được phản ánh ngay lập tức ở khung \textit{TIKZ} bên dưới. Nhấn nút Copy và dán vào phần mềm LaTeX của bạn.
+\end{enumerate}
 
 \end{document}

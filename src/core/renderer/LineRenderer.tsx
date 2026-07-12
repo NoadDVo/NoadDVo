@@ -1,6 +1,7 @@
 import type { LineObject, PointObject } from "../geometry";
 import { getBoundedLineEndpoints } from "../geometry/derivedGeometry";
 import { worldToScreen } from "../geometry/viewport";
+import { ConstructionSymbols } from "./ConstructionSymbols";
 import type { GeometryRenderer, GeometryRendererContext } from "./RendererRegistry";
 
 function getPoint(objectId: string, context: GeometryRendererContext) {
@@ -78,6 +79,12 @@ export const LineRenderer: GeometryRenderer<LineObject> = {
           strokeLinecap="round"
           strokeOpacity={object.style.strokeOpacity}
           strokeWidth={object.style.strokeWidth}
+        />
+        <ConstructionSymbols 
+          line={object} 
+          objects={context.objects} 
+          viewport={context.viewport} 
+          stroke={object.style.stroke} 
         />
       </g>
     );
