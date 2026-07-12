@@ -3,7 +3,9 @@ import {
   distance,
   isFiniteNumber,
 } from "./math";
+import { lineLineIntersection } from "./constructions/ConstructionAlgorithms";
 import type {
+  LineObject,
   ArcObject,
   CircleObject,
   GeometryObjectRecord,
@@ -183,9 +185,9 @@ export function isPointInPolygon(
 }
 
 export function getBoundedLineEndpoints(
-  line: import("./types").LineObject,
-  objects: import("./types").GeometryObjectRecord,
-): [import("./types").Point2D, import("./types").Point2D] | null {
+  line: LineObject,
+  objects: GeometryObjectRecord,
+): [Point2D, Point2D] | null {
   const pointA = objects[line.pointAId];
   const pointB = objects[line.pointBId];
 
@@ -205,7 +207,19 @@ export function getBoundedLineEndpoints(
   const dirY = dy / length;
 
   // 1. Perpendicular Line (from C to foot H)
+  // 1. Perpendicular Line (from anchor to foot)
   if (pointB.construction?.type === "perpendicular-line-point") {
+    const sourceLine = objects[pointB.construction.lineId];
+    if (sourceLine) {
+      const srcA = objects[(sourceLine as any).pointAId || (sourceLine as any).startPointId];
+      const srcB = objects[(sourceLine as any).pointBId || (sourceLine as any).endPointId || (sourceLine as any).throughPointId];
+      if (srcA?.type === "point" && srcB?.type === "point") {
+        const intersection = lineLineIntersection(pointA, pointB, srcA, srcB)?.point;
+        if (intersection) {
+          return [pointA, intersection];
+        }
+      }
+    }
     return [pointA, pointB];
   }
 
@@ -223,6 +237,23 @@ export function getBoundedLineEndpoints(
         { x: pointA.x - dirX * halfLength, y: pointA.y - dirY * halfLength },
         { x: pointA.x + dirX * halfLength, y: pointA.y + dirY * halfLength },
       ];
+    }
+  }
+
+  // 2.5 Parallel Line (centered at anchor, length = source line)
+  if (pointB.construction?.type === "parallel-line-point") {
+    const sourceLine = objects[pointB.construction.lineId];
+    if (sourceLine) {
+      const srcA = objects[(sourceLine as any).pointAId || (sourceLine as any).startPointId];
+      const srcB = objects[(sourceLine as any).pointBId || (sourceLine as any).endPointId || (sourceLine as any).throughPointId];
+      if (srcA?.type === "point" && srcB?.type === "point") {
+        const origLength = Math.hypot(srcB.x - srcA.x, srcB.y - srcA.y);
+        const halfLength = origLength / 2;
+        return [
+          { x: pointA.x - dirX * halfLength, y: pointA.y - dirY * halfLength },
+          { x: pointA.x + dirX * halfLength, y: pointA.y + dirY * halfLength },
+        ];
+      }
     }
   }
 

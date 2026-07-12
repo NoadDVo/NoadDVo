@@ -2,7 +2,7 @@ import { recomputeConstructedPoint, type LineObject, type PointObject } from "..
 import { BaseTool } from "./BaseTool";
 import {
   createConstructionLine,
-  getHitLine,
+  getHitLinearSource,
   getHitPoint,
   hasLineWithEndpoints,
 } from "./ConstructionToolUtils";
@@ -40,18 +40,18 @@ export class PerpendicularLineTool extends BaseTool {
       return;
     }
 
-    const sourceLine = getHitLine(event, context);
+    const sourceLine = getHitLinearSource(event, context);
 
     if (!sourceLine) {
       return;
     }
 
-    this.createLine(this.anchorPoint, sourceLine, context);
+    this.createLine(this.anchorPoint, sourceLine as any, context);
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
     const hovered = this.anchorPoint
-      ? getHitLine(event, context)
+      ? getHitLinearSource(event, context)
       : getHitPoint(event, context);
 
     context.setHoveredObject(hovered?.id ?? null);
@@ -93,6 +93,8 @@ export class PerpendicularLineTool extends BaseTool {
     const directionPoint = recomputeConstructedPoint(construction, context.objects);
 
     if (!directionPoint) {
+      this.reset();
+      this.transitionState("waitingInput", "await-input");
       return;
     }
 
@@ -107,6 +109,8 @@ export class PerpendicularLineTool extends BaseTool {
     );
 
     if (hasLineWithEndpoints(anchorPoint.id, helperPoint.id, context.objects)) {
+      this.reset();
+      this.transitionState("waitingInput", "await-input");
       return;
     }
 
@@ -117,7 +121,11 @@ export class PerpendicularLineTool extends BaseTool {
       return;
     }
 
-    const line = createConstructionLine(anchorPoint, helperPoint, "Perpendicular Line");
+    const line = createConstructionLine(anchorPoint, helperPoint, "Perpendicular Line", {
+      lineKind: "perpendicular",
+      sourceLineId: sourceLine.id,
+      anchorPointId: anchorPoint.id,
+    });
 
     if (context.addObject(line)) {
       context.selectObject(line.id);
@@ -131,6 +139,8 @@ export class PerpendicularLineTool extends BaseTool {
     }
 
     context.commitHistoryTransaction();
+    this.reset();
+    this.transitionState("waitingInput", "await-input");
   }
 
   private reset(): void {

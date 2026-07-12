@@ -212,6 +212,11 @@ export const perpendicularBisectorTool = new PointSequenceConstructionTool({
         midpointPoint,
         directionPoint,
         "Perpendicular Bisector",
+        {
+          lineKind: "perpendicular-bisector",
+          sourceSegmentAId: pointA.id,
+          sourceSegmentBId: pointB.id,
+        }
       );
 
       return {
@@ -256,7 +261,12 @@ export const angleBisectorTool = new PointSequenceConstructionTool({
         return null;
       }
 
-      const line = createConstructionLine(vertex, directionPoint, "Angle Bisector");
+      const line = createConstructionLine(vertex, directionPoint, "Angle Bisector", {
+        lineKind: "angle-bisector",
+        vertexPointId: vertex.id,
+        anglePointAId: pointA.id,
+        anglePointBId: pointC.id,
+      });
 
       return {
         objects: [directionPoint, line],

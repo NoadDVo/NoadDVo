@@ -181,12 +181,15 @@ export type ConstructionDefinition =
       readonly type: "perpendicular-bisector-point";
       readonly pointAId: string;
       readonly pointBId: string;
+      readonly segmentId?: string;
     }
   | {
       readonly type: "angle-bisector-point";
       readonly pointAId: string;
       readonly vertexPointId: string;
       readonly pointCId: string;
+      readonly sourceSegmentAId?: string;
+      readonly sourceSegmentBId?: string;
     }
   | {
       readonly type: "projection-point";
@@ -252,6 +255,15 @@ export type LineObject = BaseGeometryObject & {
   readonly type: "line";
   readonly pointAId: string;
   readonly pointBId: string;
+  readonly lineKind?: "parallel" | "perpendicular" | "perpendicular-bisector" | "angle-bisector";
+  readonly sourceLineId?: string;
+  readonly anchorPointId?: string;
+  readonly sourceSegmentId?: string;
+  readonly sourceSegmentAId?: string;
+  readonly sourceSegmentBId?: string;
+  readonly vertexPointId?: string;
+  readonly anglePointAId?: string;
+  readonly anglePointBId?: string;
 };
 
 export type RayObject = BaseGeometryObject & {
