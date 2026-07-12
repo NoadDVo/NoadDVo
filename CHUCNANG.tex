@@ -13,7 +13,7 @@
     top=20mm,
 }
 
-\title{\textbf{Tài liệu Hướng dẫn \& Chức năng\\NoadDVo Geometry Studio}}
+\title{\textbf{Tài liệu Hướng dẫn \& Chức năng\\GEOGEBRA STUDIO}}
 \author{}
 \date{\today}
 
@@ -22,96 +22,53 @@
 \maketitle
 
 \section{Giới thiệu Tổng quan}
-NoadDVo Geometry Studio là một ứng dụng web mạnh mẽ chuyên mô phỏng không gian hình học trực quan, hỗ trợ thiết kế, vẽ hình, phân tích toán học và tự động xuất mã nguồn LaTeX (TikZ). 
+\textbf{GEOGEBRA STUDIO} là một ứng dụng web kết hợp hoàn hảo giữa soạn thảo văn bản học thuật (LaTeX) và vẽ hình học trực quan. Ứng dụng mang phong cách thiết kế Pixel Art độc đáo, thân thiện, giúp giáo viên và học sinh dễ dàng tạo ra các bài giảng, đề thi trắc nghiệm và hình vẽ minh họa chất lượng cao trực tiếp trên nền "Vở ô ly A4".
 
-Được xây dựng với kiến trúc hiện đại, ứng dụng mang đến không gian Canvas vô hạn, khả năng bắt dính thông minh (Smart Snapping), cùng hệ thống quản lý giao diện đa dạng (Multi-Theme System) nổi bật với hai phong cách: \textbf{Neo-Brutalism} sáng tạo và \textbf{Tactical Dark} chuyên nghiệp, giúp người dùng tập trung tối đa vào việc thiết kế.
+\section{Cấu trúc Giao diện Chính}
+Giao diện ứng dụng được chia thành 3 khu vực (Panel) chính, hoạt động đồng bộ với nhau:
 
-\section{Hướng dẫn Sử dụng Công cụ (Tool Usage)}
-Dưới đây là danh sách chi tiết các công cụ (được phân loại theo nhóm) đang hiển thị trên thanh công cụ bên trái (Left Toolbar) cùng với tên tiếng Anh chuẩn xác và hướng dẫn cách thao tác từng bước.
-
-\subsection{1. Nhóm Thao tác Cơ bản (Basic)}
+\subsection{1. MÃ HỌC THUẬT (LATEX EDITOR)}
+Nằm ở ngoài cùng bên trái, đây là khu vực dành riêng cho việc soạn thảo mã nguồn LaTeX.
 \begin{itemize}[label=\textbullet]
-    \item \textbf{Select (Chọn đối tượng):} Dùng để chọn một hoặc nhiều đối tượng. Click chuột vào một đối tượng để chọn. Có thể click và kéo thả để tạo vùng chọn (box selection). Giữ phím \texttt{Ctrl/Cmd} khi click để chọn thêm nhiều đối tượng cùng lúc.
-    \item \textbf{Move (Di chuyển không gian/đối tượng):} Cho phép click và kéo một đối tượng hình học tự do (không bị ràng buộc) đến vị trí mới. Nếu click vào khoảng trống trên Canvas, bạn có thể kéo thả để di chuyển góc nhìn (Pan). \textit{Mẹo: Bạn có thể nhấn giữ phím Space ở bất kỳ công cụ nào để tạm thời kích hoạt tính năng Pan.}
+    \item Hỗ trợ biên dịch mã LaTeX theo thời gian thực (real-time).
+    \item Tính năng quản lý \textbf{Thư mục tệp}: Tạo mới, Dán mã, Tải tệp lên.
+    \item Hỗ trợ các môi trường LaTeX chuyên biệt cho giáo dục như môi trường tạo câu hỏi trắc nghiệm (\texttt{\textbackslash begin\{ex\}}, \texttt{\textbackslash choice}).
 \end{itemize}
 
-\subsection{2. Nhóm Điểm (Points)}
+\subsection{2. BẢN VẼ HÌNH HỌC (CÔNG CỤ BẢNG VẼ)}
+Nằm ở chính giữa, cung cấp toàn bộ các công cụ để tương tác và khởi tạo hình học. Dưới đây là danh sách chi tiết các công cụ hiển thị trên lưới bảng điều khiển:
 \begin{itemize}[label=\textbullet]
-    \item \textbf{Point (Điểm tự do):} Click vào một vị trí trống trên màn hình để tạo điểm tự do. Nếu click lên một đoạn thẳng, tia, hoặc đường tròn, điểm đó sẽ bị ràng buộc trượt trên đối tượng đó.
-    \item \textbf{Midpoint (Trung điểm):} Dùng để xác định trung điểm. Bạn có thể click trực tiếp vào một đoạn thẳng (Segment) để lấy trung điểm của nó, hoặc click lần lượt vào hai điểm riêng biệt.
-    \item \textbf{Intersection (Giao điểm):} Tìm điểm giao nhau giữa 2 đối tượng (đường thẳng, tia, đoạn thẳng, đường tròn). Chọn công cụ, sau đó click lần lượt vào đối tượng thứ nhất và đối tượng thứ hai. Giao điểm (nếu có) sẽ tự động xuất hiện.
+    \item \textbf{Di chuyển:} Công cụ cơ bản dùng để chọn, kéo thả và thay đổi vị trí các đối tượng đã vẽ.
+    \item \textbf{Tự do (Pen):} Cho phép vẽ các đường nét tự do bằng tay.
+    \item \textbf{Đa giác:} Vẽ các hình đa giác khép kín (tam giác, tứ giác...).
+    \item \textbf{Đường thẳng:} Vẽ đường thẳng đi qua các điểm.
+    \item \textbf{Mũi tên (Vectơ):} Vẽ đường thẳng có mũi tên ở một đầu để biểu diễn chiều hoặc vectơ.
+    \item \textbf{Hai chiều:} Vẽ đoạn thẳng hoặc đường thẳng có mũi tên ở cả 2 đầu.
+    \item \textbf{Tia:} Vẽ tia hình học (có điểm gốc và kéo dài vô hạn về một phía).
+    \item \textbf{Cung:} Vẽ cung tròn.
+    \item \textbf{Hình thoi:} Công cụ khởi tạo nhanh hình thoi.
+    \item \textbf{Chữ nhật:} Công cụ khởi tạo nhanh hình chữ nhật.
+    \item \textbf{Hình tròn:} Vẽ đường tròn hoặc hình tròn.
+    \item \textbf{Hình Elip:} Vẽ hình Elip.
+\end{itemize}
+\textbf{Tùy chỉnh Nét vẽ \& Cập nhật:}
+\begin{itemize}[label=\textbullet]
+    \item \textbf{Thuộc tính NÉT (Liền / Đứt):} Nút chuyển đổi nhanh ở dưới cùng giúp bạn chọn kiểu nét vẽ (nét liền khối hoặc nét đứt khúc) trước khi vẽ.
+    \item \textbf{Loại Giấy vẽ:} Dropdown chọn kiểu giấy (ví dụ: Ô ly).
+    \item \textbf{Nút màu xanh "+ Đưa nét vẽ lên vở A4":} Sau khi vẽ và tinh chỉnh xong trên bảng vẽ tạm, nhấn nút này để chèn (embed) hình vẽ đó sang trang giấy A4 bên phải.
 \end{itemize}
 
-\subsection{3. Nhóm Đường thẳng \& Đoạn thẳng (Lines \& Vectors)}
+\subsection{3. KHU VỰC TRÌNH BÀY (TRANG VỞ A4)}
+Nằm ở bên phải, chiếm diện tích lớn nhất. Đây là không gian hiển thị kết quả cuối cùng (Rendered Output).
 \begin{itemize}[label=\textbullet]
-    \item \textbf{Segment (Đoạn thẳng):} Click điểm thứ nhất để chọn vị trí bắt đầu, click điểm thứ hai để kết thúc. Hệ thống sẽ vẽ đoạn thẳng nối hai điểm.
-    \item \textbf{Line (Đường thẳng):} Cách dùng tương tự Segment, click 2 điểm, nhưng đường thẳng này sẽ kéo dài vô hạn về cả hai phía.
-    \item \textbf{Ray (Tia):} Click điểm gốc trước, sau đó click điểm hướng đến. Tia sẽ kéo dài vô hạn từ điểm gốc đi qua điểm thứ 2.
-    \item \textbf{Vector (Vectơ):} Click điểm gốc (điểm đặt) và điểm ngọn (điểm hướng). Mũi tên sẽ được tự động vẽ tại điểm ngọn để biểu diễn vectơ.
-\end{itemize}
-
-\subsection{4. Nhóm Tương quan Không gian (Constrained Lines)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Perpendicular Line (Đường vuông góc):} Chọn công cụ, click vào một điểm muốn đường thẳng đi qua, sau đó click vào đoạn thẳng/đường thẳng tham chiếu. Kết quả tạo ra một đường vô hạn vuông góc với tham chiếu.
-    \item \textbf{Parallel Line (Đường song song):} Chọn công cụ, click vào điểm muốn đi qua, sau đó click vào đoạn/đường thẳng tham chiếu. Một đường thẳng song song vô hạn sẽ được tạo ra.
-\end{itemize}
-
-\subsection{5. Nhóm Hình học Nâng cao \& Đường cong (Curves \& Shapes)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Circle (Đường tròn):} Click điểm đầu tiên làm tâm đường tròn. Click điểm thứ hai để xác định một điểm nằm trên đường tròn (hoặc bán kính).
-    \item \textbf{Ellipse (Elip):} Click chọn 2 tiêu điểm (focus) của Elip, sau đó di chuyển chuột và click điểm thứ 3 để xác định độ mở (một điểm nằm trên viền elip).
-    \item \textbf{Hyperbola (Hypebol):} Tương tự Elip, click chọn 2 tiêu điểm, sau đó click điểm thứ 3 nằm trên đường hypebol để chốt độ cong.
-    \item \textbf{Polynomial (Đa thức):} Click liên tiếp nhiều điểm để tạo đường cong trơn đi qua các điểm đó.
-    \item \textbf{Polygon (Đa giác):} Nhấn chọn liên tiếp các điểm đóng vai trò là đỉnh của đa giác. Khi đã đủ, click lại vào điểm đầu tiên một lần nữa để khép kín hình.
-\end{itemize}
-
-\subsection{6. Nhóm Phép biến hình (Transformations)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Reflect Point (Đối xứng qua điểm - Tâm đối xứng):} Chọn đối tượng (điểm/đường/hình) muốn lấy đối xứng, sau đó click vào một Điểm đóng vai trò là tâm đối xứng.
-    \item \textbf{Reflect Line (Đối xứng qua đường thẳng - Trục đối xứng):} Chọn đối tượng muốn lấy đối xứng, sau đó click vào một Đường/Đoạn thẳng đóng vai trò là trục đối xứng.
-    \item \textbf{Rotate Point (Phép quay):} (Tính năng đang phát triển/hoàn thiện).
-    \item \textbf{Translate Vector (Tịnh tiến theo vectơ):} Chọn đối tượng muốn tịnh tiến, sau đó click vào một Vectơ tham chiếu đã có trên màn hình.
-    \item \textbf{Dilate Point (Vị tự):} Lấy vị tự của một đối tượng qua một tâm với một hệ số (hiện đang được mở rộng thông qua giao diện thuộc tính).
-\end{itemize}
-
-\subsection{7. Nhóm Đo lường \& Chú thích (Measurements \& Annotations)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Angle (Đo Góc):} Click lần lượt 3 điểm theo thứ tự, trong đó điểm thứ 2 (điểm giữa) là đỉnh của góc. Công cụ sẽ vẽ cung tròn đánh dấu và ghi số đo góc.
-    \item \textbf{Distance (Đo khoảng cách):} Click 2 điểm để hệ thống tính toán và hiển thị khoảng cách tuyệt đối giữa chúng.
-    \item \textbf{Area (Diện tích):} Click chọn một vùng khép kín hoặc đa giác để hiển thị diện tích của nó.
-    \item \textbf{Text (Văn bản):} Click vào một vị trí trên Canvas. Một hộp thoại sẽ hiện lên để bạn nhập nội dung (hỗ trợ nhập cả công thức toán học).
-\end{itemize}
-
-\subsection{8. Nhóm Công cụ Đặc biệt (Special Tools)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Trim (Cắt xén):} Đây là công cụ rất mạnh mẽ. Khi các đường thẳng/cung tròn giao nhau tạo thành nhiều mảnh, bạn hãy chọn Trim và click vào những phần viền thừa. Phần được click sẽ bị xóa đi đến các giao điểm gần nhất.
-    \item \textbf{Fill (Đổ màu):} Click vào một vùng trống nằm giữa các ranh giới khép kín (được tạo bởi sự giao nhau của nhiều đoạn thẳng/đường tròn). Vùng đó sẽ được tự động nhận diện thành một Region (khu vực) và đổ màu nền.
-    \item \textbf{Slider (Thanh trượt):} Click vào Canvas để tạo ra một biến số (variable) có thể thay đổi liên tục, dùng để gán cho các tham số toán học động.
-\end{itemize}
-
-\section{Hệ thống Quản lý (Workspace Panels)}
-
-\subsection{Cây Đối tượng (Object Tree)}
-Nằm ở thanh Sidebar trái, cho phép quản lý cấu trúc phân cấp các đối tượng:
-\begin{itemize}[label=\textbullet]
-    \item Dễ dàng đổi tên đối tượng bằng cách click đúp (Double-click) vào nhãn tên.
-    \item Nhấn icon \textbf{Mắt} để ẩn/hiện đối tượng.
-    \item Nhấn icon \textbf{Khóa} để khóa không cho chỉnh sửa trực tiếp trên Canvas.
-    \item Kiểm tra quan hệ phụ thuộc (\textbf{Dependencies}) giữa các đối tượng ở cuối bảng để biết đối tượng này sinh ra từ đâu.
-\end{itemize}
-
-\subsection{Bảng Thuộc tính (Properties Inspector)}
-Nằm ở thanh Sidebar phải, tự động hiển thị thông số của đối tượng đang được chọn:
-\begin{itemize}[label=\textbullet]
-    \item Thay đổi màu viền, màu nền (Opacity), độ dày nét vẽ (Stroke Width), kiểu nét đứt/liền.
-    \item Bật/tắt hiển thị nhãn tên (Label) và điều chỉnh phông chữ.
-    \item \textbf{Tính năng Khóa (Lock Panel):} Nhấn vào icon ổ khóa ở góc phải trên cùng của Panel để ghim chặt bảng thuộc tính cho đối tượng hiện tại. Khi khóa, bạn có thể click chọn đối tượng khác (hoặc dùng Fill/Trim) mà Properties Inspector không bị nhảy sang đối tượng mới, rất hữu ích khi bạn muốn tinh chỉnh thông số cho một vùng đang thao tác.
-\end{itemize}
-
-\section{Xuất file \& Tích hợp (Export \& Integrations)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{TikZ Panel:} Hệ thống thời gian thực tự động chuyển đổi các đối tượng hình học sang mã TikZ của LaTeX. Bạn chỉ cần mở TikZ Panel trên thanh menu, copy mã và dán vào trình soạn thảo LaTeX (như Overleaf, TeXStudio).
-    \item \textbf{Command Palette:} Nhấn \texttt{Ctrl+K} (hoặc \texttt{Cmd+K}) để mở bảng lệnh. Gõ tên công cụ hoặc lệnh để thực thi nhanh chóng không cần dùng chuột.
+    \item \textbf{Trang giấy thực tế:} Hiển thị dưới dạng một trang giấy (có ô ly kẻ mờ), giống như vở học sinh.
+    \item \textbf{Hiển thị nội dung:} Kết xuất trực tiếp mã LaTeX từ cột trái thành văn bản định dạng chuẩn (ví dụ: Câu 1 với 4 đáp án A, B, C, D khoanh tròn) và kết hợp với hình vẽ từ cột giữa.
+    \item \textbf{Quản lý Trang (Pagination):}
+    \begin{itemize}
+        \item Hiển thị số trang hiện tại (ví dụ: TRANG 1 / 1).
+        \item \textbf{Ngắt trang:} Nút cho phép tạo thêm một trang giấy A4 mới để tiếp tục soạn thảo câu hỏi/hình vẽ tiếp theo.
+        \item \textbf{Tải ảnh Trang [X]:} Nút xuất bản (Export), cho phép lưu trang giấy hiện tại dưới dạng hình ảnh (PNG/JPG) chất lượng cao về máy tính để dễ dàng chia sẻ hoặc in ấn.
+    \end{itemize}
 \end{itemize}
 
 \end{document}
