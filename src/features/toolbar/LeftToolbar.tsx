@@ -34,7 +34,8 @@ import {
   Type,
   Wifi,
   Slash,
-  Gauge
+  Gauge,
+  Radius
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -100,6 +101,8 @@ export const toolGroups = [
     items: [
       { id: "polygon", label: "Polygon", icon: Pentagon },
       { id: "circle", label: "Circle", icon: Circle },
+      { id: "three-point-arc", label: "Arc", icon: Radius },
+      { id: "elliptical-arc", label: "Elliptical Arc", icon: Radius },
       { id: "circumcircle", label: "Circumcircle", icon: CircleDashed },
       { id: "incircle", label: "Incircle", icon: CircleDot },
     ],

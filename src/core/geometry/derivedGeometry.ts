@@ -8,6 +8,7 @@ import type {
   LineObject,
   ArcObject,
   CircleObject,
+  EllipticalArcObject,
   GeometryObjectRecord,
   Point2D,
   PointObject,
@@ -22,6 +23,16 @@ export type CircleGeometry = {
 export type ArcGeometry = {
   readonly center: Point2D;
   readonly radius: number;
+  readonly startAngleDegrees: number;
+  readonly endAngleDegrees: number;
+  readonly startPoint: Point2D;
+  readonly endPoint: Point2D;
+};
+
+export type EllipticalArcGeometry = {
+  readonly center: Point2D;
+  readonly rx: number;
+  readonly ry: number;
   readonly startAngleDegrees: number;
   readonly endAngleDegrees: number;
   readonly startPoint: Point2D;
@@ -137,17 +148,69 @@ export function getArcGeometry(
 
   const radius = distance(center, startPoint);
 
-  if (radius <= EPSILON || Math.abs(distance(center, endPoint) - radius) > EPSILON * 1000) {
+  if (radius <= EPSILON) {
     return null;
   }
+  
+  const endAngle = angleDegrees(center, endPoint);
+  const endAngleRad = (endAngle * Math.PI) / 180;
+  const projectedEndPoint = {
+    x: center.x + radius * Math.cos(endAngleRad),
+    y: center.y + radius * Math.sin(endAngleRad),
+  };
 
   return {
     center,
-    endAngleDegrees: angleDegrees(center, endPoint),
-    endPoint,
+    endAngleDegrees: endAngle,
+    endPoint: projectedEndPoint,
     radius,
     startAngleDegrees: angleDegrees(center, startPoint),
     startPoint,
+  };
+}
+
+export function getEllipticalArcGeometry(
+  object: EllipticalArcObject,
+  objects: GeometryObjectRecord,
+): EllipticalArcGeometry | null {
+  const center = getPointObject(objects, object.centerPointId);
+  const startPointObj = getPointObject(objects, object.startPointId);
+  const endPointObj = getPointObject(objects, object.endPointId);
+
+  if (!center || !startPointObj || !endPointObj) {
+    return null;
+  }
+
+  const rx = distance(center, startPointObj);
+  const ry = object.ry;
+
+  if (rx <= EPSILON || ry <= EPSILON) {
+    return null;
+  }
+
+  const startAngle = angleDegrees(center, startPointObj);
+  const endAngle = angleDegrees(center, endPointObj);
+
+  const startAngleRad = (startAngle * Math.PI) / 180;
+  const projectedStartPoint = {
+    x: center.x + rx * Math.cos(startAngleRad),
+    y: center.y + ry * Math.sin(startAngleRad),
+  };
+
+  const endAngleRad = (endAngle * Math.PI) / 180;
+  const projectedEndPoint = {
+    x: center.x + rx * Math.cos(endAngleRad),
+    y: center.y + ry * Math.sin(endAngleRad),
+  };
+
+  return {
+    center,
+    rx,
+    ry,
+    startAngleDegrees: startAngle,
+    endAngleDegrees: endAngle,
+    startPoint: projectedStartPoint,
+    endPoint: projectedEndPoint,
   };
 }
 

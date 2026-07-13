@@ -6,6 +6,7 @@ import {
   getRegionArea,
   isRightAngle,
   polygonArea,
+  getEllipticalArcGeometry,
   type GeometryObject,
 } from "../../core/geometry";
 import { TextAnnotationPanel } from "./TextAnnotationPanel";
@@ -120,6 +121,38 @@ export function GeometryPanel({
         <Readout label="End" value={object.endPointId} />
         <Readout label="Direction" value={object.direction} />
         <Readout label="Radius" value={arc ? formatNumber(arc.radius) : "Unavailable"} />
+      </Section>
+    );
+  }
+
+  if (object.type === "elliptical-arc") {
+    const ellipticalArc = getEllipticalArcGeometry(object, objects);
+
+    return (
+      <Section title="Geometry">
+        <Readout label="Center" value={object.centerPointId} />
+        <Readout label="Start" value={object.startPointId} />
+        <Readout label="End" value={object.endPointId} />
+        <Readout label="Direction" value={object.direction} />
+        <Readout label="x radius" value={ellipticalArc ? formatNumber(ellipticalArc.rx) : "Unavailable"} />
+        <Field label="y radius">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "elliptical-arc"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      ry: parseNumber(event.target.value, current.ry),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.ry}
+          />
+        </Field>
       </Section>
     );
   }

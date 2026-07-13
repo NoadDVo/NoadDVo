@@ -9,6 +9,8 @@ import {
 } from "./AdvancedConstructionTools";
 import { angleTool } from "./AngleTool";
 import { circleTool } from "./CircleTool";
+import { arcTool } from "./ArcTool";
+import { ellipticalArcTool } from "./EllipticalArcTool";
 import { fillTool } from "./FillTool";
 import { distanceTool } from "./DistanceTool";
 import { areaTool } from "./AreaTool";
@@ -51,6 +53,8 @@ const defaultTools = [
   rayTool,
   vectorTool,
   circleTool,
+  arcTool,
+  ellipticalArcTool,
   polygonTool,
   angleTool,
   textTool,

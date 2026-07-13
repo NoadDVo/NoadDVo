@@ -42,7 +42,8 @@ export type GeometryObjectType =
   | "polynomial"
   | "slider"
   | "locus"
-  | "sector";
+  | "sector"
+  | "elliptical-arc";
 
 export type GeometryToolId =
   | "select"
@@ -89,7 +90,8 @@ export type GeometryToolId =
   | "slider"
   | "locus"
   | "distance"
-  | "area";
+  | "area"
+  | "elliptical-arc";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
 
@@ -313,6 +315,15 @@ export type ArcObject = BaseGeometryObject & {
   readonly direction: "clockwise" | "counterclockwise";
 };
 
+export type EllipticalArcObject = BaseGeometryObject & {
+  readonly type: "elliptical-arc";
+  readonly centerPointId: string;
+  readonly startPointId: string;
+  readonly endPointId: string;
+  readonly ry: number;
+  readonly direction: "clockwise" | "counterclockwise";
+};
+
 export type AngleObject = BaseGeometryObject & {
   readonly type: "angle";
   readonly pointAId: string;
@@ -433,6 +444,7 @@ export type GeometryObject =
   | VectorObject
   | CircleObject
   | ArcObject
+  | EllipticalArcObject
   | PolygonObject
   | AngleObject
   | TextObject

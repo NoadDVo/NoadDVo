@@ -14,7 +14,11 @@ const RENDER_ORDER = {
   region: 5,
   polygon: 10,
   circle: 20,
+  ellipse: 21,
+  hyperbola: 22,
+  polynomial: 23,
   arc: 25,
+  "elliptical-arc": 26,
   line: 30,
   ray: 40,
   segment: 50,
@@ -25,9 +29,6 @@ const RENDER_ORDER = {
   distance: 90,
   area: 91,
   slider: 92,
-  ellipse: 21,
-  hyperbola: 22,
-  polynomial: 23,
 } as const;
 
 export const GeometryLayer = memo(function GeometryLayer({

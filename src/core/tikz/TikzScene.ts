@@ -10,6 +10,7 @@ const objectOrder = {
   vector: 50,
   circle: 60,
   arc: 70,
+  "elliptical-arc": 75,
   polygon: 80,
   angle: 90,
   point: 100,
