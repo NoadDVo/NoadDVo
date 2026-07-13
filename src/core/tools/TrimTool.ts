@@ -7,6 +7,7 @@ import {
   distance,
   getArcGeometry,
   getCircleGeometry,
+  getEllipticalArcGeometry,
   getPointObject,
   getPolygonPoints,
   pointsAlmostEqual,
@@ -599,9 +600,11 @@ export function getEraseCandidates(
       }
 
       const pointerAngle = angleDegrees(arc.center, point);
+      const distancePx = distance(point, arc.center);
 
       if (
-        Math.abs(distance(point, arc.center) - arc.radius) <= toleranceWorld &&
+        (Math.abs(distancePx - arc.radius) <= toleranceWorld ||
+          (object.style.fill !== "transparent" && distancePx <= arc.radius)) &&
         isAngleWithinArc(pointerAngle, arc.startAngleDegrees, arc.endAngleDegrees, object.direction)
       ) {
         candidates.push(candidateForDelete(object, {
@@ -611,6 +614,39 @@ export function getEraseCandidates(
           kind: "arc",
           radius: arc.radius,
           startAngleDegrees: arc.startAngleDegrees,
+        }));
+      }
+      return;
+    }
+
+    if (object.type === "elliptical-arc") {
+      const geometry = getEllipticalArcGeometry(object, objects);
+
+      if (!geometry) {
+        return;
+      }
+
+      if (geometry.rx === 0 || geometry.ry === 0) return;
+
+      const dx = (point.x - geometry.center.x) / geometry.rx;
+      const dy = (point.y - geometry.center.y) / geometry.ry;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const distanceToBoundary = Math.abs(dist - 1) * Math.max(geometry.rx, geometry.ry);
+      const pointerAngle = angleDegrees(geometry.center, point);
+
+      if (
+        (distanceToBoundary <= toleranceWorld ||
+          (object.style.fill !== "transparent" && dist <= 1)) &&
+        isAngleWithinArc(pointerAngle, geometry.startAngleDegrees, geometry.endAngleDegrees, object.direction)
+      ) {
+        // Fallback preview geometry to an arc for now, as we don't have an elliptical-arc preview geometry
+        candidates.push(candidateForDelete(object, {
+          center: geometry.center,
+          direction: object.direction,
+          endAngleDegrees: geometry.endAngleDegrees,
+          kind: "arc",
+          radius: Math.max(geometry.rx, geometry.ry),
+          startAngleDegrees: geometry.startAngleDegrees,
         }));
       }
       return;
