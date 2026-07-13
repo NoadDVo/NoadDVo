@@ -232,14 +232,14 @@ function EdgeRestoreButton({
       className={clsx(
         "group flex items-center gap-2 border border-arctic-border/12 bg-arctic-background/88 text-[10px] font-black uppercase tracking-[0.14em] shadow-[0_16px_42px_rgb(0_0_0/0.28)] backdrop-blur-panel transition hover:border-arctic-ice/34 hover:bg-arctic-ice/12 hover:text-arctic-text",
         direction === "right" ? "min-h-11 rounded-l-[16px] border-r-0 px-3" : "h-10 rounded-[16px] px-4",
-        appTheme === "theme2" ? "text-[#39FF14]" : "text-arctic-muted"
+        appTheme === "theme2" ? "text-[#00FFFF]" : "text-arctic-muted"
       )}
       onClick={onClick}
       style={{ pointerEvents: "auto" }}
       title={label}
       type="button"
     >
-      <Icon className={clsx("transition group-hover:text-arctic-ice", appTheme === "theme2" ? "text-[#39FF14]" : "text-arctic-ice/80")} size={15} strokeWidth={2.2} />
+      <Icon className={clsx("transition group-hover:text-arctic-ice", appTheme === "theme2" ? "text-[#00FFFF]" : "text-arctic-ice/80")} size={15} strokeWidth={2.2} />
       <span>{label}</span>
     </button>
   );
