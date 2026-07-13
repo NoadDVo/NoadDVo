@@ -224,21 +224,22 @@ function EdgeRestoreButton({
   readonly onClick: () => void;
 }) {
   const Icon = direction === "bottom" ? PanelBottomOpen : PanelRightOpen;
+  const appTheme = useUiStore((state) => state.appTheme);
 
   return (
     <button
       aria-label={label}
-      className={
-        direction === "right"
-          ? "group flex min-h-11 items-center gap-2 rounded-l-[16px] border border-r-0 border-arctic-border/12 bg-arctic-background/88 px-3 text-[10px] font-black uppercase tracking-[0.14em] text-arctic-muted shadow-[0_16px_42px_rgb(0_0_0/0.28)] backdrop-blur-panel transition hover:border-arctic-ice/34 hover:bg-arctic-ice/12 hover:text-arctic-text"
-          : "group flex h-10 items-center gap-2 rounded-[16px] border border-arctic-border/12 bg-arctic-background/88 px-4 text-[10px] font-black uppercase tracking-[0.14em] text-arctic-muted shadow-[0_16px_42px_rgb(0_0_0/0.28)] backdrop-blur-panel transition hover:border-arctic-ice/34 hover:bg-arctic-ice/12 hover:text-arctic-text"
-      }
+      className={clsx(
+        "group flex items-center gap-2 border border-arctic-border/12 bg-arctic-background/88 text-[10px] font-black uppercase tracking-[0.14em] shadow-[0_16px_42px_rgb(0_0_0/0.28)] backdrop-blur-panel transition hover:border-arctic-ice/34 hover:bg-arctic-ice/12 hover:text-arctic-text",
+        direction === "right" ? "min-h-11 rounded-l-[16px] border-r-0 px-3" : "h-10 rounded-[16px] px-4",
+        appTheme === "theme2" ? "text-[#39FF14]" : "text-arctic-muted"
+      )}
       onClick={onClick}
       style={{ pointerEvents: "auto" }}
       title={label}
       type="button"
     >
-      <Icon className="text-arctic-ice/80 transition group-hover:text-arctic-ice" size={15} strokeWidth={2.2} />
+      <Icon className={clsx("transition group-hover:text-arctic-ice", appTheme === "theme2" ? "text-[#39FF14]" : "text-arctic-ice/80")} size={15} strokeWidth={2.2} />
       <span>{label}</span>
     </button>
   );
