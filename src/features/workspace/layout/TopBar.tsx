@@ -73,8 +73,8 @@ export function TopBar() {
                 "flex h-8 items-center gap-1.5 px-2.5 text-[10px] font-bold uppercase tracking-wider transition-all",
                 appTheme === "theme1" 
                   ? isLeftPanelOpen
-                    ? "bg-[#F17A3C] text-black border-[2px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]"
-                    : "bg-[#F4EFE6] text-black border-[2px] border-black hover:bg-[#E8DFD1]"
+                    ? "bg-[#F17A3C] hover:bg-[#F4D04C] text-black border-[2px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]"
+                    : "bg-[#F4EFE6] hover:bg-[#F4D04C] text-black border-[2px] border-black"
                   : isLeftPanelOpen
                     ? "bg-[#2C2D35] text-cyan-400 border border-zinc-700/50 shadow-sm"
                     : "bg-transparent text-zinc-500 hover:text-zinc-300"
@@ -90,8 +90,8 @@ export function TopBar() {
                 "flex h-8 items-center gap-1.5 px-2.5 text-[10px] font-bold uppercase tracking-wider transition-all",
                 appTheme === "theme1" 
                   ? isRightPanelOpen
-                    ? "bg-[#F17A3C] text-black border-[2px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]"
-                    : "bg-[#F4EFE6] text-black border-[2px] border-black hover:bg-[#E8DFD1]"
+                    ? "bg-[#F17A3C] hover:bg-[#F4D04C] text-black border-[2px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]"
+                    : "bg-[#F4EFE6] hover:bg-[#F4D04C] text-black border-[2px] border-black"
                   : isRightPanelOpen
                     ? "bg-[#2C2D35] text-cyan-400 border border-zinc-700/50 shadow-sm"
                     : "bg-transparent text-zinc-500 hover:text-zinc-300"

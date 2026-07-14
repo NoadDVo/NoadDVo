@@ -88,7 +88,7 @@ export function AppShell() {
                 <CollapsiblePanelFrame
                   label="Collapse Object Tree"
                   onCollapse={toggleLeftPanel}
-                  placement="bottom"
+                  placement="left"
                 >
                   <GeometryTreePanel />
                 </CollapsiblePanelFrame>
@@ -216,9 +216,9 @@ function CollapsiblePanelFrame({
   readonly children: ReactNode;
   readonly label: string;
   readonly onCollapse: () => void;
-  readonly placement: "bottom" | "right";
+  readonly placement: "bottom" | "right" | "left";
 }) {
-  const Icon = placement === "bottom" ? ChevronDown : ChevronRight;
+  const Icon = placement === "bottom" ? ChevronDown : placement === "right" ? ChevronRight : ChevronLeft;
 
   return (
     <div className="group/panel relative h-full min-h-0 overflow-hidden">
