@@ -2,6 +2,7 @@ import { ExternalLink, X } from "lucide-react";
 
 import { useUiStore } from "../../../app/store/uiStore";
 import { IconButton } from "../../../ui/primitives";
+import packageJson from "../../../../package.json";
 
 const shortcuts = [
   ["Ctrl+C", "Copy selection"],
@@ -64,7 +65,7 @@ export function HelpDialog() {
               <div className="mt-2 rounded-[12px] border border-arctic-border/8 bg-arctic-surface/55 p-3 text-[11px] leading-5 text-arctic-muted">
                 <strong className="block text-arctic-text">About</strong>
                 Professional geometry workspace for interactive construction and clean TikZ output.
-                <span className="mt-2 block font-mono">Version 0.0.0</span>
+                <span className="mt-2 block font-mono">Version {packageJson.version}</span>
               </div>
             </div>
           </section>
