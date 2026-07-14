@@ -20,6 +20,8 @@ type UIState = {
   readonly tikzMode: TikzMode;
   readonly inspectorLocked: boolean;
   readonly lockedObjectId: string | null;
+  readonly isLeftPanelOpen: boolean;
+  readonly isRightPanelOpen: boolean;
   readonly setAppTheme: (theme: AppTheme) => void;
   readonly setTheme: (theme: ThemeMode) => void;
   readonly setActiveSidebar: (sidebar: SidebarPanel) => void;
@@ -30,6 +32,8 @@ type UIState = {
   readonly setTikzMode: (mode: TikzMode) => void;
   readonly setInspectorLocked: (locked: boolean) => void;
   readonly setLockedObjectId: (id: string | null) => void;
+  readonly toggleLeftPanel: () => void;
+  readonly toggleRightPanel: () => void;
   readonly resetUi: () => void;
 };
 
@@ -44,6 +48,8 @@ const DEFAULT_UI_STATE = {
   tikzMode: "academic",
   inspectorLocked: false,
   lockedObjectId: null,
+  isLeftPanelOpen: true,
+  isRightPanelOpen: true,
 } satisfies Pick<
   UIState,
   | "activeSidebar"
@@ -56,6 +62,8 @@ const DEFAULT_UI_STATE = {
   | "tikzMode"
   | "inspectorLocked"
   | "lockedObjectId"
+  | "isLeftPanelOpen"
+  | "isRightPanelOpen"
 >;
 
 function readStoredTheme(): ThemeMode {
@@ -117,6 +125,12 @@ export const useUiStore = create<UIState>((set) => ({
   },
   setLockedObjectId: (lockedObjectId) => {
     set({ lockedObjectId });
+  },
+  toggleLeftPanel: () => {
+    set((state) => ({ isLeftPanelOpen: !state.isLeftPanelOpen }));
+  },
+  toggleRightPanel: () => {
+    set((state) => ({ isRightPanelOpen: !state.isRightPanelOpen }));
   },
   resetUi: () => {
     set(DEFAULT_UI_STATE);

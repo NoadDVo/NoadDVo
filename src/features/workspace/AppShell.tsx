@@ -16,9 +16,12 @@ import { resolveThemeMode, useUiStore } from "../../app/store/uiStore";
 
 export function AppShell() {
   const theme = useUiStore((state) => state.theme);
+  const isLeftPanelOpen = useUiStore((state) => state.isLeftPanelOpen);
+  const isRightPanelOpen = useUiStore((state) => state.isRightPanelOpen);
+  const toggleLeftPanel = useUiStore((state) => state.toggleLeftPanel);
+  const toggleRightPanel = useUiStore((state) => state.toggleRightPanel);
+
   const [collapsedPanels, setCollapsedPanels] = useState({
-    inspector: false,
-    objectTree: false,
     tikz: false,
   });
   const centerRows = collapsedPanels.tikz
@@ -80,11 +83,11 @@ export function AppShell() {
         <div className="relative min-h-0 flex-1 px-3 pb-2.5 max-lg:pr-3">
           <div className="flex h-full min-h-0 w-full gap-2.5">
             {/* Left Column: Object Tree */}
-            {!collapsedPanels.objectTree && (
-              <aside className="w-[320px] min-w-[320px] max-lg:hidden shrink-0">
+            {isLeftPanelOpen && (
+              <aside className="w-[280px] min-w-[280px] max-lg:hidden shrink-0">
                 <CollapsiblePanelFrame
                   label="Collapse Object Tree"
-                  onCollapse={() => setPanelCollapsed("objectTree", true)}
+                  onCollapse={toggleLeftPanel}
                   placement="bottom"
                 >
                   <GeometryTreePanel />
@@ -116,11 +119,11 @@ export function AppShell() {
             </div>
 
             {/* Right Column: Properties Inspector */}
-            {!collapsedPanels.inspector && (
+            {isRightPanelOpen && (
               <aside className="w-[320px] min-w-[320px] max-lg:hidden shrink-0">
                 <CollapsiblePanelFrame
                   label="Collapse Inspector"
-                  onCollapse={() => setPanelCollapsed("inspector", true)}
+                  onCollapse={toggleRightPanel}
                   placement="right"
                 >
                   <RightPanel />
@@ -143,8 +146,6 @@ export function AppShell() {
 }
 
 type CollapsedPanelState = {
-  readonly inspector: boolean;
-  readonly objectTree: boolean;
   readonly tikz: boolean;
 };
 
@@ -157,24 +158,6 @@ function WorkspaceRestoreControls({
 }) {
   return (
     <>
-      {collapsedPanels.objectTree && (
-        <div className="absolute left-0 top-3 z-30 hidden lg:flex">
-          <EdgeRestoreButton
-            direction="left"
-            label="SHOW OBJECT TREE"
-            onClick={() => onRestore("objectTree")}
-          />
-        </div>
-      )}
-      {collapsedPanels.inspector && (
-        <div className="absolute right-0 top-3 z-30 hidden lg:flex">
-          <EdgeRestoreButton
-            direction="right"
-            label="SHOW INSPECTOR"
-            onClick={() => onRestore("inspector")}
-          />
-        </div>
-      )}
       {collapsedPanels.tikz && (
         <div className="pointer-events-none absolute bottom-3 left-[104px] right-0 z-30 flex justify-center">
           <EdgeRestoreButton
