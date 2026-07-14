@@ -1,9 +1,7 @@
-import { Lock, SlidersHorizontal } from "lucide-react";
-
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
 import type { GeometryObject, GeometryStyle } from "../../core/geometry";
-import { Divider, IconButton, Panel } from "../../ui/primitives";
+import { Divider, Panel } from "../../ui/primitives";
 import { AdvancedPanel } from "./AdvancedPanel";
 import { AppearancePanel } from "./AppearancePanel";
 import { GeneralPanel } from "./GeneralPanel";
@@ -17,8 +15,6 @@ export function RightPanel() {
   
   const inspectorLocked = useUiStore((state) => state.inspectorLocked);
   const lockedObjectId = useUiStore((state) => state.lockedObjectId);
-  const setInspectorLocked = useUiStore((state) => state.setInspectorLocked);
-  const setLockedObjectId = useUiStore((state) => state.setLockedObjectId);
 
   const activeObjectId = inspectorLocked ? lockedObjectId : selectedObjectIds[0];
   const selectedObject = activeObjectId ? objects[activeObjectId] : null;
@@ -45,29 +41,6 @@ export function RightPanel() {
 
   return (
     <Panel
-      actions={
-        <div className="flex items-center gap-1.5 mr-8">
-          <IconButton label="Inspector Options" size="sm">
-            <SlidersHorizontal size={16} strokeWidth={2} />
-          </IconButton>
-          <IconButton 
-            className={inspectorLocked ? "text-arctic-ice" : ""} 
-            label={inspectorLocked ? "Unlock Panel" : "Lock Panel"} 
-            onClick={() => {
-              if (inspectorLocked) {
-                setInspectorLocked(false);
-                setLockedObjectId(null);
-              } else if (selectedObject) {
-                setInspectorLocked(true);
-                setLockedObjectId(selectedObject.id);
-              }
-            }}
-            size="sm"
-          >
-            <Lock size={16} strokeWidth={2} />
-          </IconButton>
-        </div>
-      }
       className="h-full min-h-0 overflow-hidden max-lg:hidden"
       eyebrow="Inspector"
       title="Properties"
