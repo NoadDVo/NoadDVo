@@ -124,11 +124,14 @@ function EmptyWorkspacePrompt({
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-6">
-      <div className={clsx(
-        "pointer-events-auto px-4 py-3 text-center",
-        appTheme === "theme1" ? "rounded-none border-[3px] border-arctic-border bg-arctic-surface text-arctic-text shadow-brutal-lg" : "",
-        appTheme === "theme2" ? "rounded-xl border border-zinc-800/60 bg-[#18191E]/90 backdrop-blur text-zinc-200 shadow-2xl" : ""
-      )}>
+      <div
+        className={clsx(
+          "pointer-events-auto px-4 py-3 text-center",
+          appTheme === "theme1" ? "rounded-none border-[3px] border-arctic-border bg-arctic-surface text-arctic-text shadow-brutal-lg" : "",
+          appTheme === "theme2" ? "rounded-xl border border-zinc-800/60 bg-[#18191E]/90 backdrop-blur text-zinc-200 shadow-2xl" : ""
+        )}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <p className={clsx(
           "text-[10px] font-black uppercase tracking-[0.18em] mb-2",
           appTheme === "theme1" ? "text-arctic-text bg-arctic-primary-hover inline-block px-2 py-0.5 border-[3px] border-arctic-border" : "",
