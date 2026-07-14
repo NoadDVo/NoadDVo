@@ -17,7 +17,7 @@ export function ThemeGroup() {
       onClick={handleToggle}
       size="sm"
       title={appTheme === "theme1" ? "Switch to Tactical Dark" : "Switch to Neo-Brutalism"}
-      variant="secondary"
+      variant="topbar"
     >
       Theme
     </Button>

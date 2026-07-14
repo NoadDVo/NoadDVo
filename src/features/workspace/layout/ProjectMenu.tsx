@@ -114,7 +114,8 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
         onClick={() => setMenuOpen((open) => !open)}
         ref={buttonRef}
         size="sm"
-        variant="ghost"
+        variant="topbar"
+        active={menuOpen}
       >
         Project
       </Button>

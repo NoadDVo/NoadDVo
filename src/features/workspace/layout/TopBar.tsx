@@ -5,7 +5,7 @@ import { useUiStore } from "../../../app/store/uiStore";
 
 import { useAppStore } from "../../../app/store/appStore";
 import { projectManager } from "../../../core/project";
-import { Divider } from "../../../ui/primitives";
+import { Divider, Button } from "../../../ui/primitives";
 import { ExportMenu } from "./ExportMenu";
 import { HelpGroup } from "./HelpGroup";
 import { ProjectMenu } from "./ProjectMenu";
@@ -67,40 +67,26 @@ export function TopBar() {
         <div className="ml-auto flex items-center gap-2">
           {/* Panel Toggle Group */}
           <div className="flex items-center gap-1 mr-2">
-            <button
+            <Button
               onClick={toggleLeftPanel}
-              className={clsx(
-                "flex h-8 items-center gap-1.5 px-2.5 text-[10px] font-bold uppercase tracking-wider transition-all",
-                appTheme === "theme1" 
-                  ? isLeftPanelOpen
-                    ? "bg-[#F17A3C] hover:bg-[#F4D04C] text-black border-[2px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]"
-                    : "bg-[#F4EFE6] hover:bg-[#F4D04C] text-black border-[2px] border-black"
-                  : isLeftPanelOpen
-                    ? "bg-[#2C2D35] text-cyan-400 border border-zinc-700/50 shadow-sm"
-                    : "bg-transparent text-zinc-500 hover:text-zinc-300"
-              )}
               title="Toggle Object Tree"
+              icon={<PanelLeft size={16} strokeWidth={2} />}
+              size="sm"
+              variant="topbar"
+              active={isLeftPanelOpen}
             >
-              <PanelLeft size={14} />
               <span className="hidden md:inline">Object Tree</span>
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={toggleRightPanel}
-              className={clsx(
-                "flex h-8 items-center gap-1.5 px-2.5 text-[10px] font-bold uppercase tracking-wider transition-all",
-                appTheme === "theme1" 
-                  ? isRightPanelOpen
-                    ? "bg-[#F17A3C] hover:bg-[#F4D04C] text-black border-[2px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] -translate-x-[1px] -translate-y-[1px]"
-                    : "bg-[#F4EFE6] hover:bg-[#F4D04C] text-black border-[2px] border-black"
-                  : isRightPanelOpen
-                    ? "bg-[#2C2D35] text-cyan-400 border border-zinc-700/50 shadow-sm"
-                    : "bg-transparent text-zinc-500 hover:text-zinc-300"
-              )}
               title="Toggle Properties"
+              icon={<PanelRight size={16} strokeWidth={2} />}
+              size="sm"
+              variant="topbar"
+              active={isRightPanelOpen}
             >
-              <PanelRight size={14} />
               <span className="hidden md:inline">Inspector</span>
-            </button>
+            </Button>
           </div>
 
           <ProjectMenu projectState={projectState} />

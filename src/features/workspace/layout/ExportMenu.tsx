@@ -47,7 +47,8 @@ export function ExportMenu() {
         onClick={() => setExportOpen((open) => !open)}
         ref={buttonRef}
         size="sm"
-        className="border-[3px] border-black bg-transparent text-black shadow-brutal-sm hover:bg-[#F17A3C] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgb(var(--color-shadow)/1)]"
+        variant="topbar"
+        active={exportOpen}
       >
         Export
       </Button>
