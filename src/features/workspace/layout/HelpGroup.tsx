@@ -6,6 +6,9 @@ import { Button } from "../../../ui/primitives";
 export function HelpGroup() {
   const setOpenDialog = useUiStore((state) => state.setOpenDialog);
   const openDialog = useUiStore((state) => state.openDialog);
+  const activeTopBarMenu = useUiStore((state) => state.activeTopBarMenu);
+
+  const isDisabled = activeTopBarMenu !== null || (openDialog !== null && openDialog !== "help");
 
   return (
     <Button
@@ -14,6 +17,7 @@ export function HelpGroup() {
       size="sm"
       variant="topbar"
       active={openDialog === "help"}
+      disabled={isDisabled}
     >
       Help
     </Button>

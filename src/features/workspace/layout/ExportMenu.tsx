@@ -1,17 +1,29 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Download } from "lucide-react";
 
 import { useAppStore } from "../../../app/store/appStore";
 import { useGeometryStore } from "../../../app/store/geometryStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
+import { useUiStore } from "../../../app/store/uiStore";
 import { exportManager } from "../../../core/export";
 import { Button } from "../../../ui/primitives";
 import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
 
 export function ExportMenu() {
   const appName = useAppStore((state) => state.appName);
-  const [exportOpen, setExportOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  
+  const activeMenu = useUiStore((state) => state.activeTopBarMenu);
+  const setActiveMenu = useUiStore((state) => state.setActiveTopBarMenu);
+  const openDialog = useUiStore((state) => state.openDialog);
+  
+  const exportOpen = activeMenu === "export";
+  const setExportOpen = (open: boolean | ((prev: boolean) => boolean)) => {
+    const nextOpen = typeof open === "function" ? open(exportOpen) : open;
+    setActiveMenu(nextOpen ? "export" : null);
+  };
+  
+  const isDisabled = (activeMenu !== null && activeMenu !== "export") || openDialog !== null;
 
   const createProjectSnapshot = () => {
     const geometry = useGeometryStore.getState();
@@ -49,6 +61,7 @@ export function ExportMenu() {
         size="sm"
         variant="topbar"
         active={exportOpen}
+        disabled={isDisabled}
       >
         Export
       </Button>

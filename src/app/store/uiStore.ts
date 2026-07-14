@@ -22,6 +22,7 @@ type UIState = {
   readonly lockedObjectId: string | null;
   readonly isLeftPanelOpen: boolean;
   readonly isRightPanelOpen: boolean;
+  readonly activeTopBarMenu: "project" | "export" | null;
   readonly setAppTheme: (theme: AppTheme) => void;
   readonly setTheme: (theme: ThemeMode) => void;
   readonly setActiveSidebar: (sidebar: SidebarPanel) => void;
@@ -34,6 +35,7 @@ type UIState = {
   readonly setLockedObjectId: (id: string | null) => void;
   readonly toggleLeftPanel: () => void;
   readonly toggleRightPanel: () => void;
+  readonly setActiveTopBarMenu: (menu: "project" | "export" | null) => void;
   readonly resetUi: () => void;
 };
 
@@ -50,6 +52,7 @@ const DEFAULT_UI_STATE = {
   lockedObjectId: null,
   isLeftPanelOpen: true,
   isRightPanelOpen: true,
+  activeTopBarMenu: null,
 } satisfies Pick<
   UIState,
   | "activeSidebar"
@@ -64,6 +67,7 @@ const DEFAULT_UI_STATE = {
   | "lockedObjectId"
   | "isLeftPanelOpen"
   | "isRightPanelOpen"
+  | "activeTopBarMenu"
 >;
 
 function readStoredTheme(): ThemeMode {
@@ -131,6 +135,9 @@ export const useUiStore = create<UIState>((set) => ({
   },
   toggleRightPanel: () => {
     set((state) => ({ isRightPanelOpen: !state.isRightPanelOpen }));
+  },
+  setActiveTopBarMenu: (activeTopBarMenu) => {
+    set({ activeTopBarMenu });
   },
   resetUi: () => {
     set(DEFAULT_UI_STATE);
