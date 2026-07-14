@@ -70,9 +70,9 @@ export function TopBar() {
             <Button
               onClick={toggleLeftPanel}
               title="Toggle Object Tree"
-              icon={<PanelLeft size={16} strokeWidth={2} />}
-              size="sm"
-              variant="topbar"
+              icon={<PanelLeft size={14} strokeWidth={2.5} />}
+              size="xs"
+              variant="panel-toggle"
               active={isLeftPanelOpen}
             >
               <span className="hidden md:inline">Object Tree</span>
@@ -80,9 +80,9 @@ export function TopBar() {
             <Button
               onClick={toggleRightPanel}
               title="Toggle Properties"
-              icon={<PanelRight size={16} strokeWidth={2} />}
-              size="sm"
-              variant="topbar"
+              icon={<PanelRight size={14} strokeWidth={2.5} />}
+              size="xs"
+              variant="panel-toggle"
               active={isRightPanelOpen}
             >
               <span className="hidden md:inline">Inspector</span>
