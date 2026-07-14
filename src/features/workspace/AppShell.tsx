@@ -120,7 +120,7 @@ export function AppShell() {
 
             {/* Right Column: Properties Inspector */}
             {isRightPanelOpen && (
-              <aside className="w-[320px] min-w-[320px] max-lg:hidden shrink-0">
+              <aside className="w-[280px] min-w-[280px] max-lg:hidden shrink-0">
                 <CollapsiblePanelFrame
                   label="Collapse Inspector"
                   onCollapse={toggleRightPanel}
