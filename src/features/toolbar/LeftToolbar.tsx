@@ -19,6 +19,7 @@ import {
   Minus,
   MousePointer2,
   Move,
+  Hand,
   MoveDiagonal,
   MoveRight,
   Orbit,
@@ -66,6 +67,7 @@ export const toolGroups = [
     icon: MousePointer2,
     items: [
       { id: "select", label: "Select", icon: MousePointer2 },
+      { id: "pan", label: "Pan", icon: Hand },
       { id: "move", label: "Move", icon: Move },
     ],
   },

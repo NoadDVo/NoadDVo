@@ -63,6 +63,7 @@ export type GeometryToolId =
   | "distance"
   | "area"
   | "slider"
+  | "pan"
   | "midpoint"
   | "intersection"
   | "parallel"
@@ -89,6 +90,7 @@ export type GeometryToolId =
   | "polynomial"
   | "slider"
   | "locus"
+  | "pan"
   | "distance"
   | "area"
   | "elliptical-arc";

@@ -18,6 +18,7 @@ import { intersectionTool } from "./IntersectionTool";
 import { lineTool } from "./LineTool";
 import { midpointTool } from "./MidpointTool";
 import { moveTool } from "./MoveTool";
+import { panTool } from "./PanTool";
 import { parallelLineTool } from "./ParallelLineTool";
 import { perpendicularLineTool } from "./PerpendicularLineTool";
 import { pointTool } from "./PointTool";
@@ -47,6 +48,7 @@ import {
 const defaultTools = [
   selectTool,
   moveTool,
+  panTool,
   pointTool,
   segmentTool,
   lineTool,

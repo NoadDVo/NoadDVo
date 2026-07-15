@@ -45,7 +45,8 @@ export function useCanvasGestures(interactionSurfaceRef: RefObject<SVGSVGElement
       }
 
       const isMiddleMouse = event.button === 1;
-      const isSpaceDrag = useViewportStore.getState().isSpacePressed && event.button === 0;
+      const isPanTool = toolManager.getActiveTool().id === "pan";
+      const isSpaceDrag = (useViewportStore.getState().isSpacePressed || isPanTool) && event.button === 0;
 
       if (event.button === 2) {
         event.preventDefault();
