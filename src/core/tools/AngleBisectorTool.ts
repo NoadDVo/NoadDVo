@@ -1,6 +1,5 @@
 import { BaseTool } from "./BaseTool";
 import {
-  createConstructionLine,
   getHitPoint,
   getHitLinearSource,
 } from "./ConstructionToolUtils";
@@ -12,10 +11,6 @@ import { distance, midpoint, vectorFromPoints, normalize } from "../geometry/mat
 import { EPSILON } from "../geometry/math";
 import { addConstructionObjects } from "./AdvancedConstructionTools";
 import { lineLineIntersection } from "../geometry/constructions/ConstructionAlgorithms";
-
-function hiddenName(prefix: string): string {
-  return `${prefix}${Date.now().toString(36)}`;
-}
 
 export class AngleBisectorTool extends BaseTool {
   private points: PointObject[] = [];

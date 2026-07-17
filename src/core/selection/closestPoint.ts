@@ -1,5 +1,5 @@
 import type { GeometryObject, GeometryObjectRecord, Point2D } from "../geometry/types";
-import { distance, distanceSquared, vectorFromPoints, midpoint } from "../geometry/math";
+import { distanceSquared } from "../geometry/math";
 import { getEllipseGeometry } from "../geometry/conicGeometry";
 import { 
   getPointObject, 

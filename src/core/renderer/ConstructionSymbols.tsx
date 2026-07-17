@@ -1,4 +1,4 @@
-import type { GeometryObjectRecord, Point2D, SegmentObject, PointObject } from "../geometry/types";
+import type { GeometryObjectRecord, Point2D, PointObject } from "../geometry/types";
 import type { LineObject } from "../geometry";
 import { intersectLinearObjects } from "../geometry/constructions/ConstructionAlgorithms";
 import { normalize, vectorFromPoints, midpoint } from "../geometry/math";
@@ -288,7 +288,6 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
           const u = getScreenVector(segPointA, segPointB, viewport);
           const v = { x: -u.y, y: u.x }; // perpendicular
           
-          const midScreen = worldToScreen(dependentPoint, viewport);
           const midA = worldToScreen(midpoint(segPointA, dependentPoint), viewport);
           const midB = worldToScreen(midpoint(dependentPoint, segPointB), viewport);
           
