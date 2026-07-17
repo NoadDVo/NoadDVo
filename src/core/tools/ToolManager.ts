@@ -1,12 +1,11 @@
 import type { GeometryToolId } from "../geometry";
 import {
-  altitudeTool,
-  angleBisectorTool,
   circumcircleTool,
   incircleTool,
-  medianTool,
-  perpendicularBisectorTool,
 } from "./AdvancedConstructionTools";
+import { altitudeTool, medianTool } from "./SpecialLineTool";
+import { angleBisectorTool } from "./AngleBisectorTool";
+import { perpendicularBisectorTool } from "./PerpendicularBisectorTool";
 import { angleTool } from "./AngleTool";
 import { circleTool } from "./CircleTool";
 import { arcTool } from "./ArcTool";

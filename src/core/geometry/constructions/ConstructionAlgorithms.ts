@@ -1,7 +1,6 @@
 import {
   EPSILON,
   addVectors,
-  almostEqual,
   cross,
   distance,
   dot,
@@ -21,13 +20,7 @@ import type {
   PointObject,
   RayObject,
   SegmentObject,
-  ArcObject,
-  EllipseObject,
-  EllipticalArcObject,
 } from "../types";
-
-import { getArcGeometry, getEllipticalArcGeometry } from "../derivedGeometry";
-import { getEllipseGeometry } from "../conicGeometry";
 
 type LinearObject = LineObject | SegmentObject | RayObject;
 
@@ -299,31 +292,7 @@ export function getIntersectionPoints(
   }
 
   if (first.type === "circle" && second.type === "circle") {
-    return intersectCircles(first as CircleObject, second as CircleObject, objects);
-  }
-
-  if (linearTypes.includes(first.type) && second.type === "arc") {
-    return intersectLinearWithArc(first as LinearObject, second as ArcObject, objects);
-  }
-
-  if (first.type === "arc" && linearTypes.includes(second.type)) {
-    return intersectLinearWithArc(second as LinearObject, first as ArcObject, objects);
-  }
-
-  if (linearTypes.includes(first.type) && second.type === "ellipse") {
-    return intersectLinearWithEllipseObject(first as LinearObject, second as EllipseObject, objects);
-  }
-
-  if (first.type === "ellipse" && linearTypes.includes(second.type)) {
-    return intersectLinearWithEllipseObject(second as LinearObject, first as EllipseObject, objects);
-  }
-
-  if (linearTypes.includes(first.type) && second.type === "elliptical-arc") {
-    return intersectLinearWithEllipticalArc(first as LinearObject, second as EllipticalArcObject, objects);
-  }
-
-  if (first.type === "elliptical-arc" && linearTypes.includes(second.type)) {
-    return intersectLinearWithEllipticalArc(second as LinearObject, first as EllipticalArcObject, objects);
+    return intersectCircles(first, second, objects);
   }
 
   return [];
@@ -471,7 +440,8 @@ export function recomputeConstructedPoint(
       : null;
   }
 
-  const point = getPoint(objects, construction.pointId);
+  const pointId = "pointId" in construction ? construction.pointId : undefined;
+  const point = pointId ? getPoint(objects, pointId) : null;
   const lineId = "lineId" in construction ? construction.lineId : undefined;
   const line = lineId ? objects[lineId] : undefined;
 
@@ -594,162 +564,135 @@ export function recomputeConstructedPoint(
     };
   }
 
+  if (construction.type === "special-line-projection") {
+    const vertex = getPoint(objects, construction.vertexId);
+    const segment = objects[construction.segmentId];
+    if (!vertex || segment?.type !== "segment") return null;
+    
+    const b = getPoint(objects, segment.startPointId);
+    const c = getPoint(objects, segment.endPointId);
+    if (!b || !c) return null;
+    
+    const u = vectorFromPoints(b, c);
+    const v = vectorFromPoints(b, vertex);
+    const uLenSq = u.x * u.x + u.y * u.y;
+    
+    if (uLenSq <= EPSILON) return null;
+    
+    const scalar = dot(v, u) / uLenSq;
+    return {
+      x: b.x + scalar * u.x,
+      y: b.y + scalar * u.y,
+    };
+  }
+
+  if (construction.type === "special-line-midpoint") {
+    const segment = objects[construction.segmentId];
+    if (segment?.type !== "segment") return null;
+    
+    const b = getPoint(objects, segment.startPointId);
+    const c = getPoint(objects, segment.endPointId);
+    if (!b || !c) return null;
+    
+    return midpoint(b, c);
+  }
+
+  if (construction.type === "special-line-bisector") {
+    const vertex = getPoint(objects, construction.vertexId);
+    const segment = objects[construction.segmentId];
+    if (!vertex || segment?.type !== "segment") return null;
+    
+    const b = getPoint(objects, segment.startPointId);
+    const c = getPoint(objects, segment.endPointId);
+    if (!b || !c) return null;
+    
+    const dAB = distance(vertex, b);
+    const dAC = distance(vertex, c);
+    const sum = dAB + dAC;
+    
+    if (sum <= EPSILON) return null;
+    
+    return {
+      x: (dAC * b.x + dAB * c.x) / sum,
+      y: (dAC * b.y + dAB * c.y) / sum,
+    };
+  }
+
+  if (construction.type === "angle-bisector-endpoint") {
+    const a = getPoint(objects, construction.pointAId);
+    const b = getPoint(objects, construction.pointBId);
+    const c = getPoint(objects, construction.pointCId);
+    const limitObj = objects[construction.limitObjectId];
+    if (!a || !b || !c || !limitObj) return null;
+
+    const u = normalize(vectorFromPoints(b, a));
+    const v = normalize(vectorFromPoints(b, c));
+    let w = normalize({ x: u.x + v.x, y: u.y + v.y });
+    // if a, b, c are collinear, w could be 0,0, fallback to normal of u
+    if (Math.abs(w.x) < EPSILON && Math.abs(w.y) < EPSILON) {
+      w = { x: -u.y, y: u.x };
+    }
+
+    if (limitObj.type === "point") {
+      const dist = distance(b, limitObj as PointObject);
+      return { x: b.x + w.x * dist, y: b.y + w.y * dist };
+    } else if (limitObj.type === "segment") {
+      const e1 = getPoint(objects, limitObj.startPointId);
+      const e2 = getPoint(objects, limitObj.endPointId);
+      if (e1 && e2) {
+        const intersection = lineLineIntersection(b, { x: b.x + w.x, y: b.y + w.y }, e1, e2);
+        if (intersection) {
+          return intersection.point;
+        }
+        // Fallback: parallel
+        const mid = midpoint(e1, e2);
+        const dist = distance(b, mid);
+        return { x: b.x + w.x * dist, y: b.y + w.y * dist };
+      }
+    }
+    return null;
+  }
+
+  if (construction.type === "perpendicular-bisector-endpoint") {
+    const a = getPoint(objects, construction.pointAId);
+    const b = getPoint(objects, construction.pointBId);
+    const limitObj = objects[construction.limitObjectId];
+    if (!a || !b || !limitObj) return null;
+
+    const m = midpoint(a, b);
+    const dir = vectorFromPoints(m, b);
+    let perp = normalize({ x: -dir.y, y: dir.x });
+    
+    if (limitObj.type === "point") {
+      // Legacy fallback: project onto bisector ray
+      const toP = vectorFromPoints(m, limitObj as PointObject);
+      const projDist = dot(perp, toP);
+      if (projDist < 0) perp = { x: -perp.x, y: -perp.y };
+      return { x: m.x + perp.x * Math.abs(projDist), y: m.y + perp.y * Math.abs(projDist) };
+    }
+
+    // Segment / Line / Ray: compute intersection with infinite line through endpoints
+    let e1: PointObject | null = null;
+    let e2: PointObject | null = null;
+    if (limitObj.type === "segment") {
+      e1 = getPoint(objects, (limitObj as any).startPointId);
+      e2 = getPoint(objects, (limitObj as any).endPointId);
+    } else if (limitObj.type === "line" || limitObj.type === "ray") {
+      e1 = getPoint(objects, (limitObj as any).pointAId);
+      e2 = getPoint(objects, (limitObj as any).pointBId ?? (limitObj as any).throughPointId);
+    }
+
+    if (e1 && e2) {
+      const toMidE = vectorFromPoints(m, midpoint(e1, e2));
+      if (dot(perp, toMidE) < 0) perp = { x: -perp.x, y: -perp.y };
+      const intersection = lineLineIntersection(m, { x: m.x + perp.x, y: m.y + perp.y }, e1, e2);
+      if (intersection) return intersection.point;
+      // Parallel fallback
+      const dist = distance(m, midpoint(e1, e2));
+      return { x: m.x + perp.x * dist, y: m.y + perp.y * dist };
+    }
+    return null;
+  }
+
   return pointsAlmostEqual(point, candidate) ? null : candidate;
-}
-
-function isAngleBetween(
-  angle: number,
-  startAngle: number,
-  endAngle: number,
-  direction: "clockwise" | "counterclockwise"
-): boolean {
-  if (almostEqual(angle, startAngle) || almostEqual(angle, endAngle)) {
-    return true;
-  }
-  
-  if (direction === "counterclockwise") {
-    if (endAngle < startAngle) {
-      return angle > startAngle || angle < endAngle;
-    }
-    return angle > startAngle && angle < endAngle;
-  } else {
-    if (endAngle > startAngle) {
-      return angle < startAngle || angle > endAngle;
-    }
-    return angle < startAngle && angle > endAngle;
-  }
-}
-
-export function intersectLinearWithArc(
-  linear: LinearObject,
-  arc: ArcObject,
-  objects: GeometryObjectRecord,
-): readonly Point2D[] {
-  const arcGeometry = getArcGeometry(arc, objects);
-  if (!arcGeometry) return [];
-  
-  const circle: CircleObject = {
-    type: "circle",
-    circleKind: "center-radius",
-    centerPointId: arc.centerPointId,
-    radius: arcGeometry.radius,
-  } as CircleObject;
-  
-  const circleIntersections = intersectLineCircle(linear as LineObject, circle, objects);
-  
-  return circleIntersections.filter(point => {
-    let angle = (Math.atan2(point.y - arcGeometry.center.y, point.x - arcGeometry.center.x) * 180) / Math.PI;
-    if (angle < 0) angle += 360;
-    return isAngleBetween(angle, arcGeometry.startAngleDegrees, arcGeometry.endAngleDegrees, arc.direction);
-  });
-}
-
-export function intersectLinearWithEllipse(
-  linear: LinearObject,
-  ellipseGeometry: { center: Point2D; rx: number; ry: number; angleDegrees: number },
-  objects: GeometryObjectRecord,
-): readonly Point2D[] {
-  const linearPoints = getLinearPoints(linear, objects);
-  if (!linearPoints) return [];
-  
-  const p0 = linearPoints[0];
-  const p1 = linearPoints[1];
-  
-  const angleRad = (ellipseGeometry.angleDegrees * Math.PI) / 180;
-  const cosA = Math.cos(-angleRad);
-  const sinA = Math.sin(-angleRad);
-  
-  const dx0 = p0.x - ellipseGeometry.center.x;
-  const dy0 = p0.y - ellipseGeometry.center.y;
-  const x0 = dx0 * cosA - dy0 * sinA;
-  const y0 = dx0 * sinA + dy0 * cosA;
-  
-  const dirX = p1.x - p0.x;
-  const dirY = p1.y - p0.y;
-  const dx = dirX * cosA - dirY * sinA;
-  const dy = dirX * sinA + dirY * cosA;
-  
-  const a = ellipseGeometry.rx;
-  const b = ellipseGeometry.ry;
-  const a2 = a * a;
-  const b2 = b * b;
-  
-  const A = b2 * dx * dx + a2 * dy * dy;
-  const B = 2 * (b2 * x0 * dx + a2 * y0 * dy);
-  const C = b2 * x0 * x0 + a2 * y0 * y0 - a2 * b2;
-  
-  const discriminant = B * B - 4 * A * C;
-  
-  if (A <= EPSILON || discriminant < -EPSILON) {
-    return [];
-  }
-  
-  let ts: number[] = [];
-  if (Math.abs(discriminant) <= EPSILON) {
-    ts = [-B / (2 * A)];
-  } else {
-    const sqrt = Math.sqrt(discriminant);
-    ts = [(-B - sqrt) / (2 * A), (-B + sqrt) / (2 * A)];
-  }
-  
-  const validPoints: Point2D[] = [];
-  for (const t of ts) {
-    if (linear.type === "segment" && !isBetween01(t)) continue;
-    if (linear.type === "ray" && t < -EPSILON) continue;
-    
-    validPoints.push({
-      x: p0.x + t * dirX,
-      y: p0.y + t * dirY
-    });
-  }
-  
-  return validPoints;
-}
-
-export function intersectLinearWithEllipseObject(
-  linear: LinearObject,
-  ellipse: EllipseObject,
-  objects: GeometryObjectRecord,
-): readonly Point2D[] {
-  const geom = getEllipseGeometry(ellipse, objects);
-  if (!geom) return [];
-  return intersectLinearWithEllipse(linear, geom, objects);
-}
-
-export function intersectLinearWithEllipticalArc(
-  linear: LinearObject,
-  arc: EllipticalArcObject,
-  objects: GeometryObjectRecord,
-): readonly Point2D[] {
-  const geom = getEllipticalArcGeometry(arc, objects);
-  if (!geom) return [];
-  
-  const ellipseGeom = {
-    center: geom.center,
-    rx: geom.rx,
-    ry: geom.ry,
-    angleDegrees: geom.startAngleDegrees, 
-  };
-  
-  const ellipseIntersections = intersectLinearWithEllipse(linear, ellipseGeom, objects);
-  
-  return ellipseIntersections.filter(point => {
-    const angleRad = -(geom.startAngleDegrees * Math.PI) / 180;
-    const cosA = Math.cos(angleRad);
-    const sinA = Math.sin(angleRad);
-    
-    const dx0 = point.x - geom.center.x;
-    const dy0 = point.y - geom.center.y;
-    const xLocal = dx0 * cosA - dy0 * sinA;
-    const yLocal = dx0 * sinA + dy0 * cosA;
-    
-    let theta = Math.atan2(yLocal / geom.ry, xLocal / geom.rx);
-    if (theta < 0) theta += 2 * Math.PI;
-    
-    if (almostEqual(theta, 0) || almostEqual(theta, geom.thetaEnd) || almostEqual(theta, 2 * Math.PI)) {
-      return true;
-    }
-    
-    return theta > 0 && theta < geom.thetaEnd;
-  });
 }

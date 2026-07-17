@@ -19,6 +19,7 @@ import {
   Readout,
   Section,
   TextInput,
+  ToggleRow,
 } from "./PropertyInspectorFields";
 
 type GeometryPanelProps = {
@@ -447,6 +448,21 @@ function AngleGeometry({
           value={object.radius}
         />
       </Field>
+      <ToggleRow
+        checked={object.showLabel ?? true}
+        label="Show Angle Measure"
+        onChange={(checked) =>
+          updateSelected((current) =>
+            current.type === "angle"
+              ? {
+                  ...current,
+                  showLabel: checked,
+                  updatedAt: Date.now(),
+                }
+              : current,
+          )
+        }
+      />
       <Field label="Label">
         <TextInput
           onChange={(event) =>

@@ -239,6 +239,37 @@ export type ConstructionDefinition =
       readonly pointId: string;
       readonly centerPointId: string;
       readonly factor: number | string;
+    }
+  | {
+      readonly type: "angle-bisector-endpoint";
+      readonly pointAId: string;
+      readonly pointBId: string;
+      readonly pointCId: string;
+      readonly limitObjectId: string;
+    }
+  | {
+      readonly type: "perpendicular-bisector-endpoint";
+      readonly pointAId: string;
+      readonly pointBId: string;
+      readonly limitObjectId: string;
+    }
+  | {
+      readonly type: "point-on-object";
+      readonly objectId: string;
+    }
+  | {
+      readonly type: "special-line-projection";
+      readonly vertexId: string;
+      readonly segmentId: string;
+    }
+  | {
+      readonly type: "special-line-midpoint";
+      readonly segmentId: string;
+    }
+  | {
+      readonly type: "special-line-bisector";
+      readonly vertexId: string;
+      readonly segmentId: string;
     };
 
 export type PointObject = BaseGeometryObject & {
@@ -253,13 +284,20 @@ export type SegmentObject = BaseGeometryObject & {
   readonly type: "segment";
   readonly startPointId: string;
   readonly endPointId: string;
+  readonly specialLineKind?: "altitude" | "median" | "angle-bisector" | "perpendicular-bisector-3step";
 };
 
 export type LineObject = BaseGeometryObject & {
   readonly type: "line";
   readonly pointAId: string;
   readonly pointBId: string;
-  readonly lineKind?: "parallel" | "perpendicular" | "perpendicular-bisector" | "angle-bisector";
+  readonly lineKind?:    | "parallel"
+    | "perpendicular"
+    | "perpendicular-bisector"
+    | "angle-bisector"
+    | "perpendicular-bisector-3step"
+    | "angle-bisector-4step";
+  readonly specialLineKind?: "altitude" | "median" | "angle-bisector" | "perpendicular-bisector-3step";
   readonly sourceLineId?: string;
   readonly anchorPointId?: string;
   readonly sourceSegmentId?: string;
@@ -333,6 +371,7 @@ export type AngleObject = BaseGeometryObject & {
   readonly pointCId: string;
   readonly radius: number;
   readonly label?: string;
+  readonly showLabel?: boolean;
   readonly showRightAngleMarker: boolean;
 };
 

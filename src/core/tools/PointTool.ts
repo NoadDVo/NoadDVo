@@ -6,7 +6,8 @@ import {
   type PointObject,
 } from "../geometry";
 import { BaseTool } from "./BaseTool";
-import { getHitPoint } from "./ConstructionToolUtils";
+import { getHitObject } from "./ConstructionToolUtils";
+import { getClosestPointOnObject } from "../selection/closestPoint";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 let pointIdCounter = 0;
@@ -122,7 +123,35 @@ export class PointTool extends BaseTool {
       return;
     }
 
-    const point = createNamedFreePoint(event.snappedWorldPoint, context.objects);
+    const hitObject = getHitObject(event, context);
+    let finalPoint = event.snappedWorldPoint;
+    let pointOnObject = false;
+    let hitObjectId = "";
+
+    if (
+      hitObject &&
+      hitObject.type !== "point" &&
+      hitObject.type !== "image" &&
+      hitObject.type !== "text" &&
+      hitObject.type !== "slider" &&
+      hitObject.type !== "region"
+    ) {
+      const closest = getClosestPointOnObject(hitObject, event.worldPoint, context.objects);
+      if (closest) {
+        finalPoint = closest;
+        pointOnObject = true;
+        hitObjectId = hitObject.id;
+      }
+    }
+
+    const basePoint = createNamedFreePoint(finalPoint, context.objects);
+    
+    const point = pointOnObject ? {
+      ...basePoint,
+      pointKind: "derived" as const,
+      construction: { type: "point-on-object" as const, objectId: hitObjectId },
+      dependencies: [hitObjectId],
+    } : basePoint;
 
     if (context.addObject(point)) {
       context.selectObject(point.id);
@@ -132,7 +161,8 @@ export class PointTool extends BaseTool {
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
-    context.setHoveredObject(getHitPoint(event, context)?.id ?? null);
+    const hitObject = getHitObject(event, context);
+    context.setHoveredObject(hitObject?.id ?? null);
   }
 
   cancel(context: ToolContext): void {

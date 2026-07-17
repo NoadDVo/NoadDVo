@@ -341,6 +341,11 @@ export function getBoundedLineEndpoints(
     }
   }
 
+  // 3.5 Exact bounds for multi-step tools
+  if (line.lineKind === "angle-bisector-4step" || line.lineKind === "perpendicular-bisector-3step" || line.specialLineKind === "altitude" || line.specialLineKind === "median") {
+    return [pointA, pointB];
+  }
+
   // 4. Default: extend by 20% past A and B
   const extension = length * 0.2;
   return [

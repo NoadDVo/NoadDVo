@@ -10,15 +10,16 @@ import {
   distance,
   getArcGeometry,
   getCircleGeometry,
-  getEllipticalArcGeometry,
-  getPointObject,
   getPolygonPoints,
   regionContainsPoint,
   getTextFontSize,
   getTextPosition,
   isPointInPolygon,
 } from "../geometry";
+import { getPointObject, getEllipticalArcGeometry } from "../geometry/derivedGeometry";
+import { getEllipseGeometry } from "../geometry/conicGeometry";
 import { worldToScreen, type Viewport } from "../geometry/viewport";
+import { getClosestPointOnObject } from "./closestPoint";
 
 export type HitTestResult = {
   readonly object: GeometryObject;
@@ -108,13 +109,15 @@ function visibleObjectsByType<TType extends GeometryObject["type"]>(
   );
 }
 
-function normalizedAngleDegrees(center: Point2D, point: Point2D): number {
-  const degrees = (Math.atan2(point.y - center.y, point.x - center.x) * 180) / Math.PI;
-
-  return degrees < 0 ? degrees + 360 : degrees;
+export function normalizedAngleDegrees(center: Point2D, pointer: Point2D): number {
+  let angle = (Math.atan2(pointer.y - center.y, pointer.x - center.x) * 180) / Math.PI;
+  if (angle < 0) {
+    angle += 360;
+  }
+  return angle;
 }
 
-function isAngleOnArc(
+export function isAngleOnArc(
   angle: number,
   start: number,
   end: number,
@@ -279,37 +282,75 @@ export function hitTest(
   }
 
   for (const object of visibleObjectsByType(objects, "elliptical-arc")) {
-    const geometry = getEllipticalArcGeometry(object, objects);
-
-    if (!geometry) {
-      continue;
+    const closestWorld = getClosestPointOnObject(object, worldPoint, objects);
+    if (closestWorld) {
+      const closestScreen = worldToScreen(closestWorld, viewport);
+      const distancePx = Math.hypot(screenPoint.x - closestScreen.x, screenPoint.y - closestScreen.y);
+      let isInside = false;
+      if (object.style.fill !== "transparent") {
+        const geom = getEllipticalArcGeometry(object as any, objects);
+        if (geom) {
+          const angleRad = geom.phi;
+          const dx0 = worldPoint.x - geom.center.x;
+          const dy0 = worldPoint.y - geom.center.y;
+          const dx = (dx0 * Math.cos(angleRad) + dy0 * Math.sin(angleRad)) / geom.rx;
+          const dy = (-dx0 * Math.sin(angleRad) + dy0 * Math.cos(angleRad)) / geom.ry;
+          if (dx * dx + dy * dy <= 1) {
+             const ptrAngle = normalizedAngleDegrees(geom.center, worldPoint);
+             if (isAngleOnArc(ptrAngle, geom.startAngleDegrees, geom.endAngleDegrees, object.direction)) {
+               isInside = true;
+             }
+          }
+        }
+      }
+      if (distancePx <= tolerancePx || isInside) {
+        return { object, objectId: object.id, type: "elliptical-arc" };
+      }
     }
+  }
 
-    const center = worldToScreen(geometry.center, viewport);
-    const rxPx = geometry.rx * viewport.scale;
-    const ryPx = geometry.ry * viewport.scale;
+  for (const object of visibleObjectsByType(objects, "ellipse")) {
+    const closestWorld = getClosestPointOnObject(object, worldPoint, objects);
+    if (closestWorld) {
+      const closestScreen = worldToScreen(closestWorld, viewport);
+      const distancePx = Math.hypot(screenPoint.x - closestScreen.x, screenPoint.y - closestScreen.y);
+      let isInside = false;
+      if (object.style.fill !== "transparent") {
+        const geom = getEllipseGeometry(object as any, objects);
+        if (geom) {
+          const angleRad = (geom.angleDegrees * Math.PI) / 180;
+          const dx0 = worldPoint.x - geom.center.x;
+          const dy0 = worldPoint.y - geom.center.y;
+          const dx = (dx0 * Math.cos(angleRad) + dy0 * Math.sin(angleRad)) / geom.rx;
+          const dy = (-dx0 * Math.sin(angleRad) + dy0 * Math.cos(angleRad)) / geom.ry;
+          isInside = dx * dx + dy * dy <= 1;
+        }
+      }
+      if (distancePx <= tolerancePx || isInside) {
+        return { object, objectId: object.id, type: "ellipse" };
+      }
+    }
+  }
 
-    if (rxPx === 0 || ryPx === 0) continue;
+  for (const object of visibleObjectsByType(objects, "hyperbola")) {
+    const closestWorld = getClosestPointOnObject(object, worldPoint, objects);
+    if (closestWorld) {
+      const closestScreen = worldToScreen(closestWorld, viewport);
+      const distancePx = Math.hypot(screenPoint.x - closestScreen.x, screenPoint.y - closestScreen.y);
+      if (distancePx <= tolerancePx) {
+        return { object, objectId: object.id, type: "hyperbola" };
+      }
+    }
+  }
 
-    const dx = (screenPoint.x - center.x) / rxPx;
-    const dy = (screenPoint.y - center.y) / ryPx;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    // Approximate distance to boundary in pixels
-    const distanceToBoundaryPx = Math.abs(dist - 1) * Math.max(rxPx, ryPx);
-    const pointerAngle = normalizedAngleDegrees(geometry.center, worldPoint);
-
-    if (
-      (distanceToBoundaryPx <= tolerancePx ||
-        (object.style.fill !== "transparent" && dist <= 1)) &&
-      isAngleOnArc(
-        pointerAngle,
-        geometry.startAngleDegrees,
-        geometry.endAngleDegrees,
-        object.direction,
-      )
-    ) {
-      return { object, objectId: object.id, type: "elliptical-arc" };
+  for (const object of visibleObjectsByType(objects, "polynomial")) {
+    const closestWorld = getClosestPointOnObject(object, worldPoint, objects);
+    if (closestWorld) {
+      const closestScreen = worldToScreen(closestWorld, viewport);
+      const distancePx = Math.hypot(screenPoint.x - closestScreen.x, screenPoint.y - closestScreen.y);
+      if (distancePx <= tolerancePx) {
+        return { object, objectId: object.id, type: "polynomial" };
+      }
     }
   }
 
