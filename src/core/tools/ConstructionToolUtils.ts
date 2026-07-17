@@ -109,7 +109,7 @@ export function createConstructionLine(
     pointBId: pointB.id,
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      dash: "dashed",
+      dash: "solid",
       stroke: "#747b84",
       strokeOpacity: 0.72,
       strokeWidth: 1.4,
