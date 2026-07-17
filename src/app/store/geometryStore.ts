@@ -15,6 +15,7 @@ export const useGeometryStore = create<GeometryState>((set, get, store) => ({
   canUndo: false,
   historyVersion: 0,
   hoveredObjectId: null,
+  activeSnappedPointId: null,
   lastError: null,
   objects: {},
   selectedObjectIds: [],

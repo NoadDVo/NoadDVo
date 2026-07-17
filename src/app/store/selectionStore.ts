@@ -40,9 +40,13 @@ export const createSelectionStore: StateCreator<
     });
   },
   setHoveredObject: (objectId) => {
-    set((state) => ({
-      hoveredObjectId: objectId && state.objects[objectId] ? objectId : null,
-    }));
+    set((state) => {
+      const object = objectId ? state.objects[objectId] : null;
+      return {
+        hoveredObjectId: object ? objectId : null,
+        activeSnappedPointId: object?.type === "point" ? objectId : null,
+      };
+    });
   },
   setSelectedObjects: (objectIds) => {
     set((state) => ({
