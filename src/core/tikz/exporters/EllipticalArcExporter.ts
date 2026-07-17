@@ -2,8 +2,6 @@ import type { EllipticalArcObject } from "../../geometry";
 import { getEllipticalArcGeometry } from "../../geometry";
 import {
   formatNumber,
-  formatStyleOptions,
-  styleToTikzParts,
 } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
@@ -20,23 +18,18 @@ export const EllipticalArcExporter: TikzObjectExporter<EllipticalArcObject> = {
       return;
     }
 
-    const colorFor = (color: string) => context.colorRegistry.getColorName(color);
-    const style = styleToTikzParts(object.style, context.options, colorFor);
-    const startAngle = geometry.startAngleDegrees;
-    let endAngle = geometry.endAngleDegrees;
-    
-    if (object.direction === "counterclockwise") {
-      if (endAngle < startAngle) {
-        endAngle += 360;
-      }
-    } else {
-      if (endAngle > startAngle) {
-        endAngle -= 360;
-      }
-    }
+    const phiDegrees = (geometry.phi * 180) / Math.PI;
+    const thetaEndDegrees = (geometry.thetaEnd * 180) / Math.PI;
+
+    const startX = formatNumber(geometry.startPoint.x, context.options.coordinatePrecision);
+    const startY = formatNumber(geometry.startPoint.y, context.options.coordinatePrecision);
+    const rx = formatNumber(geometry.rx, context.options.coordinatePrecision);
+    const ry = formatNumber(geometry.ry, context.options.coordinatePrecision);
+    const phiStr = formatNumber(phiDegrees, context.options.coordinatePrecision);
+    const thetaEndStr = formatNumber(thetaEndDegrees, context.options.coordinatePrecision);
 
     context.scene.sections.shapes.push(
-      `\\draw${formatStyleOptions(style)} (${formatNumber(geometry.startPoint.x, context.options.coordinatePrecision)},${formatNumber(geometry.startPoint.y, context.options.coordinatePrecision)}) arc[start angle=${formatNumber(startAngle, context.options.coordinatePrecision)}, end angle=${formatNumber(endAngle, context.options.coordinatePrecision)}, x radius=${formatNumber(geometry.rx, context.options.coordinatePrecision)}cm, y radius=${formatNumber(geometry.ry, context.options.coordinatePrecision)}cm];`,
+      `\\draw[line width=0.8pt, draw=black, rotate=${phiStr}] (${startX}, ${startY}) arc [start angle=0, end angle=${thetaEndStr}, x radius=${rx}cm, y radius=${ry}cm];`,
     );
   },
   objectType: "elliptical-arc",

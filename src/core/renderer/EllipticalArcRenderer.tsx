@@ -28,13 +28,10 @@ export const EllipticalArcRenderer: GeometryRenderer<EllipticalArcObject> = {
     const end = worldToScreen(geometry.endPoint, context.viewport);
     const rx = geometry.rx * context.viewport.scale;
     const ry = geometry.ry * context.viewport.scale;
-    const delta =
-      object.direction === "counterclockwise"
-        ? (geometry.endAngleDegrees - geometry.startAngleDegrees + 360) % 360
-        : (geometry.startAngleDegrees - geometry.endAngleDegrees + 360) % 360;
-    const largeArcFlag = delta > 180 ? 1 : 0;
-    const sweepFlag = object.direction === "counterclockwise" ? 0 : 1;
-    const path = `M ${start.x} ${start.y} A ${rx} ${ry} 0 ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
+    const phiDegrees = -(geometry.phi * 180) / Math.PI;
+    const largeArcFlag = geometry.thetaEnd > Math.PI ? 1 : 0;
+    const sweepFlag = 0; // 0 is CCW in SVG because Y axis is flipped
+    const path = `M ${start.x} ${start.y} A ${rx} ${ry} ${phiDegrees} ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
 

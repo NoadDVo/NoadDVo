@@ -37,6 +37,8 @@ export type EllipticalArcGeometry = {
   readonly endAngleDegrees: number;
   readonly startPoint: Point2D;
   readonly endPoint: Point2D;
+  readonly phi: number;
+  readonly thetaEnd: number;
 };
 
 export function getPointObject(
@@ -188,29 +190,33 @@ export function getEllipticalArcGeometry(
     return null;
   }
 
-  const startAngle = angleDegrees(center, startPointObj);
-  const endAngle = angleDegrees(center, endPointObj);
+  const phi = Math.atan2(startPointObj.y - center.y, startPointObj.x - center.x);
+  const absB = Math.atan2(endPointObj.y - center.y, endPointObj.x - center.x);
+  
+  let theta_end = absB - phi;
+  if (theta_end < 0) theta_end += 2 * Math.PI;
+  if (theta_end === 0) theta_end = 2 * Math.PI;
 
-  const startAngleRad = (startAngle * Math.PI) / 180;
-  const projectedStartPoint = {
-    x: center.x + rx * Math.cos(startAngleRad),
-    y: center.y + ry * Math.sin(startAngleRad),
+  const startPoint = {
+    x: center.x + rx * Math.cos(phi),
+    y: center.y + rx * Math.sin(phi),
   };
 
-  const endAngleRad = (endAngle * Math.PI) / 180;
-  const projectedEndPoint = {
-    x: center.x + rx * Math.cos(endAngleRad),
-    y: center.y + ry * Math.sin(endAngleRad),
+  const endPoint = {
+    x: center.x + rx * Math.cos(theta_end) * Math.cos(phi) - ry * Math.sin(theta_end) * Math.sin(phi),
+    y: center.y + rx * Math.cos(theta_end) * Math.sin(phi) + ry * Math.sin(theta_end) * Math.cos(phi),
   };
 
   return {
     center,
     rx,
     ry,
-    startAngleDegrees: startAngle,
-    endAngleDegrees: endAngle,
-    startPoint: projectedStartPoint,
-    endPoint: projectedEndPoint,
+    startAngleDegrees: (phi * 180) / Math.PI,
+    endAngleDegrees: (absB * 180) / Math.PI,
+    startPoint,
+    endPoint,
+    phi,
+    thetaEnd: theta_end,
   };
 }
 
