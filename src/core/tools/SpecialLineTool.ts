@@ -1,6 +1,5 @@
 import { BaseTool } from "./BaseTool";
 import {
-  createConstructionLine,
   getHitPoint,
   getHitLinearSource,
 } from "./ConstructionToolUtils";
@@ -21,10 +20,6 @@ type SpecialLineToolOptions = {
   readonly description: string;
   readonly kind: SpecialLineKind;
 };
-
-function hiddenName(prefix: string): string {
-  return `${prefix}${Date.now().toString(36)}`;
-}
 
 export class SpecialLineTool extends BaseTool {
   private vertex: PointObject | null = null;
@@ -60,7 +55,6 @@ export class SpecialLineTool extends BaseTool {
       
       addConstructionObjects(context, this.options.name, (objects) => {
         let constructionDef: any;
-        let prefix: string;
         
         if (this.options.kind === "altitude") {
           constructionDef = {
@@ -68,27 +62,24 @@ export class SpecialLineTool extends BaseTool {
             vertexId: vertex.id,
             segmentId: segment.id,
           };
-          prefix = "ALT";
         } else if (this.options.kind === "median") {
           constructionDef = {
             type: "special-line-midpoint",
             segmentId: segment.id,
           };
-          prefix = "MED";
         } else {
           constructionDef = {
             type: "special-line-bisector",
             vertexId: vertex.id,
             segmentId: segment.id,
           };
-          prefix = "BIS";
         }
 
         const dependentPoint = createNamedDerivedPoint(
           { x: 0, y: 0 }, 
           objects,
           constructionDef,
-          { visible: true }
+          { visible: false }
         );
         
         const now = Date.now();

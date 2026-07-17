@@ -41,6 +41,7 @@ export function buildTikzScene(
 
       return createdDelta === 0 ? a.id.localeCompare(b.id) : createdDelta;
     });
+
   const points = orderedObjects.filter(
     (object): object is PointObject => object.type === "point",
   );

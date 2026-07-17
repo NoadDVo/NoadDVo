@@ -1,7 +1,18 @@
 import type { GeometryStyle, Point2D } from "../geometry";
 import type { TikzOptions } from "./TikzOptions";
-import type { TikzSceneSections, TikzStyleParts } from "./TikzTypes";
+import type { TikzSceneSections, TikzStyleParts, TikzExportContext } from "./TikzTypes";
 
+export function getTikzPointReference(objectId: string, context: TikzExportContext): string | null {
+  const name = context.nameRegistry.getPointName(objectId);
+  if (name) return name;
+  
+  const obj = context.scene.objects[objectId];
+  if (obj?.type === "point") {
+    // Return x,y without parentheses so that callers using (${name}) work correctly
+    return `${formatNumber(obj.x, context.options.coordinatePrecision)},${formatNumber(obj.y, context.options.coordinatePrecision)}`;
+  }
+  return null;
+}
 export function formatNumber(value: number, precision = 3): string {
   const rounded = Number(value.toFixed(precision));
 

@@ -5,6 +5,7 @@ import {
   formatPoint,
   formatStyleOptions,
   styleToTikzParts,
+  getTikzPointReference,
 } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
@@ -25,7 +26,7 @@ export const CircleExporter: TikzObjectExporter<CircleObject> = {
       object.circleKind === "three-points"
         ? formatPoint(geometry.center, context.options.coordinatePrecision)
         : (() => {
-            const centerName = context.nameRegistry.getPointName(object.centerPointId);
+            const centerName = getTikzPointReference(object.centerPointId, context);
 
             return centerName ? `(${centerName})` : null;
           })();

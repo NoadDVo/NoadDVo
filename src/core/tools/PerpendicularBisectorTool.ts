@@ -1,6 +1,5 @@
 import { BaseTool } from "./BaseTool";
 import {
-  createConstructionLine,
   getHitPoint,
   getHitLinearSource,
 } from "./ConstructionToolUtils";
@@ -10,10 +9,6 @@ import type { PointObject, GeometryObjectRecord } from "../geometry/types";
 import { renderPointSequencePreview, renderPreviewPolyline } from "./ToolPreviewPrimitives";
 import { distance, midpoint, vectorFromPoints, normalize, dot, EPSILON } from "../geometry/math";
 import { addConstructionObjects } from "./AdvancedConstructionTools";
-
-function hiddenName(prefix: string): string {
-  return `${prefix}${Date.now().toString(36)}`;
-}
 
 export class PerpendicularBisectorTool extends BaseTool {
   private points: PointObject[] = [];
@@ -65,7 +60,7 @@ export class PerpendicularBisectorTool extends BaseTool {
             pointAId: a.id,
             pointBId: b.id,
           },
-          { visible: true }
+          { visible: false }
         );
 
         const nextObjects = { ...objects, [midpointPoint.id]: midpointPoint };
@@ -75,7 +70,7 @@ export class PerpendicularBisectorTool extends BaseTool {
           initialCoord,
           nextObjects,
           constructionDef,
-          { visible: true }
+          { visible: false }
         );
         
         const now = Date.now();

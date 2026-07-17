@@ -8,13 +8,14 @@ import {
   formatTikzOptions,
   stylePartsToOptions,
   styleToTikzParts,
+  getTikzPointReference,
 } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
 export const VectorExporter: TikzObjectExporter<VectorObject> = {
   exportObject: (object, context) => {
-    const startName = context.nameRegistry.getPointName(object.startPointId);
-    const endName = context.nameRegistry.getPointName(object.endPointId);
+    const startName = getTikzPointReference(object.startPointId, context);
+    const endName = getTikzPointReference(object.endPointId, context);
 
     if (!startName || !endName) {
       context.warnings.push({

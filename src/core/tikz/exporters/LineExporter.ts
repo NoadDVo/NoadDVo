@@ -6,6 +6,7 @@ import {
   formatPoint,
   formatStyleOptions,
   styleToTikzParts,
+  getTikzPointReference,
 } from "../TikzFormatter";
 import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
 
@@ -61,9 +62,9 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
       const depPt = context.scene.objects[object.pointBId];
       if (depPt?.type === "point" && depPt.construction?.type === "angle-bisector-endpoint") {
         const construction = depPt.construction as any;
-        const nameVertex = context.nameRegistry.getPointName(object.pointAId);
-        const nameA = context.nameRegistry.getPointName(construction.pointAId);
-        const nameC = context.nameRegistry.getPointName(construction.pointCId);
+        const nameVertex = getTikzPointReference(object.pointAId, context);
+        const nameA = getTikzPointReference(construction.pointAId, context);
+        const nameC = getTikzPointReference(construction.pointCId, context);
         const pVertex = getPoint(object.pointAId, context);
         const pA = getPoint(construction.pointAId, context);
         const pC = getPoint(construction.pointCId, context);

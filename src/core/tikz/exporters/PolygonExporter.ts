@@ -1,5 +1,5 @@
 import type { PolygonObject } from "../../geometry";
-import { formatStyleOptions, styleToTikzParts } from "../TikzFormatter";
+import { formatStyleOptions, styleToTikzParts, getTikzPointReference } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
 function hasVisibleFill(object: PolygonObject): boolean {
@@ -13,7 +13,7 @@ function hasVisibleStroke(object: PolygonObject): boolean {
 export const PolygonExporter: TikzObjectExporter<PolygonObject> = {
   exportObject: (object, context) => {
     const names = object.pointIds
-      .map((pointId) => context.nameRegistry.getPointName(pointId))
+      .map((pointId) => getTikzPointReference(pointId, context))
       .filter((name): name is string => Boolean(name));
 
     if (names.length < 3) {
