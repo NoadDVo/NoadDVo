@@ -1,5 +1,5 @@
 import { distance, type DistanceObject } from "../../geometry";
-import { formatNumber } from "../TikzFormatter";
+import { formatNumber, getTikzPointReference } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
 export const DistanceExporter: TikzObjectExporter<DistanceObject> = {
@@ -32,8 +32,8 @@ export const DistanceExporter: TikzObjectExporter<DistanceObject> = {
     const precision = object.precision ?? 2;
     const value = formatNumber(dist, precision);
 
-    const pt1Id = context.nameRegistry.getPointName(point1.id);
-    const pt2Id = context.nameRegistry.getPointName(point2.id);
+    const pt1Id = getTikzPointReference(point1.id, context);
+    const pt2Id = getTikzPointReference(point2.id, context);
 
     // Calculate mid point for absolute positioning if needed, or use midway
     const options = [`${object.labelPosition}`];

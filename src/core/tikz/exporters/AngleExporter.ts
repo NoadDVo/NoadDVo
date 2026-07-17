@@ -14,8 +14,10 @@ function getPoint(objectId: string, context: TikzExportContext): PointObject | n
   return object?.type === "point" ? object : null;
 }
 
+import { getTikzPointReference } from "../TikzFormatter";
+
 function getPointName(objectId: string, context: TikzExportContext): string | null {
-  return context.nameRegistry.getPointName(objectId) ?? null;
+  return getTikzPointReference(objectId, context);
 }
 
 function formatLabel(label: string | undefined, degrees: number): string | null {

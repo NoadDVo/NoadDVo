@@ -41,25 +41,10 @@ export function buildTikzScene(
 
       return createdDelta === 0 ? a.id.localeCompare(b.id) : createdDelta;
     });
-  const requiredPointIds = new Set<string>();
-  orderedObjects.forEach(obj => {
-    if (obj.type === "point") {
-      requiredPointIds.add(obj.id);
-    }
-    obj.dependencies.forEach(depId => {
-      const depObj = objects[depId];
-      if (depObj?.type === "point") {
-        requiredPointIds.add(depId);
-      }
-    });
-  });
 
-  const points = Object.values(objects)
-    .filter((object): object is PointObject => object.type === "point" && requiredPointIds.has(object.id))
-    .sort((a, b) => {
-      const createdDelta = a.createdAt - b.createdAt;
-      return createdDelta === 0 ? a.id.localeCompare(b.id) : createdDelta;
-    });
+  const points = orderedObjects.filter(
+    (object): object is PointObject => object.type === "point",
+  );
 
   return {
     objects,

@@ -1,5 +1,5 @@
 import type { SegmentObject, PointObject } from "../../geometry";
-import { formatStyleOptions, styleToTikzParts } from "../TikzFormatter";
+import { formatStyleOptions, styleToTikzParts, getTikzPointReference } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
 export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
@@ -11,8 +11,8 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
       return index === -1 ? 1 : index + 1;
     };
 
-    const startName = context.nameRegistry.getPointName(object.startPointId);
-    const endName = context.nameRegistry.getPointName(object.endPointId);
+    const startName = getTikzPointReference(object.startPointId, context);
+    const endName = getTikzPointReference(object.endPointId, context);
 
     if (!startName || !endName) {
       context.warnings.push({
@@ -35,9 +35,9 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
       if (depPt?.type === "point" && depPt.construction?.type === "special-line-projection") {
         const segment = context.scene.objects[(depPt.construction as any).segmentId];
         if (segment?.type === "segment") {
-          const nameA = context.nameRegistry.getPointName(object.startPointId);
-          const nameB = context.nameRegistry.getPointName(segment.startPointId);
-          const nameC = context.nameRegistry.getPointName(segment.endPointId);
+          const nameA = getTikzPointReference(object.startPointId, context);
+          const nameB = getTikzPointReference(segment.startPointId, context);
+          const nameC = getTikzPointReference(segment.endPointId, context);
           if (nameA && nameB && nameC) {
             context.scene.sections.shapes.push(
               `\\draw[line width=0.5pt] ($($(${nameB})!(${nameA})!(${nameC})$)!0.15cm!(${nameA})$) -- ($($($(${nameB})!(${nameA})!(${nameC})$)!0.15cm!(${nameA})$)!0.15cm!90:($(${nameB})!(${nameA})!(${nameC})$)$) -- ($($(${nameB})!(${nameA})!(${nameC})$)!0.15cm!(${nameB})$);`
@@ -50,9 +50,9 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
       if (depPt?.type === "point" && depPt.construction?.type === "special-line-midpoint") {
         const segment = context.scene.objects[(depPt.construction as any).segmentId];
         if (segment?.type === "segment") {
-          const nameA = context.nameRegistry.getPointName(object.startPointId);
-          const nameB = context.nameRegistry.getPointName(segment.startPointId);
-          const nameC = context.nameRegistry.getPointName(segment.endPointId);
+          const nameA = getTikzPointReference(object.startPointId, context);
+          const nameB = getTikzPointReference(segment.startPointId, context);
+          const nameC = getTikzPointReference(segment.endPointId, context);
           if (nameA && nameB && nameC && endName) {
             const index = getLineKindIndex(object);
             const tickCount = Math.min(index, 3);
@@ -90,7 +90,7 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
         const pVertex = context.scene.objects[object.startPointId];
         const pP = depPt;
 
-        const nameVertex = context.nameRegistry.getPointName(object.startPointId);
+        const nameVertex = getTikzPointReference(object.startPointId, context);
 
         if (nameVertex && pVertex?.type === "point" && pA?.type === "point" && pC?.type === "point" && pP.type === "point") {
           // Arc marks: Cartesian coordinates
@@ -151,10 +151,10 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
         const pA = context.scene.objects[midPt.construction.pointAId] as PointObject;
         const pB = context.scene.objects[midPt.construction.pointBId] as PointObject;
         const pDep = context.scene.objects[object.endPointId] as PointObject;
-        const nameA = context.nameRegistry.getPointName(midPt.construction.pointAId);
-        const nameB = context.nameRegistry.getPointName(midPt.construction.pointBId);
-        const nameMid = context.nameRegistry.getPointName(object.startPointId);
-        const nameDep = context.nameRegistry.getPointName(object.endPointId);
+        const nameA = getTikzPointReference(midPt.construction.pointAId, context);
+        const nameB = getTikzPointReference(midPt.construction.pointBId, context);
+        const nameMid = getTikzPointReference(object.startPointId, context);
+        const nameDep = getTikzPointReference(object.endPointId, context);
         if (pA && pB && pDep && nameA && nameB && nameMid && nameDep) {
           const uA = { x: pA.x - midPt.x, y: pA.y - midPt.y };
           const uALen = Math.sqrt(uA.x * uA.x + uA.y * uA.y);

@@ -11,6 +11,7 @@ import {
   formatNumber,
   formatPoint,
   formatStyleOptions,
+  getTikzPointReference,
   styleToTikzParts,
 } from "../TikzFormatter";
 import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
@@ -172,7 +173,7 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
 
 
     const names = object.boundaryPointIds
-      .map((pointId) => context.nameRegistry.getPointName(pointId))
+      .map((pointId) => getTikzPointReference(pointId, context))
       .filter((name): name is string => Boolean(name));
 
     if (names.length < 3) {
