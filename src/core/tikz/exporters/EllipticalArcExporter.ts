@@ -21,15 +21,15 @@ export const EllipticalArcExporter: TikzObjectExporter<EllipticalArcObject> = {
     const phiDegrees = (geometry.phi * 180) / Math.PI;
     const thetaEndDegrees = (geometry.thetaEnd * 180) / Math.PI;
 
-    const startX = formatNumber(geometry.startPoint.x, context.options.coordinatePrecision);
-    const startY = formatNumber(geometry.startPoint.y, context.options.coordinatePrecision);
+    const centerX = formatNumber(geometry.center.x, context.options.coordinatePrecision);
+    const centerY = formatNumber(geometry.center.y, context.options.coordinatePrecision);
     const rx = formatNumber(geometry.rx, context.options.coordinatePrecision);
     const ry = formatNumber(geometry.ry, context.options.coordinatePrecision);
     const phiStr = formatNumber(phiDegrees, context.options.coordinatePrecision);
     const thetaEndStr = formatNumber(thetaEndDegrees, context.options.coordinatePrecision);
 
     context.scene.sections.shapes.push(
-      `\\draw[line width=0.8pt, draw=black, rotate=${phiStr}] (${startX}, ${startY}) arc [start angle=0, end angle=${thetaEndStr}, x radius=${rx}cm, y radius=${ry}cm];`,
+      `\\draw[line width=0.8pt, draw=black, shift={(${centerX}, ${centerY})}, rotate=${phiStr}] (${rx}, 0) arc [start angle=0, end angle=${thetaEndStr}, x radius=${rx}cm, y radius=${ry}cm];`,
     );
   },
   objectType: "elliptical-arc",
