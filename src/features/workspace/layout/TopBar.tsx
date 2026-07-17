@@ -5,13 +5,14 @@ import { useUiStore } from "../../../app/store/uiStore";
 
 import { useAppStore } from "../../../app/store/appStore";
 import { projectManager } from "../../../core/project";
-import { Divider } from "../../../ui/primitives";
+import { Divider, Button } from "../../../ui/primitives";
 import { ExportMenu } from "./ExportMenu";
 import { HelpGroup } from "./HelpGroup";
 import { ProjectMenu } from "./ProjectMenu";
 import { ProjectDialogs } from "./ProjectDialogs";
 import { ThemeGroup } from "./ThemeGroup";
 import { UndoRedoGroup } from "./UndoRedoGroup";
+import { PanelLeft, PanelRight } from "lucide-react";
 
 export function TopBar() {
   const appName = useAppStore((state) => state.appName);
@@ -22,6 +23,10 @@ export function TopBar() {
   );
 
   const appTheme = useUiStore((state) => state.appTheme);
+  const isLeftPanelOpen = useUiStore((state) => state.isLeftPanelOpen);
+  const isRightPanelOpen = useUiStore((state) => state.isRightPanelOpen);
+  const toggleLeftPanel = useUiStore((state) => state.toggleLeftPanel);
+  const toggleRightPanel = useUiStore((state) => state.toggleRightPanel);
 
   return (
     <>
@@ -60,6 +65,30 @@ export function TopBar() {
         <UndoRedoGroup />
 
         <div className="ml-auto flex items-center gap-2">
+          {/* Panel Toggle Group */}
+          <div className="flex items-center gap-1 mr-2">
+            <Button
+              onClick={toggleLeftPanel}
+              title="Toggle Object Tree"
+              icon={<PanelLeft size={14} strokeWidth={2.5} />}
+              size="xs"
+              variant="panel-toggle"
+              active={isLeftPanelOpen}
+            >
+              <span className="hidden md:inline">Object Tree</span>
+            </Button>
+            <Button
+              onClick={toggleRightPanel}
+              title="Toggle Properties"
+              icon={<PanelRight size={14} strokeWidth={2.5} />}
+              size="xs"
+              variant="panel-toggle"
+              active={isRightPanelOpen}
+            >
+              <span className="hidden md:inline">Inspector</span>
+            </Button>
+          </div>
+
           <ProjectMenu projectState={projectState} />
           <ExportMenu />
           <ThemeGroup />

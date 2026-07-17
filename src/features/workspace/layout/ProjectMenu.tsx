@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useRef, type ChangeEvent, type ReactNode } from "react";
 import {
   Download,
   FilePlus2,
@@ -17,6 +17,7 @@ import {
   type ExampleSceneId,
 } from "../../../app/store/geometryStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
+import { useUiStore } from "../../../app/store/uiStore";
 import { createReferenceImageObject } from "../../../core/geometry";
 import { screenToWorld } from "../../../core/geometry/viewport";
 import { exportManager } from "../../../core/export";
@@ -38,7 +39,18 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  
+  const activeMenu = useUiStore((state) => state.activeTopBarMenu);
+  const setActiveMenu = useUiStore((state) => state.setActiveTopBarMenu);
+  const openDialog = useUiStore((state) => state.openDialog);
+  
+  const menuOpen = activeMenu === "project";
+  const setMenuOpen = (open: boolean | ((prev: boolean) => boolean)) => {
+    const nextOpen = typeof open === "function" ? open(menuOpen) : open;
+    setActiveMenu(nextOpen ? "project" : null);
+  };
+  
+  const isDisabled = (activeMenu !== null && activeMenu !== "project") || openDialog !== null;
 
   const loadExample = (exampleId: ExampleSceneId) => {
     if (!useGeometryStore.getState().loadExample(exampleId)) {
@@ -114,7 +126,9 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
         onClick={() => setMenuOpen((open) => !open)}
         ref={buttonRef}
         size="sm"
-        variant="ghost"
+        variant="topbar"
+        active={menuOpen}
+        disabled={isDisabled}
       >
         Project
       </Button>

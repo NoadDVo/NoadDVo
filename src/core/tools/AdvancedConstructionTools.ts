@@ -1,9 +1,6 @@
 import {
-  angleBisectorDirectionPoint,
   incenterPoint,
-  midpoint,
   projectPointToLine,
-  recomputeConstructedPoint,
   validateGeometryObjects,
   type GeometryObjectRecord,
   type PointObject,
@@ -11,10 +8,8 @@ import {
 import { BaseTool } from "./BaseTool";
 import {
   createConstructionCircle,
-  createConstructionLine,
   createThreePointConstructionCircle,
   getHitPoint,
-  hasLineWithEndpoints,
 } from "./ConstructionToolUtils";
 import { createNamedDerivedPoint } from "./PointTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
@@ -122,7 +117,7 @@ class PointSequenceConstructionTool extends BaseTool {
   }
 }
 
-function addConstructionObjects(
+export function addConstructionObjects(
   context: ToolContext,
   description: string,
   createObjects: (objects: GeometryObjectRecord) => {
@@ -161,192 +156,8 @@ function addConstructionObjects(
   context.commitHistoryTransaction();
 }
 
-export const perpendicularBisectorTool = new PointSequenceConstructionTool({
-  description: "Create perpendicular bisector",
-  id: "perpendicular-bisector",
-  name: "Perpendicular Bisector",
-  pointCount: 2,
-  shortcut: "B",
-  onComplete: ([pointA, pointB], context) => {
-    if (!pointA || !pointB) {
-      return;
-    }
 
-    addConstructionObjects(context, "Create perpendicular bisector", (objects) => {
-      const middle = midpoint(pointA, pointB);
-      const direction = recomputeConstructedPoint(
-        {
-          pointAId: pointA.id,
-          pointBId: pointB.id,
-          type: "perpendicular-bisector-point",
-        },
-        objects,
-      );
 
-      if (!direction) {
-        return null;
-      }
-
-      const midpointPoint = createNamedDerivedPoint(
-        middle,
-        objects,
-        {
-          pointAId: pointA.id,
-          pointBId: pointB.id,
-          type: "midpoint",
-        },
-        { namePrefix: hiddenName("M"), visible: false },
-      );
-      const nextObjects = withObject(objects, midpointPoint);
-      const directionPoint = createNamedDerivedPoint(
-        direction,
-        nextObjects,
-        {
-          pointAId: pointA.id,
-          pointBId: pointB.id,
-          type: "perpendicular-bisector-point",
-        },
-        { namePrefix: hiddenName("PB"), visible: false },
-      );
-      const line = createConstructionLine(
-        midpointPoint,
-        directionPoint,
-        "Perpendicular Bisector",
-        {
-          lineKind: "perpendicular-bisector",
-          sourceSegmentAId: pointA.id,
-          sourceSegmentBId: pointB.id,
-        }
-      );
-
-      return {
-        objects: [midpointPoint, directionPoint, line],
-        selectableId: line.id,
-      };
-    });
-  },
-});
-
-export const angleBisectorTool = new PointSequenceConstructionTool({
-  description: "Create angle bisector",
-  id: "angle-bisector",
-  name: "Angle Bisector",
-  pointCount: 3,
-  shortcut: "J",
-  onComplete: ([pointA, vertex, pointC], context) => {
-    if (!pointA || !vertex || !pointC) {
-      return;
-    }
-
-    addConstructionObjects(context, "Create angle bisector", (objects) => {
-      const direction = angleBisectorDirectionPoint(pointA, vertex, pointC);
-
-      if (!direction) {
-        return null;
-      }
-
-      const directionPoint = createNamedDerivedPoint(
-        direction,
-        objects,
-        {
-          pointAId: pointA.id,
-          pointCId: pointC.id,
-          type: "angle-bisector-point",
-          vertexPointId: vertex.id,
-        },
-        { namePrefix: hiddenName("AB"), visible: false },
-      );
-
-      if (hasLineWithEndpoints(vertex.id, directionPoint.id, objects)) {
-        return null;
-      }
-
-      const line = createConstructionLine(vertex, directionPoint, "Angle Bisector", {
-        lineKind: "angle-bisector",
-        vertexPointId: vertex.id,
-        anglePointAId: pointA.id,
-        anglePointBId: pointC.id,
-      });
-
-      return {
-        objects: [directionPoint, line],
-        selectableId: line.id,
-      };
-    });
-  },
-});
-
-export const medianTool = new PointSequenceConstructionTool({
-  description: "Create median",
-  id: "median",
-  name: "Median",
-  pointCount: 3,
-  shortcut: "D",
-  onComplete: ([vertex, sideA, sideB], context) => {
-    if (!vertex || !sideA || !sideB) {
-      return;
-    }
-
-    addConstructionObjects(context, "Create median", (objects) => {
-      const middle = midpoint(sideA, sideB);
-      const midpointPoint = createNamedDerivedPoint(
-        middle,
-        objects,
-        {
-          pointAId: sideA.id,
-          pointBId: sideB.id,
-          type: "midpoint",
-        },
-        { namePrefix: hiddenName("MED"), visible: false },
-      );
-      const line = createConstructionLine(vertex, midpointPoint, "Median");
-
-      return {
-        objects: [midpointPoint, line],
-        selectableId: line.id,
-      };
-    });
-  },
-});
-
-export const altitudeTool = new PointSequenceConstructionTool({
-  description: "Create altitude",
-  id: "altitude",
-  name: "Altitude",
-  pointCount: 3,
-  shortcut: "H",
-  onComplete: ([vertex, sideA, sideB], context) => {
-    if (!vertex || !sideA || !sideB) {
-      return;
-    }
-
-    addConstructionObjects(context, "Create altitude", (objects) => {
-      const foot = projectPointToLine(vertex, sideA, sideB);
-
-      if (!foot) {
-        return null;
-      }
-
-      const footPoint = createNamedDerivedPoint(
-        foot,
-        objects,
-        {
-          linePointAId: sideA.id,
-          linePointBId: sideB.id,
-          pointId: vertex.id,
-          type: "projection-point",
-        },
-        { namePrefix: hiddenName("ALT"), visible: false },
-      );
-      const line = createConstructionLine(vertex, footPoint, "Altitude");
-
-      return {
-        objects: [footPoint, line],
-        selectableId: line.id,
-      };
-    });
-  },
-});
 
 export const circumcircleTool = new PointSequenceConstructionTool({
   description: "Create circumcircle",

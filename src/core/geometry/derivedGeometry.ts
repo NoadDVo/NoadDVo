@@ -8,6 +8,7 @@ import type {
   LineObject,
   ArcObject,
   CircleObject,
+  EllipticalArcObject,
   GeometryObjectRecord,
   Point2D,
   PointObject,
@@ -26,6 +27,18 @@ export type ArcGeometry = {
   readonly endAngleDegrees: number;
   readonly startPoint: Point2D;
   readonly endPoint: Point2D;
+};
+
+export type EllipticalArcGeometry = {
+  readonly center: Point2D;
+  readonly rx: number;
+  readonly ry: number;
+  readonly startAngleDegrees: number;
+  readonly endAngleDegrees: number;
+  readonly startPoint: Point2D;
+  readonly endPoint: Point2D;
+  readonly phi: number;
+  readonly thetaEnd: number;
 };
 
 export function getPointObject(
@@ -137,17 +150,73 @@ export function getArcGeometry(
 
   const radius = distance(center, startPoint);
 
-  if (radius <= EPSILON || Math.abs(distance(center, endPoint) - radius) > EPSILON * 1000) {
+  if (radius <= EPSILON) {
     return null;
   }
+  
+  const endAngle = angleDegrees(center, endPoint);
+  const endAngleRad = (endAngle * Math.PI) / 180;
+  const projectedEndPoint = {
+    x: center.x + radius * Math.cos(endAngleRad),
+    y: center.y + radius * Math.sin(endAngleRad),
+  };
 
   return {
     center,
-    endAngleDegrees: angleDegrees(center, endPoint),
-    endPoint,
+    endAngleDegrees: endAngle,
+    endPoint: projectedEndPoint,
     radius,
     startAngleDegrees: angleDegrees(center, startPoint),
     startPoint,
+  };
+}
+
+export function getEllipticalArcGeometry(
+  object: EllipticalArcObject,
+  objects: GeometryObjectRecord,
+): EllipticalArcGeometry | null {
+  const center = getPointObject(objects, object.centerPointId);
+  const startPointObj = getPointObject(objects, object.startPointId);
+  const endPointObj = getPointObject(objects, object.endPointId);
+
+  if (!center || !startPointObj || !endPointObj) {
+    return null;
+  }
+
+  const rx = distance(center, startPointObj);
+  const ry = object.ry;
+
+  if (rx <= EPSILON || ry <= EPSILON) {
+    return null;
+  }
+
+  const phi = Math.atan2(startPointObj.y - center.y, startPointObj.x - center.x);
+  const absB = Math.atan2(endPointObj.y - center.y, endPointObj.x - center.x);
+  
+  let theta_end = absB - phi;
+  if (theta_end < 0) theta_end += 2 * Math.PI;
+  if (theta_end === 0) theta_end = 2 * Math.PI;
+
+  const startPoint = {
+    x: center.x + rx * Math.cos(phi),
+    y: center.y + rx * Math.sin(phi),
+  };
+
+  const endPoint = {
+    x: center.x + rx * Math.cos(theta_end) * Math.cos(phi) - ry * Math.sin(theta_end) * Math.sin(phi),
+    y: center.y + rx * Math.cos(theta_end) * Math.sin(phi) + ry * Math.sin(theta_end) * Math.cos(phi),
+  };
+
+  return {
+    center,
+    rx,
+    ry,
+    startAngleDegrees: (phi * 180) / Math.PI,
+    endAngleDegrees: (absB * 180) / Math.PI,
+    startPoint,
+    endPoint,
+    phi,
+    thetaEnd: theta_end,
   };
 }
 
@@ -270,6 +339,11 @@ export function getBoundedLineEndpoints(
         { x: pointA.x + dirX * minLength, y: pointA.y + dirY * minLength },
       ];
     }
+  }
+
+  // 3.5 Exact bounds for multi-step tools
+  if (line.lineKind === "angle-bisector-4step" || line.lineKind === "perpendicular-bisector-3step" || line.specialLineKind === "altitude" || line.specialLineKind === "median") {
+    return [pointA, pointB];
   }
 
   // 4. Default: extend by 20% past A and B

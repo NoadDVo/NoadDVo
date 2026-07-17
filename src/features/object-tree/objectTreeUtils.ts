@@ -111,7 +111,11 @@ export function createObjectTreeSections(
   query: string,
 ): readonly ObjectTreeSection[] {
   const orderedObjects = Object.values(objects)
-    .filter((object) => matchesFilter(object, filter))
+    .filter((object) => {
+      // Always hide internal/ghost derived points (visible === false) unless user explicitly browsing hidden items
+      if (filter !== "hidden" && object.visible === false) return false;
+      return matchesFilter(object, filter);
+    })
     .filter((object) => matchesSearch(object, query))
     .sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
 

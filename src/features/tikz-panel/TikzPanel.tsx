@@ -251,9 +251,9 @@ export function TikzPanel() {
             </code>
           </pre>
         )}
-        <footer className="flex items-center justify-between border-t border-arctic-border/8 px-4 font-mono text-[11px] text-arctic-muted">
-          <span>Lines {lineCount} / Chars {displayedCode.length}</span>
-          <span className="inline-flex items-center gap-2 text-arctic-ice">
+        <footer className={clsx("flex items-center justify-between border-t px-4 font-mono text-[11px]", appTheme === "theme2" ? "border-zinc-800 text-zinc-500" : "border-arctic-border/8 text-arctic-muted")}>
+          <span className={clsx(appTheme === "theme2" ? "text-zinc-400" : "")}>Lines {lineCount} / Chars {displayedCode.length}</span>
+          <span className={clsx("inline-flex items-center gap-2", appTheme === "theme2" ? "text-zinc-300" : "text-arctic-ice")}>
             <Check size={14} strokeWidth={2} />
             {getTikzPanelStatusText({
               autoUpdate,

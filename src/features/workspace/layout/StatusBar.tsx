@@ -1,6 +1,7 @@
 import { useGeometryStore } from "../../../app/store/geometryStore";
 import { useUiStore } from "../../../app/store/uiStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
+import clsx from "clsx";
 
 function formatCoordinate(value: number): string {
   const rounded = Number(value.toFixed(3));
@@ -39,14 +40,25 @@ export function StatusBar() {
     ["TikZ", "Ready"],
   ] as const;
 
+  const appTheme = useUiStore((state) => state.appTheme);
+
   return (
-    <footer className="flex h-7 shrink-0 items-center gap-4 border-t border-arctic-border/8 bg-arctic-background/82 px-4 font-mono text-[11px] text-arctic-muted backdrop-blur-panel">
+    <footer className={clsx(
+      "flex h-7 shrink-0 items-center gap-4 border-t px-4 font-mono text-[11px] backdrop-blur-panel",
+      appTheme === "theme1" ? "border-black/10 bg-[#F4EFE6] text-black" : "",
+      appTheme === "theme2" ? "border-zinc-800 bg-[#0D0E12] text-zinc-400" : ""
+    )}>
       {statusItems.map(([label, value]) => (
         <div className="flex items-center gap-1.5" key={label}>
-          <span className="uppercase tracking-[0.12em] text-arctic-muted/70">
+          <span className={clsx(
+            "uppercase tracking-[0.12em]",
+            appTheme === "theme1" ? "text-black/60" : "text-zinc-500"
+          )}>
             {label}
           </span>
-          <span className="text-arctic-text/90">{value}</span>
+          <span className={clsx(
+            appTheme === "theme1" ? "text-black" : "text-zinc-300"
+          )}>{value}</span>
         </div>
       ))}
     </footer>

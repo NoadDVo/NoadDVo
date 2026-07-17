@@ -10,6 +10,7 @@ import type { Viewport } from "../geometry/viewport";
 import { AngleRenderer } from "./AngleRenderer";
 import { ArcRenderer } from "./ArcRenderer";
 import { CircleRenderer } from "./CircleRenderer";
+import { EllipticalArcRenderer } from "./EllipticalArcRenderer";
 import { ImageRenderer } from "./ImageRenderer";
 import { LineRenderer } from "./LineRenderer";
 import { PointRenderer } from "./PointRenderer";
@@ -75,6 +76,7 @@ export const geometryRendererRegistry = new RendererRegistry();
   VectorRenderer,
   CircleRenderer,
   ArcRenderer,
+  EllipticalArcRenderer,
   PolygonRenderer,
   AngleRenderer,
   TextRenderer,

@@ -1,14 +1,15 @@
 import type { GeometryToolId } from "../geometry";
 import {
-  altitudeTool,
-  angleBisectorTool,
   circumcircleTool,
   incircleTool,
-  medianTool,
-  perpendicularBisectorTool,
 } from "./AdvancedConstructionTools";
+import { altitudeTool, medianTool } from "./SpecialLineTool";
+import { angleBisectorTool } from "./AngleBisectorTool";
+import { perpendicularBisectorTool } from "./PerpendicularBisectorTool";
 import { angleTool } from "./AngleTool";
 import { circleTool } from "./CircleTool";
+import { arcTool } from "./ArcTool";
+import { ellipticalArcTool } from "./EllipticalArcTool";
 import { fillTool } from "./FillTool";
 import { distanceTool } from "./DistanceTool";
 import { areaTool } from "./AreaTool";
@@ -16,6 +17,7 @@ import { intersectionTool } from "./IntersectionTool";
 import { lineTool } from "./LineTool";
 import { midpointTool } from "./MidpointTool";
 import { moveTool } from "./MoveTool";
+import { panTool } from "./PanTool";
 import { parallelLineTool } from "./ParallelLineTool";
 import { perpendicularLineTool } from "./PerpendicularLineTool";
 import { pointTool } from "./PointTool";
@@ -45,12 +47,15 @@ import {
 const defaultTools = [
   selectTool,
   moveTool,
+  panTool,
   pointTool,
   segmentTool,
   lineTool,
   rayTool,
   vectorTool,
   circleTool,
+  arcTool,
+  ellipticalArcTool,
   polygonTool,
   angleTool,
   textTool,

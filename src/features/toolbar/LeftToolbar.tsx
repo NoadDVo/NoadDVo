@@ -19,6 +19,7 @@ import {
   Minus,
   MousePointer2,
   Move,
+  Hand,
   MoveDiagonal,
   MoveRight,
   Orbit,
@@ -34,7 +35,8 @@ import {
   Type,
   Wifi,
   Slash,
-  Gauge
+  Gauge,
+  Radius
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -65,6 +67,7 @@ export const toolGroups = [
     icon: MousePointer2,
     items: [
       { id: "select", label: "Select", icon: MousePointer2 },
+      { id: "pan", label: "Pan", icon: Hand },
       { id: "move", label: "Move", icon: Move },
     ],
   },
@@ -100,6 +103,8 @@ export const toolGroups = [
     items: [
       { id: "polygon", label: "Polygon", icon: Pentagon },
       { id: "circle", label: "Circle", icon: Circle },
+      { id: "three-point-arc", label: "Arc", icon: Radius },
+      { id: "elliptical-arc", label: "Elliptical Arc", icon: Radius },
       { id: "circumcircle", label: "Circumcircle", icon: CircleDashed },
       { id: "incircle", label: "Incircle", icon: CircleDot },
     ],
@@ -168,7 +173,7 @@ export function LeftToolbar() {
     <aside
       ref={toolbarRef}
       className={clsx(
-        "fixed left-5 top-[76px] pointer-events-auto inline-flex flex-col w-[52px] z-50 items-center py-3",
+        "absolute left-4 top-4 pointer-events-auto inline-flex flex-col w-[52px] z-10 items-center py-3",
         appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] shadow-brutal" : "",
         appTheme === "theme2" ? "rounded-xl border border-zinc-800/60 bg-[#18191E]/90 backdrop-blur-md shadow-2xl" : ""
       )}

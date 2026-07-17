@@ -23,10 +23,16 @@ export const ArcExporter: TikzObjectExporter<ArcObject> = {
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
     const style = styleToTikzParts(object.style, context.options, colorFor);
     const startAngle = geometry.startAngleDegrees;
-    const endAngle =
-      object.direction === "counterclockwise"
-        ? geometry.endAngleDegrees
-        : geometry.endAngleDegrees - 360;
+    let endAngle = geometry.endAngleDegrees;
+    if (object.direction === "counterclockwise") {
+      if (endAngle < startAngle) {
+        endAngle += 360;
+      }
+    } else {
+      if (endAngle > startAngle) {
+        endAngle -= 360;
+      }
+    }
 
     context.scene.sections.shapes.push(
       `\\draw${formatStyleOptions(style)} (${formatNumber(geometry.startPoint.x, context.options.coordinatePrecision)},${formatNumber(geometry.startPoint.y, context.options.coordinatePrecision)}) arc[start angle=${formatNumber(startAngle, context.options.coordinatePrecision)}, end angle=${formatNumber(endAngle, context.options.coordinatePrecision)}, radius=${formatNumber(geometry.radius, context.options.coordinatePrecision)}];`,

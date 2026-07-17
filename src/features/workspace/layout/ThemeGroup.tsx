@@ -6,6 +6,10 @@ import { Button } from "../../../ui/primitives";
 export function ThemeGroup() {
   const appTheme = useUiStore((state) => state.appTheme);
   const setAppTheme = useUiStore((state) => state.setAppTheme);
+  const activeTopBarMenu = useUiStore((state) => state.activeTopBarMenu);
+  const openDialog = useUiStore((state) => state.openDialog);
+
+  const isDisabled = activeTopBarMenu !== null || openDialog !== null;
 
   const handleToggle = () => {
     setAppTheme(appTheme === "theme1" ? "theme2" : "theme1");
@@ -17,7 +21,8 @@ export function ThemeGroup() {
       onClick={handleToggle}
       size="sm"
       title={appTheme === "theme1" ? "Switch to Tactical Dark" : "Switch to Neo-Brutalism"}
-      variant="secondary"
+      variant="topbar"
+      disabled={isDisabled}
     >
       Theme
     </Button>

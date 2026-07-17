@@ -2,6 +2,7 @@ import type { GeometryObject, GeometryObjectRecord } from "../geometry";
 import { AngleExporter } from "./exporters/AngleExporter";
 import { ArcExporter } from "./exporters/ArcExporter";
 import { CircleExporter } from "./exporters/CircleExporter";
+import { EllipticalArcExporter } from "./exporters/EllipticalArcExporter";
 import { DistanceExporter } from "./exporters/DistanceExporter";
 import { AreaExporter } from "./exporters/AreaExporter";
 import { LineExporter } from "./exporters/LineExporter";
@@ -44,6 +45,11 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
   circle: (object, context) => {
     if (object.type === "circle") {
       CircleExporter.exportObject(object, context);
+    }
+  },
+  "elliptical-arc": (object, context) => {
+    if (object.type === "elliptical-arc") {
+      EllipticalArcExporter.exportObject(object, context);
     }
   },
   line: (object, context) => {

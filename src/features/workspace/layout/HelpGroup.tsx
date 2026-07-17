@@ -1,14 +1,25 @@
 import { CircleHelp } from "lucide-react";
 
 import { useUiStore } from "../../../app/store/uiStore";
-import { IconButton } from "../../../ui/primitives";
+import { Button } from "../../../ui/primitives";
 
 export function HelpGroup() {
   const setOpenDialog = useUiStore((state) => state.setOpenDialog);
+  const openDialog = useUiStore((state) => state.openDialog);
+  const activeTopBarMenu = useUiStore((state) => state.activeTopBarMenu);
+
+  const isDisabled = activeTopBarMenu !== null || (openDialog !== null && openDialog !== "help");
 
   return (
-    <IconButton label="Help" onClick={() => setOpenDialog("help")}>
-      <CircleHelp size={18} strokeWidth={2} />
-    </IconButton>
+    <Button
+      icon={<CircleHelp size={16} strokeWidth={2} />}
+      onClick={() => setOpenDialog("help")}
+      size="sm"
+      variant="topbar"
+      active={openDialog === "help"}
+      disabled={isDisabled}
+    >
+      Help
+    </Button>
   );
 }

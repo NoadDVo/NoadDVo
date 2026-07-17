@@ -440,7 +440,8 @@ export function recomputeConstructedPoint(
       : null;
   }
 
-  const point = getPoint(objects, construction.pointId);
+  const pointId = "pointId" in construction ? construction.pointId : undefined;
+  const point = pointId ? getPoint(objects, pointId) : null;
   const lineId = "lineId" in construction ? construction.lineId : undefined;
   const line = lineId ? objects[lineId] : undefined;
 
@@ -561,6 +562,136 @@ export function recomputeConstructedPoint(
       x: center.x + factor * (point.x - center.x),
       y: center.y + factor * (point.y - center.y),
     };
+  }
+
+  if (construction.type === "special-line-projection") {
+    const vertex = getPoint(objects, construction.vertexId);
+    const segment = objects[construction.segmentId];
+    if (!vertex || segment?.type !== "segment") return null;
+    
+    const b = getPoint(objects, segment.startPointId);
+    const c = getPoint(objects, segment.endPointId);
+    if (!b || !c) return null;
+    
+    const u = vectorFromPoints(b, c);
+    const v = vectorFromPoints(b, vertex);
+    const uLenSq = u.x * u.x + u.y * u.y;
+    
+    if (uLenSq <= EPSILON) return null;
+    
+    const scalar = dot(v, u) / uLenSq;
+    return {
+      x: b.x + scalar * u.x,
+      y: b.y + scalar * u.y,
+    };
+  }
+
+  if (construction.type === "special-line-midpoint") {
+    const segment = objects[construction.segmentId];
+    if (segment?.type !== "segment") return null;
+    
+    const b = getPoint(objects, segment.startPointId);
+    const c = getPoint(objects, segment.endPointId);
+    if (!b || !c) return null;
+    
+    return midpoint(b, c);
+  }
+
+  if (construction.type === "special-line-bisector") {
+    const vertex = getPoint(objects, construction.vertexId);
+    const segment = objects[construction.segmentId];
+    if (!vertex || segment?.type !== "segment") return null;
+    
+    const b = getPoint(objects, segment.startPointId);
+    const c = getPoint(objects, segment.endPointId);
+    if (!b || !c) return null;
+    
+    const dAB = distance(vertex, b);
+    const dAC = distance(vertex, c);
+    const sum = dAB + dAC;
+    
+    if (sum <= EPSILON) return null;
+    
+    return {
+      x: (dAC * b.x + dAB * c.x) / sum,
+      y: (dAC * b.y + dAB * c.y) / sum,
+    };
+  }
+
+  if (construction.type === "angle-bisector-endpoint") {
+    const a = getPoint(objects, construction.pointAId);
+    const b = getPoint(objects, construction.pointBId);
+    const c = getPoint(objects, construction.pointCId);
+    const limitObj = objects[construction.limitObjectId];
+    if (!a || !b || !c || !limitObj) return null;
+
+    const u = normalize(vectorFromPoints(b, a));
+    const v = normalize(vectorFromPoints(b, c));
+    let w = normalize({ x: u.x + v.x, y: u.y + v.y });
+    // if a, b, c are collinear, w could be 0,0, fallback to normal of u
+    if (Math.abs(w.x) < EPSILON && Math.abs(w.y) < EPSILON) {
+      w = { x: -u.y, y: u.x };
+    }
+
+    if (limitObj.type === "point") {
+      const dist = distance(b, limitObj as PointObject);
+      return { x: b.x + w.x * dist, y: b.y + w.y * dist };
+    } else if (limitObj.type === "segment") {
+      const e1 = getPoint(objects, limitObj.startPointId);
+      const e2 = getPoint(objects, limitObj.endPointId);
+      if (e1 && e2) {
+        const intersection = lineLineIntersection(b, { x: b.x + w.x, y: b.y + w.y }, e1, e2);
+        if (intersection) {
+          return intersection.point;
+        }
+        // Fallback: parallel
+        const mid = midpoint(e1, e2);
+        const dist = distance(b, mid);
+        return { x: b.x + w.x * dist, y: b.y + w.y * dist };
+      }
+    }
+    return null;
+  }
+
+  if (construction.type === "perpendicular-bisector-endpoint") {
+    const a = getPoint(objects, construction.pointAId);
+    const b = getPoint(objects, construction.pointBId);
+    const limitObj = objects[construction.limitObjectId];
+    if (!a || !b || !limitObj) return null;
+
+    const m = midpoint(a, b);
+    const dir = vectorFromPoints(m, b);
+    let perp = normalize({ x: -dir.y, y: dir.x });
+    
+    if (limitObj.type === "point") {
+      // Legacy fallback: project onto bisector ray
+      const toP = vectorFromPoints(m, limitObj as PointObject);
+      const projDist = dot(perp, toP);
+      if (projDist < 0) perp = { x: -perp.x, y: -perp.y };
+      return { x: m.x + perp.x * Math.abs(projDist), y: m.y + perp.y * Math.abs(projDist) };
+    }
+
+    // Segment / Line / Ray: compute intersection with infinite line through endpoints
+    let e1: PointObject | null = null;
+    let e2: PointObject | null = null;
+    if (limitObj.type === "segment") {
+      e1 = getPoint(objects, (limitObj as any).startPointId);
+      e2 = getPoint(objects, (limitObj as any).endPointId);
+    } else if (limitObj.type === "line" || limitObj.type === "ray") {
+      e1 = getPoint(objects, (limitObj as any).pointAId);
+      e2 = getPoint(objects, (limitObj as any).pointBId ?? (limitObj as any).throughPointId);
+    }
+
+    if (e1 && e2) {
+      const toMidE = vectorFromPoints(m, midpoint(e1, e2));
+      if (dot(perp, toMidE) < 0) perp = { x: -perp.x, y: -perp.y };
+      const intersection = lineLineIntersection(m, { x: m.x + perp.x, y: m.y + perp.y }, e1, e2);
+      if (intersection) return intersection.point;
+      // Parallel fallback
+      const dist = distance(m, midpoint(e1, e2));
+      return { x: m.x + perp.x * dist, y: m.y + perp.y * dist };
+    }
+    return null;
   }
 
   return pointsAlmostEqual(point, candidate) ? null : candidate;

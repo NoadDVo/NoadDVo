@@ -10,6 +10,7 @@ import {
   distance,
   getArcGeometry,
   getCircleGeometry,
+  getEllipticalArcGeometry,
   getPointObject,
   getPolygonPoints,
   regionContainsPoint,
@@ -264,7 +265,8 @@ export function hitTest(
     const pointerAngle = normalizedAngleDegrees(geometry.center, worldPoint);
 
     if (
-      Math.abs(distancePx - radiusPx) <= tolerancePx &&
+      (Math.abs(distancePx - radiusPx) <= tolerancePx ||
+        (object.style.fill !== "transparent" && distancePx <= radiusPx)) &&
       isAngleOnArc(
         pointerAngle,
         geometry.startAngleDegrees,
@@ -273,6 +275,41 @@ export function hitTest(
       )
     ) {
       return { object, objectId: object.id, type: "arc" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "elliptical-arc")) {
+    const geometry = getEllipticalArcGeometry(object, objects);
+
+    if (!geometry) {
+      continue;
+    }
+
+    const center = worldToScreen(geometry.center, viewport);
+    const rxPx = geometry.rx * viewport.scale;
+    const ryPx = geometry.ry * viewport.scale;
+
+    if (rxPx === 0 || ryPx === 0) continue;
+
+    const dx = (screenPoint.x - center.x) / rxPx;
+    const dy = (screenPoint.y - center.y) / ryPx;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    // Approximate distance to boundary in pixels
+    const distanceToBoundaryPx = Math.abs(dist - 1) * Math.max(rxPx, ryPx);
+    const pointerAngle = normalizedAngleDegrees(geometry.center, worldPoint);
+
+    if (
+      (distanceToBoundaryPx <= tolerancePx ||
+        (object.style.fill !== "transparent" && dist <= 1)) &&
+      isAngleOnArc(
+        pointerAngle,
+        geometry.startAngleDegrees,
+        geometry.endAngleDegrees,
+        object.direction,
+      )
+    ) {
+      return { object, objectId: object.id, type: "elliptical-arc" };
     }
   }
 

@@ -23,6 +23,7 @@ export type GeometryState = {
   readonly selectedObjectIds: readonly string[];
   readonly hoveredObjectId: string | null;
   readonly activeTool: GeometryToolId;
+  readonly activeSnappedPointId: string | null;
   readonly lastError: GeometryError | null;
   readonly canUndo: boolean;
   readonly canRedo: boolean;

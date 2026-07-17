@@ -1,9 +1,9 @@
-import type { ArcObject } from "../geometry";
-import { getArcGeometry } from "../geometry";
+import type { EllipticalArcObject } from "../geometry";
+import { getEllipticalArcGeometry } from "../geometry";
 import { worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer } from "./RendererRegistry";
 
-function getDashArray(dash: ArcObject["style"]["dash"]): string | undefined {
+function getDashArray(dash: EllipticalArcObject["style"]["dash"]): string | undefined {
   if (dash === "dashed") {
     return "10 8";
   }
@@ -15,10 +15,10 @@ function getDashArray(dash: ArcObject["style"]["dash"]): string | undefined {
   return undefined;
 }
 
-export const ArcRenderer: GeometryRenderer<ArcObject> = {
-  objectType: "arc",
+export const EllipticalArcRenderer: GeometryRenderer<EllipticalArcObject> = {
+  objectType: "elliptical-arc",
   render: (object, context) => {
-    const geometry = getArcGeometry(object, context.objects);
+    const geometry = getEllipticalArcGeometry(object, context.objects);
 
     if (!geometry) {
       return null;
@@ -26,14 +26,12 @@ export const ArcRenderer: GeometryRenderer<ArcObject> = {
 
     const start = worldToScreen(geometry.startPoint, context.viewport);
     const end = worldToScreen(geometry.endPoint, context.viewport);
-    const radius = geometry.radius * context.viewport.scale;
-    const delta =
-      object.direction === "counterclockwise"
-        ? (geometry.endAngleDegrees - geometry.startAngleDegrees + 360) % 360
-        : (geometry.startAngleDegrees - geometry.endAngleDegrees + 360) % 360;
-    const largeArcFlag = delta > 180 ? 1 : 0;
-    const sweepFlag = object.direction === "counterclockwise" ? 0 : 1;
-    const path = `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
+    const rx = geometry.rx * context.viewport.scale;
+    const ry = geometry.ry * context.viewport.scale;
+    const phiDegrees = -(geometry.phi * 180) / Math.PI;
+    const largeArcFlag = geometry.thetaEnd > Math.PI ? 1 : 0;
+    const sweepFlag = 0; // 0 is CCW in SVG because Y axis is flipped
+    const path = `M ${start.x} ${start.y} A ${rx} ${ry} ${phiDegrees} ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
 

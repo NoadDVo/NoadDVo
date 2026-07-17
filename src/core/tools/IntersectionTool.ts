@@ -16,20 +16,21 @@ function supportsIntersection(
   second: GeometryObject,
 ): boolean {
   const linearTypes = ["line", "segment", "ray"];
+  const conicTypes = ["circle", "arc", "ellipse", "elliptical-arc"];
   
   if (linearTypes.includes(first.type) && linearTypes.includes(second.type)) {
     return true;
   }
   
-  if (linearTypes.includes(first.type) && second.type === "circle") {
+  if (linearTypes.includes(first.type) && conicTypes.includes(second.type)) {
     return true;
   }
   
-  if (first.type === "circle" && linearTypes.includes(second.type)) {
+  if (conicTypes.includes(first.type) && linearTypes.includes(second.type)) {
     return true;
   }
   
-  if (first.type === "circle" && second.type === "circle") {
+  if (conicTypes.includes(first.type) && conicTypes.includes(second.type)) {
     return true;
   }
 

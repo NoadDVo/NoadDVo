@@ -6,6 +6,7 @@ import {
   type PointObject,
 } from "../geometry";
 import { BaseTool } from "./BaseTool";
+import { getHitPoint } from "./ConstructionToolUtils";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 let pointIdCounter = 0;
@@ -128,6 +129,10 @@ export class PointTool extends BaseTool {
       this.transitionState("completed", "complete");
       this.transitionState("waitingInput", "await-input");
     }
+  }
+
+  pointerMove(event: ToolPointerEvent, context: ToolContext): void {
+    context.setHoveredObject(getHitPoint(event, context)?.id ?? null);
   }
 
   cancel(context: ToolContext): void {
