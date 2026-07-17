@@ -7,13 +7,16 @@ import {
   type PointObject,
   type RayObject,
   type SegmentObject,
+  type ArcObject,
+  type EllipseObject,
+  type EllipticalArcObject,
 } from "../geometry";
 import { hitTest } from "../selection/HitTest";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
 let constructionIdCounter = 0;
 
-export type IntersectionSource = LineObject | SegmentObject | RayObject | CircleObject;
+export type IntersectionSource = LineObject | SegmentObject | RayObject | CircleObject | ArcObject | EllipseObject | EllipticalArcObject;
 
 export function getHitObject(
   event: ToolPointerEvent,
@@ -53,7 +56,10 @@ export function getHitIntersectionSource(
     object?.type === "line" ||
     object?.type === "segment" ||
     object?.type === "ray" ||
-    object?.type === "circle"
+    object?.type === "circle" ||
+    object?.type === "arc" ||
+    object?.type === "ellipse" ||
+    object?.type === "elliptical-arc"
   ) {
     return object as IntersectionSource;
   }
