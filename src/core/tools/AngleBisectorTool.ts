@@ -60,7 +60,7 @@ export class AngleBisectorTool extends BaseTool {
           initialCoord, 
           objects,
           constructionDef,
-          { visible: true }
+          { visible: false }
         );
         
         const now = Date.now();

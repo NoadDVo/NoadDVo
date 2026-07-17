@@ -60,7 +60,7 @@ export class PerpendicularBisectorTool extends BaseTool {
             pointAId: a.id,
             pointBId: b.id,
           },
-          { visible: true }
+          { visible: false }
         );
 
         const nextObjects = { ...objects, [midpointPoint.id]: midpointPoint };
@@ -70,7 +70,7 @@ export class PerpendicularBisectorTool extends BaseTool {
           initialCoord,
           nextObjects,
           constructionDef,
-          { visible: true }
+          { visible: false }
         );
         
         const now = Date.now();

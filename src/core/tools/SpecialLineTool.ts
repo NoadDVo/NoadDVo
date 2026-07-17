@@ -62,27 +62,24 @@ export class SpecialLineTool extends BaseTool {
             vertexId: vertex.id,
             segmentId: segment.id,
           };
-          prefix = "ALT";
         } else if (this.options.kind === "median") {
           constructionDef = {
             type: "special-line-midpoint",
             segmentId: segment.id,
           };
-          prefix = "MED";
         } else {
           constructionDef = {
             type: "special-line-bisector",
             vertexId: vertex.id,
             segmentId: segment.id,
           };
-          prefix = "BIS";
         }
 
         const dependentPoint = createNamedDerivedPoint(
           { x: 0, y: 0 }, 
           objects,
           constructionDef,
-          { visible: true }
+          { visible: false }
         );
         
         const now = Date.now();
