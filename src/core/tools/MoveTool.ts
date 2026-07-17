@@ -1,5 +1,6 @@
 import type { ImageObject, Point2D, PointObject, SliderObject } from "../geometry";
 import { hitTest } from "../selection/HitTest";
+import { getClosestPointOnObject } from "../selection/closestPoint";
 import { BaseTool } from "./BaseTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 
@@ -141,11 +142,26 @@ export class MoveTool extends BaseTool {
           return currentObject;
         }
 
+        let newX = movingPoint.start.x + delta.x;
+        let newY = movingPoint.start.y + delta.y;
+
+        if (currentObject.construction?.type === "point-on-object") {
+          const objectId = currentObject.construction.objectId;
+          const object = context.objects[objectId];
+          if (object) {
+            const closest = getClosestPointOnObject(object, { x: newX, y: newY }, context.objects);
+            if (closest) {
+              newX = closest.x;
+              newY = closest.y;
+            }
+          }
+        }
+
         return {
           ...currentObject,
           updatedAt: Date.now(),
-          x: movingPoint.start.x + delta.x,
-          y: movingPoint.start.y + delta.y,
+          x: newX,
+          y: newY,
         };
       });
     }
@@ -196,7 +212,7 @@ export class MoveTool extends BaseTool {
   }
 
   private canMovePoint(point: PointObject): boolean {
-    return point.visible && !point.locked && point.pointKind === "free";
+    return point.visible && !point.locked && (point.pointKind === "free" || point.construction?.type === "point-on-object");
   }
 
   private canMoveImage(image: ImageObject): boolean {

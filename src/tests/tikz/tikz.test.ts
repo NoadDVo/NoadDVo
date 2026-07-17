@@ -350,7 +350,7 @@ function assertOutputModes(): void {
   assert(!raw.includes("\\begin{tikzpicture}"), "raw output excludes tikzpicture wrapper");
   assertIncludes(raw, "\\coordinate (A) at (0,0);", "raw output includes commands");
   assertIncludes(document, "\\documentclass[tikz,border=5pt]{standalone}", "document output has wrapper");
-  assertIncludes(document, "\\usetikzlibrary{calc,angles,quotes,intersections,arrows.meta}", "document output includes libraries");
+  assertIncludes(document, "\\usetikzlibrary{calc,intersections,arrows.meta}", "document output includes libraries");
   assertIncludes(minimal, "\\begin{tikzpicture}", "minimal mode still exports a snippet");
   assert(!minimal.includes("% Coordinates"), "minimal mode omits comments");
   assert(!minimal.includes("[scale=1]"), "minimal mode omits redundant scale option");

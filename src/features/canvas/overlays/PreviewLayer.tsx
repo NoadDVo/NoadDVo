@@ -6,6 +6,8 @@ import { worldToScreen, type Viewport } from "../../../core/geometry/viewport";
 import type { Point2D } from "../../../core/geometry/types";
 import { useGeometryStore } from "../../../app/store/geometryStore";
 
+import { getClosestPointOnObject } from "../../../core/selection/closestPoint";
+
 type PreviewLayerProps = {
   readonly gridSize: number;
   readonly pointerWorld: Point2D;
@@ -23,6 +25,7 @@ export const PreviewLayer = memo(function PreviewLayer({
 
   const activeSnappedPointId = useGeometryStore((state) => state.activeSnappedPointId);
   const activeSnappedPoint = activeSnappedPointId ? useGeometryStore.getState().objects[activeSnappedPointId] : null;
+  const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
   const [isFlashing, setIsFlashing] = useState(false);
 
   useEffect(() => {
@@ -43,6 +46,39 @@ export const PreviewLayer = memo(function PreviewLayer({
   let activeSnappedScreen = null;
   if (activeSnappedPoint && activeSnappedPoint.type === "point") {
     activeSnappedScreen = worldToScreen(activeSnappedPoint, viewport);
+  }
+
+  let hoveredPointScreen = null;
+  const activeToolId = toolManager.getActiveTool().id;
+  if (
+    hoveredObjectId &&
+    !activeSnappedPointId &&
+    activeToolId !== "move" &&
+    activeToolId !== "select"
+  ) {
+    const hoveredObject = useGeometryStore.getState().objects[hoveredObjectId];
+    if (
+      hoveredObject &&
+      hoveredObject.type !== "point" &&
+      hoveredObject.type !== "image" &&
+      hoveredObject.type !== "slider" &&
+      hoveredObject.type !== "region" &&
+      hoveredObject.type !== "text"
+    ) {
+      const closest = getClosestPointOnObject(
+        hoveredObject,
+        pointerWorld,
+        useGeometryStore.getState().objects
+      );
+      if (closest) {
+        const screenPos = worldToScreen(closest, viewport);
+        // Only show if it's within tolerance (10px)
+        const dist = Math.hypot(screenPos.x - screen.x, screenPos.y - screen.y);
+        if (dist <= 10) {
+          hoveredPointScreen = screenPos;
+        }
+      }
+    }
   }
 
   return (
@@ -67,6 +103,17 @@ export const PreviewLayer = memo(function PreviewLayer({
             opacity: isFlashing ? 0.8 : 1,
             pointerEvents: "none",
           }}
+        />
+      )}
+      {hoveredPointScreen && (
+        <circle
+          cx={hoveredPointScreen.x}
+          cy={hoveredPointScreen.y}
+          fill="#10B981"
+          r={3.5}
+          stroke="#000000"
+          strokeWidth={1}
+          style={{ pointerEvents: "none" }}
         />
       )}
       {toolPreview}

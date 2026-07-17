@@ -5,6 +5,8 @@ import {
   type PointObject,
 } from "../geometry";
 import { hitTest } from "../selection/HitTest";
+import { getClosestPointOnObject } from "../selection/closestPoint";
+import { getHitObject } from "./ConstructionToolUtils";
 import { createNamedFreePoint } from "./PointTool";
 import { ToolHistorySession } from "./ToolHistorySession";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
@@ -32,7 +34,8 @@ export function resolveTwoPointSnap(
   context: ToolContext,
 ): Point2D {
   const point = getPointFromHit(event, context);
-  context.setHoveredObject(point?.id ?? null);
+  const hitObject = getHitObject(event, context);
+  context.setHoveredObject(hitObject?.id ?? null);
   return point ?? event.snappedWorldPoint;
 }
 
@@ -61,7 +64,35 @@ export function resolveFirstEndpoint(
     return { point: existingPoint };
   }
 
-  const point = createNamedFreePoint(event.snappedWorldPoint, context.objects);
+  const hitObject = getHitObject(event, context);
+  let finalPoint = event.snappedWorldPoint;
+  let pointOnObject = false;
+  let hitObjectId = "";
+
+  if (
+    hitObject &&
+    hitObject.type !== "point" &&
+    hitObject.type !== "image" &&
+    hitObject.type !== "text" &&
+    hitObject.type !== "slider" &&
+    hitObject.type !== "region"
+  ) {
+    const closest = getClosestPointOnObject(hitObject, event.worldPoint, context.objects);
+    if (closest) {
+      finalPoint = closest;
+      pointOnObject = true;
+      hitObjectId = hitObject.id;
+    }
+  }
+
+  const basePoint = createNamedFreePoint(finalPoint, context.objects);
+  const point = pointOnObject ? {
+    ...basePoint,
+    pointKind: "derived" as const,
+    construction: { type: "point-on-object" as const, objectId: hitObjectId },
+    dependencies: [hitObjectId],
+  } : basePoint;
+
   history.ensure(context);
 
   if (!context.addObject(point)) {
@@ -95,7 +126,39 @@ export function resolveFinalEndpoint({
     return null;
   }
 
-  const endpoint = existingPoint ?? createNamedFreePoint(worldPoint, objects);
+  let endpoint = existingPoint;
+  
+  if (!endpoint) {
+    const hitObject = getHitObject(event, context);
+    let finalPoint = worldPoint;
+    let pointOnObject = false;
+    let hitObjectId = "";
+
+    if (
+      hitObject &&
+      hitObject.type !== "point" &&
+      hitObject.type !== "image" &&
+      hitObject.type !== "text" &&
+      hitObject.type !== "slider" &&
+      hitObject.type !== "region"
+    ) {
+      const closest = getClosestPointOnObject(hitObject, event.worldPoint, context.objects);
+      if (closest) {
+        finalPoint = closest;
+        pointOnObject = true;
+        hitObjectId = hitObject.id;
+      }
+    }
+
+    const basePoint = createNamedFreePoint(finalPoint, objects);
+    endpoint = pointOnObject ? {
+      ...basePoint,
+      pointKind: "derived" as const,
+      construction: { type: "point-on-object" as const, objectId: hitObjectId },
+      dependencies: [hitObjectId],
+    } : basePoint;
+  }
+
   history.ensure(context);
 
   if (!existingPoint && !context.addObject(endpoint)) {

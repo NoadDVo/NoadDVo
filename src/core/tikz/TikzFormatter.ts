@@ -177,7 +177,7 @@ function wrapStandaloneDocument(
     "\\documentclass[tikz,border=5pt]{standalone}",
     "\\usepackage{tikz}",
     ...(includeTikzLibraries
-      ? ["\\usetikzlibrary{calc,angles,quotes,intersections,arrows.meta}"]
+      ? ["\\usetikzlibrary{calc,intersections,arrows.meta}"]
       : []),
     "",
     "\\begin{document}",

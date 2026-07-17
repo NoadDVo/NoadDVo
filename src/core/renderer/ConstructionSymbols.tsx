@@ -1,4 +1,5 @@
-import type { LineObject, Point2D, GeometryObjectRecord } from "../geometry";
+import type { GeometryObjectRecord, Point2D, SegmentObject, PointObject } from "../geometry/types";
+import type { LineObject } from "../geometry";
 import { intersectLinearObjects } from "../geometry/constructions/ConstructionAlgorithms";
 import { normalize, vectorFromPoints, midpoint } from "../geometry/math";
 import { worldToScreen, type Viewport } from "../geometry/viewport";

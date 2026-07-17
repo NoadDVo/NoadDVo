@@ -64,6 +64,7 @@ function createAngle(
     pointAId: pointA.id,
     pointCId: pointC.id,
     radius: 0.65,
+    showLabel: true,
     showRightAngleMarker: isRightAngle(pointA, vertex, pointC),
     style: {
       ...DEFAULT_GEOMETRY_STYLE,

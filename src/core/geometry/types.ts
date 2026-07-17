@@ -254,6 +254,10 @@ export type ConstructionDefinition =
       readonly limitObjectId: string;
     }
   | {
+      readonly type: "point-on-object";
+      readonly objectId: string;
+    }
+  | {
       readonly type: "special-line-projection";
       readonly vertexId: string;
       readonly segmentId: string;
@@ -367,6 +371,7 @@ export type AngleObject = BaseGeometryObject & {
   readonly pointCId: string;
   readonly radius: number;
   readonly label?: string;
+  readonly showLabel?: boolean;
   readonly showRightAngleMarker: boolean;
 };
 

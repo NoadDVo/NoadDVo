@@ -1,4 +1,4 @@
-const DEFAULT_TIKZ_LIBRARIES = "calc,angles,quotes,intersections,arrows.meta";
+const DEFAULT_TIKZ_LIBRARIES = "calc,intersections,arrows.meta";
 
 export function wrapTikzInStandaloneDocument(tikzCode: string): string {
   return [

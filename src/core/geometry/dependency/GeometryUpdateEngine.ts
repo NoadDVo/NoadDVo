@@ -5,6 +5,7 @@ import type {
   GeometryObjectRecord,
 } from "../types";
 import { getRegionDependencyIds } from "../regionGeometry";
+import { getClosestPointOnObject } from "../../selection/closestPoint";
 import { recomputeConstructedPoint } from "../constructions";
 import { DependencyGraph } from "./DependencyGraph";
 
@@ -193,6 +194,37 @@ export function propagateGeometryUpdates(
     }
 
     if (dependent.type === "point" && dependent.pointKind === "derived" && dependent.construction) {
+      if (dependent.construction.type === "point-on-object") {
+        const objectId = dependent.construction.objectId;
+        const object = nextObjects[objectId];
+        if (object) {
+          const closest = getClosestPointOnObject(object, dependent, nextObjects);
+          if (closest) {
+            nextObjects = {
+              ...nextObjects,
+              [dependentId]: {
+                ...dependent,
+                x: closest.x,
+                y: closest.y,
+                visible: true,
+                updatedAt,
+              },
+            };
+            continue;
+          }
+        }
+        // If object is missing or closest point fails, mark as invisible
+        nextObjects = {
+          ...nextObjects,
+          [dependentId]: {
+            ...dependent,
+            visible: false,
+            updatedAt,
+          },
+        };
+        continue;
+      }
+
       const nextPoint = recomputeConstructedPoint(dependent.construction, nextObjects);
 
       nextObjects = {
