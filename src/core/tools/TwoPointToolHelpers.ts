@@ -31,7 +31,9 @@ export function resolveTwoPointSnap(
   event: ToolPointerEvent,
   context: ToolContext,
 ): Point2D {
-  return getPointFromHit(event, context) ?? event.snappedWorldPoint;
+  const point = getPointFromHit(event, context);
+  context.setHoveredObject(point?.id ?? null);
+  return point ?? event.snappedWorldPoint;
 }
 
 export function hoverHitObject(event: ToolPointerEvent, context: ToolContext): void {
