@@ -47,18 +47,16 @@ export const AngleExporter: TikzObjectExporter<AngleObject> = {
     }
 
     const startAngleRad = Math.atan2(pointA.y - vertex.y, pointA.x - vertex.x);
-    let startAngle = (startAngleRad * 180) / Math.PI;
-    if (startAngle < 0) startAngle += 360;
-    
     const endAngleRad = Math.atan2(pointC.y - vertex.y, pointC.x - vertex.x);
-    let endAngle = (endAngleRad * 180) / Math.PI;
-    if (endAngle < 0) endAngle += 360;
-
-    if (endAngle < startAngle) {
-      endAngle += 360;
-    }
     
-    const midAngle = startAngle + (endAngle - startAngle) / 2;
+    let deltaRad = endAngleRad - startAngleRad;
+    while (deltaRad <= -Math.PI) deltaRad += Math.PI * 2;
+    while (deltaRad > Math.PI) deltaRad -= Math.PI * 2;
+
+    const startAngle = (startAngleRad * 180) / Math.PI;
+    const endAngle = startAngle + ((deltaRad * 180) / Math.PI);
+    
+    const midAngle = startAngle + ((deltaRad * 180) / Math.PI) / 2;
     const radius = formatNumber(Math.max(0.15, object.radius), 2);
     const sA = formatNumber(startAngle, 2);
     const eA = formatNumber(endAngle, 2);
