@@ -217,21 +217,25 @@ export class EllipticalArcTool extends BaseTool {
 
       if (rx < 1e-5 || ry < 1e-5) return null;
 
-      let startAngle = Math.atan2(dyStart, dxStart);
-      let endAngle = Math.atan2(dyEnd, dxEnd);
+      const phiScreen = Math.atan2(dyStart, dxStart);
+      const absBScreen = Math.atan2(dyEnd, dxEnd);
 
-      let delta = endAngle - startAngle;
-      if (delta < 0) delta += 2 * Math.PI;
+      let theta_end = absBScreen - phiScreen;
+      if (theta_end < 0) theta_end += 2 * Math.PI;
+      if (theta_end === 0) theta_end = 2 * Math.PI;
 
-      const largeArcFlag = delta > Math.PI ? 1 : 0;
-      const sweepFlag = 0; // counter-clockwise in SVG coordinates
+      const largeArcFlag = theta_end > Math.PI ? 1 : 0;
+      const sweepFlag = 0; // CCW in SVG coordinates because Y is flipped
 
-      const startScreenX = centerScreen.x + rx * Math.cos(startAngle);
-      const startScreenY = centerScreen.y + ry * Math.sin(startAngle);
-      const endScreenX = centerScreen.x + rx * Math.cos(endAngle);
-      const endScreenY = centerScreen.y + ry * Math.sin(endAngle);
+      const startScreenX = startScreen.x;
+      const startScreenY = startScreen.y;
+      
+      const endScreenX = centerScreen.x + rx * Math.cos(theta_end) * Math.cos(phiScreen) - ry * Math.sin(theta_end) * Math.sin(phiScreen);
+      const endScreenY = centerScreen.y + rx * Math.cos(theta_end) * Math.sin(phiScreen) + ry * Math.sin(theta_end) * Math.cos(phiScreen);
 
-      const path = `M ${startScreenX} ${startScreenY} A ${rx} ${ry} 0 ${largeArcFlag} ${sweepFlag} ${endScreenX} ${endScreenY}`;
+      const phiDegrees = (phiScreen * 180) / Math.PI;
+
+      const path = `M ${startScreenX} ${startScreenY} A ${rx} ${ry} ${phiDegrees} ${largeArcFlag} ${sweepFlag} ${endScreenX} ${endScreenY}`;
 
       return createElement("path", {
         d: path,
