@@ -2,6 +2,8 @@ import type { EllipticalArcObject } from "../../geometry";
 import { getEllipticalArcGeometry } from "../../geometry";
 import {
   formatNumber,
+  formatStyleOptions,
+  styleToTikzParts,
 } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
@@ -28,8 +30,14 @@ export const EllipticalArcExporter: TikzObjectExporter<EllipticalArcObject> = {
     const phiStr = formatNumber(phiDegrees, context.options.coordinatePrecision);
     const thetaEndStr = formatNumber(thetaEndDegrees, context.options.coordinatePrecision);
 
+    const colorFor = (color: string) => context.colorRegistry.getColorName(color);
+    const styleParts = styleToTikzParts(object.style, context.options, colorFor);
+    const styleOptions = formatStyleOptions(styleParts).replace(/^\[|\]$/g, "");
+
+    const options = styleOptions ? `[${styleOptions}, shift={(${centerX}, ${centerY})}, rotate=${phiStr}]` : `[shift={(${centerX}, ${centerY})}, rotate=${phiStr}]`;
+
     context.scene.sections.shapes.push(
-      `\\draw[line width=0.8pt, draw=black, shift={(${centerX}, ${centerY})}, rotate=${phiStr}] (${rx}, 0) arc [start angle=0, end angle=${thetaEndStr}, x radius=${rx}cm, y radius=${ry}cm];`,
+      `\\draw${options} (${rx}, 0) arc [start angle=0, end angle=${thetaEndStr}, x radius=${rx}cm, y radius=${ry}cm];`,
     );
   },
   objectType: "elliptical-arc",
