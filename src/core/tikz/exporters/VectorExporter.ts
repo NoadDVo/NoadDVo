@@ -37,6 +37,10 @@ export const VectorExporter: TikzObjectExporter<VectorObject> = {
       ...stylePartsToOptions(style),
     ]);
 
+    if (context.options.includeComments) {
+      context.scene.sections.shapes.push(`% Vector ${object.name ?? object.id}`);
+    }
+
     context.scene.sections.shapes.push(
       `\\draw${options} (${startName}) -- (${endName});`,
     );
