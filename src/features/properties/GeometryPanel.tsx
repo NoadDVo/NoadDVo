@@ -343,6 +343,25 @@ function PointGeometry({
           />
         </Field>
       </div>
+      {object.construction?.type === "midpoint" && (
+        <div className="mt-4">
+          <label className="flex items-center gap-2 text-xs font-medium text-slate-300">
+            <input
+              checked={object.showEqualityTicks ?? false}
+              className="rounded border-slate-700 bg-slate-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-900"
+              onChange={(e) =>
+                updateSelected((current) =>
+                  current.type === "point"
+                    ? { ...current, showEqualityTicks: e.target.checked }
+                    : current
+                )
+              }
+              type="checkbox"
+            />
+            Hiện ký hiệu bằng nhau
+          </label>
+        </div>
+      )}
     </Section>
   );
 }

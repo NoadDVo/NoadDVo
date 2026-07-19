@@ -278,6 +278,7 @@ export type PointObject = BaseGeometryObject & {
   readonly y: number;
   readonly pointKind: "free" | "derived";
   readonly construction?: ConstructionDefinition;
+  readonly showEqualityTicks?: boolean;
 };
 
 export type SegmentObject = BaseGeometryObject & {

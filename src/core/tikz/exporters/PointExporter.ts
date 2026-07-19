@@ -1,4 +1,5 @@
 import type { PointObject } from "../../geometry";
+import { midpoint, normalize, vectorFromPoints } from "../../geometry/math";
 import { formatPoint, formatStyleOptions, styleToTikzParts } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
@@ -49,6 +50,43 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
       context.scene.sections.labels.push(
         `\\node[${labelAnchor(object.style.labelPosition)}] at (${name}) {${mathLabel(object.name)}};`,
       );
+    }
+
+    if (object.showEqualityTicks && object.construction?.type === "midpoint") {
+      const pointA = context.scene.objects[object.construction.pointAId] as PointObject | undefined;
+      const pointB = context.scene.objects[object.construction.pointBId] as PointObject | undefined;
+      if (pointA?.type === "point" && pointB?.type === "point") {
+        const allMidpoints = Object.values(context.scene.objects).filter(o => 
+          o.type === "point" && 
+          o.construction?.type === "midpoint" && 
+          o.showEqualityTicks
+        ) as PointObject[];
+        allMidpoints.sort((a, b) => a.createdAt - b.createdAt);
+        const idx = allMidpoints.findIndex(m => m.id === object.id);
+        const count = Math.min(idx === -1 ? 1 : idx + 1, 3);
+        
+        const cp = context.options.coordinatePrecision;
+        const u = normalize(vectorFromPoints(pointA, pointB));
+        const tickDir = { x: -u.y, y: u.x };
+        const tickLen = 0.1;
+        const gap = 0.06;
+        const mid1 = midpoint(pointA, object);
+        const mid2 = midpoint(object, pointB);
+        
+        const drawTickAt = (center: { x: number; y: number }, c: number) => {
+          for (let i = 0; i < c; i++) {
+            const offset = (i - (c - 1) / 2) * gap;
+            const pt = { x: center.x + u.x * offset, y: center.y + u.y * offset };
+            const t1 = { x: pt.x + tickDir.x * tickLen, y: pt.y + tickDir.y * tickLen };
+            const t2 = { x: pt.x - tickDir.x * tickLen, y: pt.y - tickDir.y * tickLen };
+            context.scene.sections.shapes.push(
+              `\\draw[line width=0.6pt, ${context.colorRegistry.getColorName(object.style.stroke)}] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
+            );
+          }
+        };
+        drawTickAt(mid1, count);
+        drawTickAt(mid2, count);
+      }
     }
   },
   objectType: "point",

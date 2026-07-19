@@ -65,14 +65,14 @@ export const AngleExporter: TikzObjectExporter<AngleObject> = {
     const isRight = object.showRightAngleMarker || isRightAngle(pointA, vertex, pointC);
     
     if (isRight) {
-       // Optional: right angle drawing? The user didn't specify special logic for right angles, 
-       // but asked to replace pic with native arc. I will draw it as a normal arc since pic is banned.
+      context.scene.sections.shapes.push(
+        `\\draw[line width=0.8pt, draw=black] ([shift=({${sA}:${radius}cm})] ${vertexName}) -- ++(${eA}:${radius}cm) -- ([shift=({${eA}:${radius}cm})] ${vertexName});`
+      );
+    } else {
+      context.scene.sections.shapes.push(
+        `\\draw[line width=0.8pt, draw=black] ([shift=({${sA}:${radius}cm})] ${vertexName}) arc [start angle=${sA}, end angle=${eA}, radius=${radius}cm];`
+      );
     }
-
-    // Command 1: Arc
-    context.scene.sections.shapes.push(
-      `\\draw[line width=0.8pt, draw=black] ([shift=({${sA}:${radius}cm})] ${vertexName}) arc [start angle=${sA}, end angle=${eA}, radius=${radius}cm];`
-    );
 
     // Command 2: Label
     if (object.showLabel ?? true) {

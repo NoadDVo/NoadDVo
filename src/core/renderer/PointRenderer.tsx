@@ -1,5 +1,7 @@
 import { worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer } from "./RendererRegistry";
+import { TickMarksSymbol, getMidpointIndex } from "./ConstructionSymbols";
+import { midpoint, vectorFromPoints, normalize } from "../geometry/math";
 
 export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> = {
   objectType: "point",
@@ -79,6 +81,24 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
             {object.name}
           </text>
         )}
+        {object.showEqualityTicks && object.construction?.type === "midpoint" && (() => {
+          const pointA = context.objects[object.construction.pointAId];
+          const pointB = context.objects[object.construction.pointBId];
+          if (pointA?.type === "point" && pointB?.type === "point") {
+            const index = Math.min(getMidpointIndex(object, context.objects), 3);
+            const u = normalize(vectorFromPoints(pointA, pointB));
+            const v = { x: -u.y, y: u.x };
+            const mid1Screen = worldToScreen(midpoint(pointA, object), context.viewport);
+            const mid2Screen = worldToScreen(midpoint(object, pointB), context.viewport);
+            return (
+              <>
+                <TickMarksSymbol center={mid1Screen} dir={u} perp={v} size={5} color={object.style.stroke} count={index} />
+                <TickMarksSymbol center={mid2Screen} dir={u} perp={v} size={5} color={object.style.stroke} count={index} />
+              </>
+            );
+          }
+          return null;
+        })()}
       </g>
     );
   },
