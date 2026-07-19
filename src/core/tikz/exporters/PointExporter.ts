@@ -79,8 +79,10 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
             const pt = { x: center.x + u.x * offset, y: center.y + u.y * offset };
             const t1 = { x: pt.x + tickDir.x * tickLen, y: pt.y + tickDir.y * tickLen };
             const t2 = { x: pt.x - tickDir.x * tickLen, y: pt.y - tickDir.y * tickLen };
+            const colorOption = context.options.preserveColors ? context.colorRegistry.getColorName(object.style.stroke) : null;
+            const colorStr = colorOption ? `, ${colorOption}` : "";
             context.scene.sections.shapes.push(
-              `\\draw[line width=0.6pt, ${context.colorRegistry.getColorName(object.style.stroke)}] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
+              `\\draw[line width=0.6pt${colorStr}] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
             );
           }
         };
