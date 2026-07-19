@@ -23,6 +23,17 @@ function getLineKindIndex(line: any, objects: GeometryObjectRecord): number {
   return index === -1 ? 1 : index + 1;
 }
 
+export function getMidpointIndex(point: PointObject, objects: GeometryObjectRecord): number {
+  const allMidpoints = Object.values(objects).filter(o => 
+    o.type === "point" && 
+    o.construction?.type === "midpoint" && 
+    o.showEqualityTicks
+  );
+  allMidpoints.sort((a, b) => a.createdAt - b.createdAt);
+  const index = allMidpoints.findIndex(m => m.id === point.id);
+  return index === -1 ? 1 : index + 1;
+}
+
 function getScreenVector(p1: Point2D, p2: Point2D, viewport: Viewport) {
   const s1 = worldToScreen(p1, viewport);
   const s2 = worldToScreen(p2, viewport);
@@ -45,7 +56,7 @@ function RightAngleSymbol({ foot, u, v, size, color }: { foot: Point2D, u: Point
   );
 }
 
-function TickMarksSymbol({ center, dir, perp, size, color, count = 1 }: { center: Point2D, dir: Point2D, perp: Point2D, size: number, color: string, count?: number }) {
+export function TickMarksSymbol({ center, dir, perp, size, color, count = 1 }: { center: Point2D, dir: Point2D, perp: Point2D, size: number, color: string, count?: number }) {
   const gap = 2;
   const length = size;
   
