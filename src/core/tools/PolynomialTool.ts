@@ -105,36 +105,19 @@ export class PolynomialTool extends BaseTool {
     if (this.points.length >= 2) {
       const { viewport } = context;
       const numSamples = 100;
-      // Filter out points with duplicate X coordinates to avoid NaN
-      const uniqueXPoints: PointObject[] = [];
-      for (const p of this.points) {
-        if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
-          uniqueXPoints.push(p);
-        }
-      }
-
-      let minX = Infinity;
-      let maxX = -Infinity;
-      for (const p of uniqueXPoints) {
-        minX = Math.min(minX, p.x);
-        maxX = Math.max(maxX, p.x);
-      }
+      // Parametric polynomial preview
       
-      if (minX === Infinity || minX === maxX) {
-        return createElement(
-          "g",
-          { key: "polynomial-preview" },
-          elements
-        );
-      }
+      const ptsX = this.points.map((p, i) => ({ x: i, y: p.x }));
+      const ptsY = this.points.map((p, i) => ({ x: i, y: p.y }));
+      const maxT = this.points.length - 1;
+      const step = maxT / numSamples;
       
-      const step = (maxX - minX) / numSamples;
       const pathPoints: string[] = [];
-      
       for (let i = 0; i <= numSamples; i++) {
-        const x = minX + i * step;
-        const y = evaluateLagrange(x, uniqueXPoints);
-        if (!Number.isNaN(y) && isFinite(y)) {
+        const t = i * step;
+        const x = evaluateLagrange(t, ptsX);
+        const y = evaluateLagrange(t, ptsY);
+        if (!Number.isNaN(x) && !Number.isNaN(y) && isFinite(x) && isFinite(y)) {
           const screenP = worldToScreen({ x, y }, viewport);
           if (pathPoints.length === 0) {
             pathPoints.push(`M ${screenP.x} ${screenP.y}`);

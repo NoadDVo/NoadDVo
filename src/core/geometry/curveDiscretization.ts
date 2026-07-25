@@ -139,36 +139,24 @@ export function discretizePolynomial(
   points: readonly Point2D[],
   steps: number = POLYNOMIAL_STEPS,
 ): PolylineSegment[] {
-  // Filter out points with duplicate X coordinates to avoid NaN (division by zero)
-  const uniqueXPoints: Point2D[] = [];
-  for (const p of points) {
-    if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
-      uniqueXPoints.push(p);
-    }
-  }
+  if (points.length < 2) return [];
 
-  if (uniqueXPoints.length < 2) return [];
-
-  let minX = Infinity;
-  let maxX = -Infinity;
-  for (const p of uniqueXPoints) {
-    minX = Math.min(minX, p.x);
-    maxX = Math.max(maxX, p.x);
-  }
-
-  if (maxX - minX < 1e-9) return [];
+  const ptsX = points.map((p, i) => ({ x: i, y: p.x }));
+  const ptsY = points.map((p, i) => ({ x: i, y: p.y }));
 
   const segments: PolylineSegment[] = [];
-  const step = (maxX - minX) / steps;
+  const maxT = points.length - 1;
+  const step = maxT / steps;
 
   let prevValid = false;
   let prev: Point2D = { x: 0, y: 0 };
 
   for (let i = 0; i <= steps; i++) {
-    const x = minX + i * step;
-    const y = evaluateLagrange(x, uniqueXPoints);
+    const t = i * step;
+    const x = evaluateLagrange(t, ptsX);
+    const y = evaluateLagrange(t, ptsY);
 
-    if (Number.isNaN(y) || !isFinite(y)) {
+    if (Number.isNaN(x) || Number.isNaN(y) || !isFinite(x) || !isFinite(y)) {
       prevValid = false;
       continue;
     }

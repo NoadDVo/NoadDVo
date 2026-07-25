@@ -28,41 +28,27 @@ const PolynomialRendererComponent = memo(function PolynomialRendererComponent({
     if (p) points.push(p);
   }
 
-  const uniqueXPoints: Point2D[] = [];
-  for (const p of points) {
-    if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
-      uniqueXPoints.push(p);
-    }
-  }
-
-  if (uniqueXPoints.length < 2) {
+  const ptsX = points.map((p, i) => ({ x: i, y: p.x }));
+  const ptsY = points.map((p, i) => ({ x: i, y: p.y }));
+  
+  if (points.length < 2) {
     return null;
   }
 
   const { viewport } = context;
   const numSamples = 200;
   
-  // Bounded polynomial: only draw between the minimum and maximum x-coordinates of the selected points
-  let minX = Infinity;
-  let maxX = -Infinity;
-  for (const p of uniqueXPoints) {
-    minX = Math.min(minX, p.x);
-    maxX = Math.max(maxX, p.x);
-  }
-  
-  if (minX === Infinity || minX === maxX) {
-    return null;
-  }
-  
-  const step = (maxX - minX) / numSamples;
+  const maxT = points.length - 1;
+  const step = maxT / numSamples;
   
   const pathPoints: string[] = [];
   
   for (let i = 0; i <= numSamples; i++) {
-    const x = minX + i * step;
-    const y = evaluateLagrange(x, uniqueXPoints);
+    const t = i * step;
+    const x = evaluateLagrange(t, ptsX);
+    const y = evaluateLagrange(t, ptsY);
     
-    if (!Number.isNaN(y) && isFinite(y)) {
+    if (!Number.isNaN(x) && !Number.isNaN(y) && isFinite(x) && isFinite(y)) {
       const screenP = worldToScreen({ x, y }, viewport);
       if (pathPoints.length === 0) {
         pathPoints.push(`M ${screenP.x} ${screenP.y}`);

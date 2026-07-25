@@ -13,61 +13,50 @@ export const PolynomialExporter: TikzObjectExporter<PolynomialObject> = {
       if (p) points.push(p);
     }
     
-    const uniqueXPoints: Point2D[] = [];
-    for (const p of points) {
-      if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
-        uniqueXPoints.push(p);
+    if (points.length < 2) return;
+    
+    const ptsX = points.map((p, i) => ({ x: i, y: p.x }));
+    const ptsY = points.map((p, i) => ({ x: i, y: p.y }));
+    
+    const coeffsX = getPolynomialCoefficients(ptsX);
+    const coeffsY = getPolynomialCoefficients(ptsY);
+    
+    const buildEq = (coeffs: number[]) => {
+      let equation = "";
+      for (let i = 0; i < coeffs.length; i++) {
+         if (Math.abs(coeffs[i]!) < 1e-9) continue;
+         
+         let coeffStr = formatNumber(Math.abs(coeffs[i]!));
+         if (coeffStr === "1" && i > 0) coeffStr = ""; // omit 1x
+         
+         if (equation === "") {
+           equation += (coeffs[i]! < 0 ? "-" : "") + formatNumber(Math.abs(coeffs[i]!));
+           if (i === 1) equation += "*\\t";
+           else if (i > 1) equation += `*(\\t)^${i}`;
+         } else {
+           equation += (coeffs[i]! < 0 ? " - " : " + ") + coeffStr;
+           if (i === 1) equation += "*\\t";
+           else if (i > 1) equation += `*(\\t)^${i}`;
+         }
       }
-    }
+      return equation === "" ? "0" : equation;
+    };
     
-    if (uniqueXPoints.length < 2) return;
-    
-    const coeffs = getPolynomialCoefficients(uniqueXPoints);
-    
-    // Format equation: a_0 + a_1*x + a_2*x^2 + ...
-    let equation = "";
-    for (let i = 0; i < coeffs.length; i++) {
-       if (Math.abs(coeffs[i]!) < 1e-9) continue;
-       
-       let coeffStr = formatNumber(Math.abs(coeffs[i]!));
-       if (coeffStr === "1" && i > 0) coeffStr = ""; // omit 1x
-       
-       if (equation === "") {
-         equation += (coeffs[i]! < 0 ? "-" : "") + formatNumber(Math.abs(coeffs[i]!));
-         if (i === 1) equation += "*\\x";
-         else if (i > 1) equation += `*(\\x)^${i}`;
-       } else {
-         equation += (coeffs[i]! < 0 ? " - " : " + ") + coeffStr;
-         if (i === 1) equation += "*\\x";
-         else if (i > 1) equation += `*(\\x)^${i}`;
-       }
-    }
-    
-    if (equation === "") equation = "0";
+    const eqX = buildEq(coeffsX);
+    const eqY = buildEq(coeffsY);
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
     const styleParts = styleToTikzParts(object.style, context.options, colorFor);
     
-    // TikZ needs a domain to draw a function.
-    let minX = Infinity;
-    let maxX = -Infinity;
-    for (const p of uniqueXPoints) {
-      minX = Math.min(minX, p.x);
-      maxX = Math.max(maxX, p.x);
-    }
-    
-    let domainStr = "domain=-10:10";
-    if (minX !== Infinity && minX !== maxX) {
-      domainStr = `domain=${formatNumber(minX)}:${formatNumber(maxX)}`;
-    }
+    let domainStr = `domain=0:${points.length - 1}`;
     
     let optionsStr = formatStyleOptions(styleParts).replace(/^\[|\]$/g, "");
     
     if (optionsStr) optionsStr += ", ";
-    optionsStr += `${domainStr}, samples=100`;
+    optionsStr += `${domainStr}, samples=100, variable=\\t`;
 
     const finalOptions = `[${optionsStr}]`;
 
-    context.scene.sections.shapes.push(`\\draw ${finalOptions} plot (\\x, {${equation}});`);
+    context.scene.sections.shapes.push(`\\draw ${finalOptions} plot ({${eqX}}, {${eqY}});`);
   },
 };
