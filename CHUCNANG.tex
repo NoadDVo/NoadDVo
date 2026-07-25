@@ -2,85 +2,347 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[vietnamese]{babel}
-\usepackage{geometry}
+\usepackage[left=20mm, right=20mm, top=25mm, bottom=25mm]{geometry}
 \usepackage{hyperref}
 \usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fontawesome5}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{eso-pic}
 
-\geometry{
-    a4paper,
-    total={170mm,257mm},
-    left=20mm,
-    top=20mm,
+% Define custom colors
+\definecolor{primary}{HTML}{2563EB} % Modern Blue
+\definecolor{dark}{HTML}{0F172A} % Slate 900
+\definecolor{lightgray}{HTML}{EFF6FF} % Blue 50
+
+% Setup hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    filecolor=magenta,      
+    urlcolor=primary,
+    pdftitle={Hướng dẫn Sử dụng NoadDVo Untitled Geometry},
 }
 
-\title{\textbf{Tài liệu Hướng dẫn \& Chức năng\\NOADDVO UNTITLED GEOMETRY}}
-\author{}
-\date{\today}
+% Setup section formatting
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{primary}}
+  {\colorbox{primary}{\color{white}\makebox[1.5em][c]{\thesection}}}
+  {0.5em}
+  {}
+  [\vspace{-0.2em}\color{primary}\titlerule]
+  
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{dark}}
+  {\textcolor{primary}{\faAngleDoubleRight\ \thesubsection}}
+  {0.5em}
+  {}
+
+\titlespacing*{\section}{0pt}{4ex plus 1ex minus .2ex}{2.5ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{3ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Custom box for notes
+\newtcolorbox{infobox}[1][]{
+  colback=lightgray,
+  colframe=primary,
+  coltitle=white,
+  fonttitle=\bfseries,
+  title=#1,
+  boxrule=1.5pt,
+  arc=4pt,
+  boxsep=5pt,
+  left=5pt,
+  right=5pt,
+}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{\color{primary}NoadDVo Untitled Geometry}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primary}\leaders\hrule height \headrulewidth\hfill}}
+
+% Remove date
+\date{}
 
 \begin{document}
 
-\maketitle
+\AddToShipoutPictureBG{
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[opacity=0.08, rotate=35] at (current page.center) {
+      \begin{tikzpicture}[scale=4, transform shape]
+        \node[font=\sffamily\bfseries\Huge, text=primary] (logo) at (0,0) {NoadDVo};
+        \draw[line width=3pt, primary] (0, 0.1) ellipse (2.8cm and 1cm);
+        \node[text=primary] at (2.5, 0.8) {\faStar};
+        \draw[line width=1.5pt, primary] (-2.2, -0.6) to[out=20, in=200] (2.2, -0.4);
+      \end{tikzpicture}
+    };
+  \end{tikzpicture}
+}
+
+\begin{center}
+    \vspace*{2cm}
+    {\Huge \textbf{\color{dark} TÀI LIỆU HƯỚNG DẪN SỬ DỤNG}}\\[0.5cm]
+    {\Huge \textbf{\color{primary} NOADDVO UNTITLED GEOMETRY}}\\[1.5cm]
+    
+    \begin{infobox}
+    \centering
+    \textit{"Công cụ thiết kế hình học trực quan, năng động và hiện đại"}
+    \end{infobox}
+    
+    \vspace{2cm}
+\end{center}
+
+\tableofcontents
+
+\newpage
 
 \section{Giới thiệu Tổng quan}
-\textbf{NoadDVo Untitled Geometry} là một ứng dụng thiết kế và mô phỏng hình học trực quan, nổi bật với phong cách thiết kế \textbf{Neo-Brutalism} (viền đen dày, đổ bóng cứng, màu nhấn cam đặc trưng). Ứng dụng cung cấp một không gian làm việc chuyên nghiệp để vẽ hình toán học và tự động sinh mã nguồn LaTeX (TikZ).
+\textbf{NoadDVo Untitled Geometry} là một ứng dụng web thiết kế và mô phỏng hình học trực quan, nổi bật với phong cách thiết kế \textbf{năng động, hiện đại} (các góc bo tròn mềm mại, đổ bóng mượt mà, màu nhấn xanh dương tươi sáng). Ứng dụng cung cấp một không gian làm việc chuyên nghiệp để giáo viên, học sinh hoặc sinh viên có thể vẽ các hình toán học một cách linh hoạt, chính xác và tự động sinh mã nguồn LaTeX (TikZ) tuyệt đẹp để sử dụng ngay vào các bài báo cáo, luận văn hay đề thi.
 
-\section{Cấu trúc Giao diện Chính (Workspace Layout)}
-Giao diện của ứng dụng được bố trí thông minh thành 5 khu vực chính:
+Phần mềm được thiết kế với cơ chế hoạt động theo điểm (point-based) và giữ nguyên tính liên kết hình học (dependency). Khi bạn thay đổi vị trí của các điểm gốc, toàn bộ các hình được tạo ra từ nó sẽ tự động tính toán lại, đảm bảo tính chặt chẽ trong tư duy toán học.
 
-\subsection{1. Thanh Điều Hướng (Top Bar)}
-Nằm ở trên cùng, chứa các nút chức năng tổng thể:
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Logo \& Tên dự án:} NOADDVO UNTITLED GEOMETRY.
-    \item \textbf{Undo / Redo:} Hai nút mũi tên quay lại/tiến tới giúp hoàn tác các thao tác vẽ.
-    \item \textbf{Menu Công cụ (Góc phải):} Bao gồm \textbf{PROJECT} (quản lý file dự án), \textbf{EXPORT} (xuất hình ảnh/mã), \textbf{THEME} (đổi giao diện), và nút \textbf{Help (?)}.
-\end{itemize}
+\vspace{0.5cm}
+\begin{infobox}[\faLightbulb \ Mẹo nhỏ]
+Toàn bộ mã nguồn TikZ được sinh ra tự động ở bảng phía dưới màn hình. Bạn chỉ cần copy và paste vào bài trình bày LaTeX của mình!
+\end{infobox}
 
-\subsection{2. Bảng Vẽ Trung Tâm (Main Canvas)}
-Khu vực lưới (Grid) vô hạn chiếm phần lớn diện tích màn hình.
-\begin{itemize}[label=\textbullet]
-    \item Khi chưa có đối tượng nào, bảng vẽ hiển thị hộp thoại \textbf{EMPTY WORKSPACE} với thông điệp "CREATE YOUR FIRST OBJECT" cùng 2 nút hành động nhanh: \textbf{CREATE A POINT} (Tạo điểm đầu tiên) và \textbf{LOAD EXAMPLE} (Tải một hình mẫu có sẵn).
-    \item Bạn có thể dùng chuột để vẽ, kéo thả, hoặc giữ phím Space để Pan (di chuyển) góc nhìn.
-\end{itemize}
+\section{Hướng dẫn Sử dụng Các Nhóm Chức năng}
+Thanh công cụ bên trái (Left Toolbar) được chia làm 7 nhóm công cụ, mỗi nhóm phục vụ cho những thao tác hình học riêng biệt. Sau đây là chi tiết cách sử dụng từng chức năng trong 7 nhóm này.
 
-\subsection{3. Thanh Công Cụ (Left Toolbar)}
-Thanh công cụ nổi nằm bên trái màn hình, chứa các nhóm công cụ hình học (có menu xổ ra khi click):
-\begin{itemize}[label=\textbullet]
-    \item \textbf{Action (Mũi tên chuột):} Chứa công cụ Select (chọn) và Move (di chuyển).
-    \item \textbf{Point (Điểm):} Khởi tạo Point, Midpoint, Intersection.
-    \item \textbf{Line (Đường chéo):} Vẽ Line, Segment, Ray, Vector, và các đường tương quan (Parallel, Perpendicular...).
-    \item \textbf{Shape (Đường tròn):} Vẽ Circle, Circumcircle, Incircle, Polygon.
-    \item \textbf{Conic (Quỹ đạo):} Khởi tạo Ellipse, Hyperbola, Polynomial.
-    \item \textbf{Transform (Phép biến hình):} Reflect, Rotate, Translate, Dilate.
-    \item \textbf{Measure \& Utils (Đồng hồ đo):} Angle, Distance, Area, Text, Trim, Fill, Slider.
-\end{itemize}
-
-\subsection{4. Thanh Quản Lý (Right Sidebar)}
-Nằm ở bên phải màn hình, chia làm 2 panel xếp chồng lên nhau:
-\begin{itemize}[label=\textbullet]
-    \item \textbf{WORKSPACE / OBJECT TREE:}
+\subsection{Nhóm Action (Công cụ Thao tác cơ bản)}
+Nhóm này chứa các công cụ điều khiển và chọn lựa đối tượng.
+\begin{itemize}[label=\textcolor{primary}{\faHandPointer}]
+    \item \textbf{Select (Chọn):} 
     \begin{itemize}
-        \item Cung cấp thanh tìm kiếm (\textit{Search objects}).
-        \item Hệ thống bộ lọc (Filters) phân loại đối tượng: \textbf{ALL, POINTS, LINES, CIRCLES, CONST}...
-        \item Hiển thị danh sách toàn bộ các cấu phần hình học và xem xét mối liên hệ phụ thuộc (\textit{Dependency links}) giữa chúng.
+        \item \textit{Chức năng:} Chọn một hoặc nhiều đối tượng trên bảng vẽ để thay đổi thuộc tính, xóa, hoặc copy.
+        \item \textit{Cách sử dụng:} Nhấp chuột trái vào một đối tượng để chọn. Có thể giữ phím \texttt{Shift} + click để chọn nhiều đối tượng, hoặc nhấn giữ chuột trái quét một vùng (Lasso/Bounding box) để chọn toàn bộ.
     \end{itemize}
-    \item \textbf{INSPECTOR / PROPERTIES:}
+    
+    \item \textbf{Move (Di chuyển / Pan):} 
     \begin{itemize}
-        \item Hiển thị thuộc tính của đối tượng đang được chọn (màu sắc, độ dày nét, hiển thị nhãn...).
-        \item Cung cấp chức năng \textbf{Lock Panel} (Biểu tượng ổ khóa ở tiêu đề): Giúp ghim chặt bảng thuộc tính cho đối tượng hiện hành, không bị mất tiêu điểm khi click ra ngoài.
+        \item \textit{Chức năng:} Di chuyển khung nhìn (canvas) hoặc di chuyển các điểm/đối tượng tự do trên lưới.
+        \item \textit{Cách sử dụng:} Nhấn giữ chuột trái vào khoảng trống và kéo để di chuyển bảng vẽ. Để di chuyển một điểm gốc, nhấp đè vào điểm đó và kéo đến vị trí mới.
     \end{itemize}
 \end{itemize}
 
-\subsection{5. Khung Xuất Mã (Bottom Panel) \& Thanh Trạng Thái (Status Bar)}
-\begin{itemize}[label=\textbullet]
-    \item \textbf{GENERATED TIKZ:} Khung hiển thị nằm ngang ở dưới cùng, tự động sinh mã nguồn LaTeX/TikZ (VD: \texttt{\textbackslash begin\{tikzpicture\}...}). Hỗ trợ tùy chỉnh \textit{FORM: ACADEMIC, WRAP, READONLY} và nút \textbf{COPY} nhanh.
-    \item \textbf{Status Bar:} Nằm sát mép dưới cùng, hiển thị các thông số thời gian thực: \textit{ZOOM 100\%, Tọa độ X/Y của chuột, Số lượng đối tượng đang chọn (SELECTION), Chế độ SNAP (Grid 1), MODE, và trạng thái TIKZ.}
+\subsection{Nhóm Point (Công cụ Điểm)}
+Các chức năng tạo ra điểm - cấu phần nền tảng của hình học.
+\begin{itemize}[label=\textcolor{primary}{\faCircle}]
+    \item \textbf{Point (Điểm tự do):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tạo một điểm tự do trên mặt phẳng, hoặc tạo điểm nằm trên một đối tượng khác.
+        \item \textit{Cách sử dụng:} Chọn công cụ, click chuột trái vào bất kỳ vị trí nào trên bảng vẽ để tạo điểm.
+    \end{itemize}
+
+    \item \textbf{Midpoint (Trung điểm):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tạo trung điểm của một đoạn thẳng hoặc giữa hai điểm bất kỳ.
+        \item \textit{Cách sử dụng:} Chọn công cụ, click chọn 2 điểm đã có sẵn trên màn hình, hoặc click chọn thẳng vào 1 đoạn thẳng.
+    \end{itemize}
+
+    \item \textbf{Intersection (Giao điểm):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tìm giao điểm của hai đối tượng (2 đường thẳng, đường thẳng - đường tròn...).
+        \item \textit{Cách sử dụng:} Chọn công cụ, lần lượt click vào 2 đối tượng giao nhau. Điểm giao sẽ sinh ra tại vị trí cắt nhau.
+    \end{itemize}
 \end{itemize}
 
-\section{Hướng dẫn Thao tác Nhanh}
-\begin{enumerate}
-    \item \textbf{Tạo đối tượng:} Bắt đầu bằng cách chọn công cụ \textit{Line} (như trên ảnh đang được chọn màu cam), click 2 điểm trên Canvas để vẽ một đoạn thẳng.
-    \item \textbf{Kiểm soát thuộc tính:} Khi đoạn thẳng được chọn, \textit{INSPECTOR} sẽ hiện lên thông số để bạn đổi nét liền thành nét đứt.
-    \item \textbf{Lấy mã LaTeX:} Toàn bộ thay đổi sẽ được phản ánh ngay lập tức ở khung \textit{TIKZ} bên dưới. Nhấn nút Copy và dán vào phần mềm LaTeX của bạn.
-\end{enumerate}
+\subsection{Nhóm Line (Công cụ Đường \& Cạnh)}
+Dùng để vẽ các đoạn, đường thẳng hoặc vector liên kết giữa các điểm.
+\begin{itemize}[label=\textcolor{primary}{\faGripLines}]
+    \item \textbf{Line (Đường thẳng):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường thẳng đi qua 2 điểm và kéo dài vô tận về 2 phía.
+        \item \textit{Cách sử dụng:} Click 2 lần trên bảng vẽ để tạo 2 điểm mới sinh ra đường thẳng đi qua chúng.
+    \end{itemize}
+
+    \item \textbf{Segment (Đoạn thẳng):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đoạn thẳng nối giới hạn giữa 2 điểm.
+        \item \textit{Cách sử dụng:} Click chọn 2 điểm (hoặc click 2 khoảng trống trên lưới).
+    \end{itemize}
+    
+    \item \textbf{Ray (Tia):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ tia xuất phát từ điểm thứ nhất, đi qua điểm thứ hai và kéo dài vô tận.
+        \item \textit{Cách sử dụng:} Click chọn điểm gốc, sau đó click chọn điểm mà tia sẽ đi qua.
+    \end{itemize}
+
+    \item \textbf{Vector:}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ một vector có hướng từ điểm gốc đến điểm ngọn.
+        \item \textit{Cách sử dụng:} Click chọn điểm gốc, sau đó click điểm ngọn. Vector sẽ có mũi tên chỉ hướng.
+    \end{itemize}
+
+    \item \textbf{Parallel (Đường song song):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ một đường thẳng đi qua một điểm và song song với một đường thẳng cho trước.
+        \item \textit{Cách sử dụng:} Click chọn điểm mà đường thẳng sẽ đi qua, sau đó click chọn đường thẳng làm mốc song song.
+    \end{itemize}
+
+    \item \textbf{Perpendicular (Đường vuông góc):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường thẳng đi qua một điểm và vuông góc với một đường thẳng cho trước.
+        \item \textit{Cách sử dụng:} Click chọn một điểm, sau đó click chọn đường thẳng làm mốc vuông góc.
+    \end{itemize}
+
+    \item \textbf{Perpendicular Bisector (Đường trung trực):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường trung trực của một đoạn thẳng.
+        \item \textit{Cách sử dụng:} Click chọn vào 1 đoạn thẳng, hoặc click chọn 2 điểm đầu mút của nó.
+    \end{itemize}
+    
+    \item \textbf{Angle Bisector (Đường phân giác):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường phân giác của một góc.
+        \item \textit{Cách sử dụng:} Click lần lượt 3 điểm tạo thành góc (với điểm thứ 2 là đỉnh của góc).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Nhóm Shape (Công cụ Hình Khép kín \& Đường Tròn)}
+Tạo ra các hình đa giác và các đường tròn liên quan.
+\begin{itemize}[label=\textcolor{primary}{\faDrawPolygon}]
+    \item \textbf{Circle (Đường tròn Tâm - Điểm):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường tròn xác định bởi tâm và một điểm nằm trên đường tròn.
+        \item \textit{Cách sử dụng:} Click chọn điểm thứ nhất làm tâm, click điểm thứ hai xác định bán kính.
+    \end{itemize}
+
+    \item \textbf{Compass (Đường tròn Bán kính đoạn thẳng):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường tròn có tâm bất kỳ với bán kính bằng độ dài của một đoạn thẳng cho trước.
+        \item \textit{Cách sử dụng:} Click chọn một đoạn thẳng, sau đó click chọn một điểm để đặt làm tâm.
+    \end{itemize}
+
+    \item \textbf{Circumcircle (Đường tròn ngoại tiếp):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường tròn đi qua 3 điểm (ngoại tiếp tam giác).
+        \item \textit{Cách sử dụng:} Lần lượt click chọn 3 điểm không thẳng hàng.
+    \end{itemize}
+    
+    \item \textbf{Incircle (Đường tròn nội tiếp):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường tròn nội tiếp tam giác.
+        \item \textit{Cách sử dụng:} Lần lượt click chọn 3 điểm là 3 đỉnh của tam giác.
+    \end{itemize}
+
+    \item \textbf{Arc (Cung tròn):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ một cung tròn đi qua 3 điểm.
+        \item \textit{Cách sử dụng:} Click chọn điểm đầu, điểm giữa và điểm cuối của cung.
+    \end{itemize}
+
+    \item \textbf{Polygon (Đa giác):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tạo một đa giác khép kín từ nhiều điểm.
+        \item \textit{Cách sử dụng:} Lần lượt click vào các điểm tạo thành đỉnh của đa giác. Cuối cùng, click lại vào điểm đầu tiên.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Nhóm Conic (Đường Cô-nic \& Đồ thị)}
+\begin{itemize}[label=\textcolor{primary}{\faWaveSquare}]
+    \item \textbf{Ellipse (Elip):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ một đường Elip đi qua 2 tiêu điểm và 1 điểm trên đường elip.
+        \item \textit{Cách sử dụng:} Click chọn 2 điểm làm tiêu điểm, sau đó click chọn điểm thứ 3 nằm trên quỹ đạo Elip.
+    \end{itemize}
+    
+    \item \textbf{Hyperbola (Hypebol):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ đường Hypebol xác định bởi 2 tiêu điểm và 1 điểm thuộc quỹ đạo.
+        \item \textit{Cách sử dụng:} Click chọn 2 điểm làm tiêu điểm, click điểm thứ 3 nằm trên quỹ đạo Hypebol.
+    \end{itemize}
+
+    \item \textbf{Polynomial (Đồ thị Hàm đa thức):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Nội suy và vẽ đường cong đa thức bậc cao mượt mà đi qua các điểm.
+        \item \textit{Cách sử dụng:} Lần lượt click chọn nhiều điểm khác nhau trên mặt phẳng, ứng dụng sẽ tự động vẽ đồ thị.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Nhóm Transform (Phép biến hình)}
+Tạo ra các đối tượng mới dựa vào các phép tịnh tiến, đối xứng hoặc phép quay.
+\begin{itemize}[label=\textcolor{primary}{\faSync}]
+    \item \textbf{Reflect Line (Đối xứng trục):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tạo đối tượng phản chiếu qua một đường thẳng.
+        \item \textit{Cách sử dụng:} Click chọn đối tượng cần phản chiếu, sau đó click chọn đường thẳng làm trục đối xứng.
+    \end{itemize}
+
+    \item \textbf{Reflect Point (Đối xứng tâm):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tạo đối tượng phản chiếu qua một điểm.
+        \item \textit{Cách sử dụng:} Click chọn đối tượng cần phản chiếu, sau đó click chọn điểm làm tâm đối xứng.
+    \end{itemize}
+    
+    \item \textbf{Rotate (Phép quay):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Quay một đối tượng quanh một điểm với một góc xác định.
+        \item \textit{Cách sử dụng:} Click chọn đối tượng, sau đó click chọn tâm quay. Một hộp thoại sẽ hiện lên để bạn nhập góc quay.
+    \end{itemize}
+
+    \item \textbf{Translate (Phép tịnh tiến):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tịnh tiến một đối tượng theo một hướng và khoảng cách xác định bởi vector.
+        \item \textit{Cách sử dụng:} Click chọn đối tượng cần tịnh tiến, sau đó click chọn một vector.
+    \end{itemize}
+    
+    \item \textbf{Dilate (Phép vị tự):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Phóng to/thu nhỏ một đối tượng từ một tâm vị tự với một tỉ lệ k.
+        \item \textit{Cách sử dụng:} Click chọn đối tượng, click chọn điểm tâm vị tự. Nhập tỉ lệ k vào hộp thoại.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Nhóm Measure \& Utils (Đo lường \& Tiện ích)}
+\begin{itemize}[label=\textcolor{primary}{\faDraftingCompass}]
+    \item \textbf{Angle (Đo góc):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Vẽ và hiển thị số đo góc.
+        \item \textit{Cách sử dụng:} Lần lượt click 3 điểm (đỉnh góc ở giữa). Khung bên phải Inspector sẽ cho phép bật/tắt số đo, hiển thị ký hiệu vuông góc, hoặc đánh dấu bằng nhau.
+    \end{itemize}
+
+    \item \textbf{Distance / Length (Đo khoảng cách):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Hiển thị độ dài của đoạn thẳng.
+        \item \textit{Cách sử dụng:} Click vào 2 điểm hoặc 1 đoạn thẳng, nhãn hiển thị khoảng cách sẽ xuất hiện.
+    \end{itemize}
+    
+    \item \textbf{Area (Diện tích):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tính toán và hiển thị diện tích của hình (đa giác, tròn, v.v...).
+        \item \textit{Cách sử dụng:} Click vào một đa giác hoặc đường tròn đã vẽ.
+    \end{itemize}
+
+    \item \textbf{Text (Văn bản):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Chèn text chú thích tĩnh vào mặt phẳng vẽ. Hỗ trợ cả mã lệnh LaTeX.
+        \item \textit{Cách sử dụng:} Chọn công cụ, click vào một vùng trống trên mặt phẳng, nhập chữ vào hộp thoại.
+    \end{itemize}
+
+    \item \textbf{Trim (Cắt đoạn dư thừa):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Cắt bỏ các phần thừa của đường thẳng/cung tròn khi chúng giao nhau.
+        \item \textit{Cách sử dụng:} Click vào đoạn bạn muốn xóa nằm giữa 2 giao điểm, đoạn đó sẽ biến mất giúp làm gọn hình ảnh.
+    \end{itemize}
+
+    \item \textbf{Fill (Đổ màu vùng):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Nhận diện các vùng khép kín từ các đoạn thẳng cắt nhau và tô màu bên trong.
+        \item \textit{Cách sử dụng:} Click vào không gian khép kín bất kỳ tạo bởi các đường, hệ thống sẽ tự động bôi màu vùng đó. Có thể đổi màu ở bảng Inspector.
+    \end{itemize}
+    
+    \item \textbf{Slider (Thanh trượt):}
+    \begin{itemize}
+        \item \textit{Chức năng:} Tạo biến số thay đổi động (ví dụ: a = 5) để liên kết với tọa độ hoặc số đo, làm hình học cử động.
+        \item \textit{Cách sử dụng:} Click vào vùng trống để đặt thanh trượt. Bạn có thể thay đổi biến số tối thiểu, tối đa và kích hoạt nút \textbf{Auto Play} để thanh trượt chạy liên tục ở bảng Properties.
+    \end{itemize}
+\end{itemize}
 
 \end{document}

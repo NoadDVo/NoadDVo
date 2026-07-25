@@ -1,0 +1,10 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{\numberline {1}Giới thiệu Tổng quan}{2}{section.1}%
+\contentsline {section}{\numberline {2}Hướng dẫn Sử dụng Các Nhóm Chức năng}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Nhóm Action (Công cụ Thao tác cơ bản)}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Nhóm Point (Công cụ Điểm)}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Nhóm Line (Công cụ Đường \& Cạnh)}{3}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Nhóm Shape (Công cụ Hình Khép kín \& Đường Tròn)}{4}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Nhóm Conic (Đường Cô-nic \& Đồ thị)}{5}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Nhóm Transform (Phép biến hình)}{5}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Nhóm Measure \& Utils (Đo lường \& Tiện ích)}{6}{subsection.2.7}%

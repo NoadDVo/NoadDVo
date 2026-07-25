@@ -430,6 +430,24 @@ export function recomputeConstructedPoint(
       : null;
   }
 
+  if (construction.type === "line-projection-point") {
+    const point = getPoint(objects, construction.pointId);
+    const line = objects[construction.lineId];
+    if (!point || !line) return null;
+    const linePoints = getLinearPoints(line as import("../types").LineObject, objects);
+    if (!linePoints) return null;
+    return projectPointToLine(point, linePoints[0], linePoints[1]);
+  }
+
+  if (construction.type === "perpendicular-intersection-point") {
+    const point = getPoint(objects, construction.pointId);
+    const targetLine = objects[construction.targetLineId];
+    if (!point || !targetLine) return null;
+    const linePoints = getLinearPoints(targetLine as import("../types").LineObject, objects);
+    if (!linePoints) return null;
+    return projectPointToLine(point, linePoints[0], linePoints[1]);
+  }
+
   if (construction.type === "inradius-point") {
     const center = getPoint(objects, construction.centerPointId);
     const sidePointA = getPoint(objects, construction.sidePointAId);

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn Sử dụng - NoadDVo Untitled Geometry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB; /* Blue 600 */
+            --primary-hover: #1D4ED8; /* Blue 700 */
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+        }
+        /* Modern aesthetic components */
+        .modern-card {
+            background-color: white;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .modern-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .modern-header {
+            background: linear-gradient(135deg, var(--primary), #3B82F6);
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            padding: 1.25rem;
+        }
+        .modern-badge {
+            background-color: #EFF6FF;
+            color: var(--primary);
+            border: 1px solid #BFDBFE;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .glass-header {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body class="antialiased pb-20">
+
+    <!-- Header -->
+    <header class="glass-header py-4 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center">
+                <i class="fas fa-shapes text-blue-600 mr-2"></i> NoadDVo <span class="text-blue-600 ml-1">Geometry</span>
+            </h1>
+            <a href="CHUCNANG.pdf" class="bg-blue-600 text-white font-medium py-2 px-5 rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg transition-all flex items-center">
+                <i class="fas fa-file-pdf mr-2"></i> Tải bản PDF
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="max-w-5xl mx-auto px-6 mt-12">
+        <div class="modern-card mb-12 overflow-hidden border-0">
+            <div class="bg-gradient-to-r from-blue-700 to-blue-500 text-center py-12 px-6 text-white rounded-t-xl">
+                <h2 class="text-4xl font-extrabold mb-4 tracking-tight">TÀI LIỆU HƯỚNG DẪN SỬ DỤNG</h2>
+                <p class="text-xl font-light text-blue-100">Công cụ thiết kế hình học trực quan, hiện đại và sáng tạo</p>
+            </div>
+            <div class="p-8 text-lg leading-relaxed text-slate-700">
+                <h3 class="text-2xl font-bold mb-4 text-slate-800 flex items-center">
+                    <i class="fas fa-info-circle text-blue-600 mr-3"></i> Giới thiệu Tổng quan
+                </h3>
+                <p class="mb-4">
+                    <strong>NoadDVo Untitled Geometry</strong> là một ứng dụng web thiết kế và mô phỏng hình học trực quan, nổi bật với phong cách thiết kế <strong>năng động, hiện đại</strong> (các góc bo tròn mềm mại, đổ bóng mượt mà, màu nhấn xanh dương tươi sáng). Ứng dụng cung cấp một không gian làm việc chuyên nghiệp để giáo viên, học sinh hoặc sinh viên có thể vẽ các hình toán học một cách linh hoạt, chính xác và tự động sinh mã nguồn LaTeX (TikZ) tuyệt đẹp để sử dụng ngay vào các bài báo cáo, luận văn hay đề thi.
+                </p>
+                <p class="mb-6">
+                    Phần mềm được thiết kế với cơ chế hoạt động theo điểm (point-based) và giữ nguyên tính liên kết hình học (dependency). Khi bạn thay đổi vị trí của các điểm gốc, toàn bộ các hình được tạo ra từ nó sẽ tự động tính toán lại, đảm bảo tính chặt chẽ trong tư duy toán học.
+                </p>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg text-slate-700 shadow-sm flex items-start">
+                    <div class="bg-white p-2 rounded-full shadow-sm mr-4 mt-0.5">
+                        <i class="fas fa-lightbulb text-blue-500 text-xl"></i>
+                    </div>
+                    <p class="pt-1">Mẹo nhỏ: Toàn bộ mã nguồn TikZ được sinh ra tự động ở bảng phía dưới màn hình. Bạn chỉ cần copy và paste vào bài trình bày LaTeX của mình!</p>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-3xl font-bold mb-10 text-center text-slate-800 tracking-tight">Hướng dẫn 7 Nhóm Chức năng</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- 1. Action -->
+            <div class="modern-card flex flex-col h-full">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-hand-pointer text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Action</span>
+                </div>
+                <div class="p-6 flex-grow bg-white rounded-b-xl">
+                    <p class="text-slate-500 text-sm mb-5 pb-3 border-b border-slate-100">Công cụ điều khiển và chọn lựa đối tượng.</p>
+                    <ul class="space-y-5">
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Select (Chọn)</span>
+                            <p class="text-slate-700 mt-1"><strong>Chức năng:</strong> Chọn đối tượng để thay đổi thuộc tính, xóa, hoặc copy.</p>
+                            <p class="text-sm text-slate-500 mt-1"><strong>Cách dùng:</strong> Click trái vào đối tượng. Giữ <code>Shift</code> + click để chọn nhiều, hoặc kéo thả quét vùng Lasso.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Move (Di chuyển / Pan)</span>
+                            <p class="text-slate-700 mt-1"><strong>Chức năng:</strong> Di chuyển khung nhìn hoặc điểm tự do.</p>
+                            <p class="text-sm text-slate-500 mt-1"><strong>Cách dùng:</strong> Kéo thả khoảng trống để di chuyển bảng vẽ. Kéo thả điểm gốc để di dời.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 2. Point -->
+            <div class="modern-card flex flex-col h-full">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-circle text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Point</span>
+                </div>
+                <div class="p-6 flex-grow bg-white rounded-b-xl">
+                    <p class="text-slate-500 text-sm mb-5 pb-3 border-b border-slate-100">Các chức năng tạo ra điểm (nền tảng hình học).</p>
+                    <ul class="space-y-5">
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Point (Điểm tự do)</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Chọn công cụ, click chuột vào bất kỳ đâu trên mặt phẳng hoặc lên một đoạn thẳng.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Midpoint (Trung điểm)</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click chọn 2 điểm có sẵn, hoặc click thẳng vào 1 đoạn thẳng.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Intersection (Giao điểm)</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Lần lượt click vào 2 đối tượng đang giao nhau (ví dụ 2 đường thẳng).</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. Line -->
+            <div class="modern-card flex flex-col h-full md:col-span-2">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-grip-lines text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Line (Đường & Cạnh)</span>
+                </div>
+                <div class="p-6 bg-white rounded-b-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <ul class="space-y-5">
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Line (Đường thẳng)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click 2 lần trên bảng vẽ để tạo đường thẳng kéo dài vô tận.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Segment (Đoạn thẳng)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click chọn 2 điểm giới hạn của đoạn.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Ray (Tia)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click điểm gốc, rồi click điểm ngọn của tia.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Vector</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Tương tự tia nhưng sẽ có thêm mũi tên chỉ hướng ở ngọn.</p>
+                            </li>
+                        </ul>
+                        <ul class="space-y-5">
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Parallel (Song song)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click chọn điểm đi qua, sau đó click đường thẳng mốc.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Perpendicular (Vuông góc)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click chọn điểm đi qua, click đường thẳng mốc.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Perpendicular Bisector</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Vẽ đường trung trực bằng cách click vào đoạn thẳng.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Angle Bisector</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Vẽ phân giác bằng cách click 3 điểm tạo góc (điểm giữa là đỉnh).</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Shape -->
+            <div class="modern-card flex flex-col h-full">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-draw-polygon text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Shape (Đa giác & Tròn)</span>
+                </div>
+                <div class="p-6 flex-grow bg-white rounded-b-xl">
+                    <ul class="space-y-5">
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Circle (Đường tròn Tâm-Điểm)</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click chọn điểm làm tâm, click điểm xác định bán kính.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Compass (Bán kính từ đoạn)</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click 1 đoạn thẳng (đo bán kính), click 1 điểm để đặt tâm.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Circumcircle & Incircle</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click 3 đỉnh tam giác để vẽ vòng tròn ngoại tiếp/nội tiếp.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Polygon (Đa giác)</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Lần lượt click các đỉnh, sau đó click lại đỉnh đầu tiên để khép kín hình.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 5. Conic -->
+            <div class="modern-card flex flex-col h-full">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-wave-square text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Conic</span>
+                </div>
+                <div class="p-6 flex-grow bg-white rounded-b-xl">
+                    <ul class="space-y-5">
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Ellipse & Hyperbola</span>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click chọn 2 tiêu điểm trước, sau đó click điểm thứ 3 thuộc quỹ đạo.</p>
+                        </li>
+                        <li>
+                            <span class="modern-badge mb-2 inline-block shadow-sm">Polynomial (Đa thức)</span>
+                            <p class="text-slate-700 mt-1"><strong>Chức năng:</strong> Vẽ đường cong đa thức mượt mà đi qua các điểm.</p>
+                            <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click nhiều điểm khác nhau, hệ thống tự nội suy ra đồ thị.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 6. Transform -->
+            <div class="modern-card flex flex-col h-full md:col-span-2">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-sync-alt text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Transform (Biến hình)</span>
+                </div>
+                <div class="p-6 bg-white rounded-b-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <ul class="space-y-5">
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Reflect Line (Đối xứng trục)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click đối tượng, sau đó click đường thẳng làm trục phản chiếu.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Reflect Point (Đối xứng tâm)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click đối tượng, click điểm làm tâm phản chiếu.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Rotate (Phép quay)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click đối tượng, click tâm quay. Nhập góc (độ) vào hộp thoại.</p>
+                            </li>
+                        </ul>
+                        <ul class="space-y-5">
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Translate (Tịnh tiến)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click đối tượng, click chọn một vector tịnh tiến.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Dilate (Phép vị tự)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click đối tượng, click tâm vị tự. Nhập tỷ lệ phóng to/thu nhỏ k.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Measure & Utils -->
+            <div class="modern-card flex flex-col h-full md:col-span-2">
+                <div class="modern-header flex items-center shadow-inner">
+                    <div class="bg-white/20 p-2 rounded-lg mr-3">
+                        <i class="fas fa-drafting-compass text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-wide">Nhóm Measure & Utils (Tiện ích)</span>
+                </div>
+                <div class="p-6 bg-white rounded-b-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <ul class="space-y-5">
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Angle (Đo góc)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click 3 đỉnh (đỉnh góc ở giữa). Có thể đánh dấu tick bằng nhau hoặc ký hiệu vuông ở Properties.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Distance / Area</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click đoạn thẳng hoặc đa giác để hiển thị độ dài/diện tích thực tế.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Text (Văn bản)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click vùng trống, nhập văn bản (Hỗ trợ LaTeX).</p>
+                            </li>
+                        </ul>
+                        <ul class="space-y-5">
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Trim (Cắt bỏ)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click vào phần đoạn thừa giữa các giao điểm để xóa, làm gọn hình.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Fill (Tô màu)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Click vào không gian khép kín bất kỳ để hệ thống tự nhận diện và bôi màu.</p>
+                            </li>
+                            <li>
+                                <span class="modern-badge mb-2 inline-block shadow-sm">Slider (Thanh trượt)</span>
+                                <p class="text-sm text-slate-600 mt-1"><strong>Cách dùng:</strong> Đặt thanh trượt làm biến số động. Có tính năng Auto Play giúp hình cử động.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-16 mb-8 text-center">
+        <div class="inline-flex items-center justify-center space-x-2 text-slate-400 font-medium bg-white px-6 py-3 rounded-full shadow-sm border border-slate-100">
+            <span>Built with</span>
+            <i class="fas fa-heart text-red-500"></i>
+            <span>cho những ai yêu thích Toán học & Hình học.</span>
+        </div>
+    </footer>
+
+</body>
+</html>
