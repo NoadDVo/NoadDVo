@@ -17,6 +17,7 @@ import {
   getPoint,
   parseNumber,
   Readout,
+  SelectInput,
   Section,
   TextInput,
   ToggleRow,
@@ -34,7 +35,7 @@ export function GeometryPanel({
   updateSelected,
 }: GeometryPanelProps) {
   if (object.type === "point") {
-    return <PointGeometry object={object} updateSelected={updateSelected} />;
+    return <PointGeometry object={object} objects={objects} updateSelected={updateSelected} />;
   }
 
   if (object.type === "circle") {
@@ -183,6 +184,10 @@ export function GeometryPanel({
     return <ImageGeometry object={object} updateSelected={updateSelected} />;
   }
 
+  if (object.type === "slider") {
+    return <SliderGeometry object={object as import("../../core/geometry").SliderObject} updateSelected={updateSelected} />;
+  }
+
   return (
     <Section title="Geometry">
       <Readout label="Details" value="No editable geometry fields" />
@@ -299,12 +304,163 @@ function ImageGeometry({
   );
 }
 
-function PointGeometry({
+function SliderGeometry({
   object,
   updateSelected,
 }: Pick<GeometryPanelProps, "updateSelected"> & {
+  readonly object: Extract<GeometryObject, { readonly type: "slider" }>;
+}) {
+  return (
+    <Section title="Slider Settings">
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <Field label="Min">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "slider"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      min: parseNumber(event.target.value, current.min),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.min}
+          />
+        </Field>
+        <Field label="Max">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "slider"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      max: parseNumber(event.target.value, current.max),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.max}
+          />
+        </Field>
+      </div>
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <Field label="Step">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "slider"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      step: parseNumber(event.target.value, current.step),
+                    }
+                  : current,
+              )
+            }
+            step={0.01}
+            type="number"
+            value={object.step}
+          />
+        </Field>
+        <Field label="Value">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "slider"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      value: parseNumber(event.target.value, current.value),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.value}
+          />
+        </Field>
+      </div>
+      <div className="grid grid-cols-2 gap-2 mb-2">
+        <Field label="Auto Play">
+          <button
+            onClick={() =>
+              updateSelected((current) =>
+                current.type === "slider"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      isAnimating: !current.isAnimating,
+                    }
+                  : current,
+              )
+            }
+            className={`w-full py-1 rounded text-sm font-medium transition-colors ${
+              object.isAnimating 
+                ? "bg-red-500 hover:bg-red-600 text-white" 
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+          >
+            {object.isAnimating ? "Pause" : "Play"}
+          </button>
+        </Field>
+        <Field label="Speed (units/s)">
+          <TextInput
+            onChange={(event) =>
+              updateSelected((current) =>
+                current.type === "slider"
+                  ? {
+                      ...current,
+                      updatedAt: Date.now(),
+                      animationSpeed: parseNumber(event.target.value, current.animationSpeed ?? 1),
+                    }
+                  : current,
+              )
+            }
+            step={0.1}
+            type="number"
+            value={object.animationSpeed ?? 1}
+          />
+        </Field>
+      </div>
+      <Field label="Variable Name">
+        <TextInput
+          onChange={(event) =>
+            updateSelected((current) =>
+              current.type === "slider"
+                ? {
+                    ...current,
+                    updatedAt: Date.now(),
+                    variableName: event.target.value,
+                  }
+                : current,
+            )
+          }
+          type="text"
+          value={object.variableName}
+        />
+      </Field>
+    </Section>
+  );
+}
+
+function PointGeometry({
+  object,
+  objects,
+  updateSelected,
+}: Pick<GeometryPanelProps, "objects" | "updateSelected"> & {
   readonly object: Extract<GeometryObject, { readonly type: "point" }>;
 }) {
+  const sliders = Object.values(objects).filter((obj) => obj.type === "slider");
+  const isPointOnObject = object.construction?.type === "point-on-object";
+  const boundSliderId = isPointOnObject ? (object.construction as any).bindSliderId : undefined;
   return (
     <Section title="Geometry">
       <div className="grid grid-cols-2 gap-2">
@@ -344,23 +500,63 @@ function PointGeometry({
         </Field>
       </div>
       {object.construction?.type === "midpoint" && (
-        <div className="mt-4">
-          <label className="flex items-center gap-2 text-xs font-medium text-slate-300">
-            <input
-              checked={object.showEqualityTicks ?? false}
-              className="rounded border-slate-700 bg-slate-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-900"
-              onChange={(e) =>
-                updateSelected((current) =>
-                  current.type === "point"
-                    ? { ...current, showEqualityTicks: e.target.checked }
-                    : current
-                )
-              }
-              type="checkbox"
-            />
-            Hiện ký hiệu bằng nhau
-          </label>
-        </div>
+        <ToggleRow
+          checked={object.showEqualityTicks ?? false}
+          label="Show Equality Ticks"
+          onChange={(checked) =>
+            updateSelected((current) =>
+              current.type === "point"
+                ? { ...current, showEqualityTicks: checked }
+                : current
+            )
+          }
+        />
+      )}
+      {isPointOnObject && sliders.length > 0 && (
+        <Field label="Bind to Slider">
+          <SelectInput
+            value={boundSliderId || ""}
+            onChange={(event) =>
+              updateSelected((current) => {
+                if (current.type === "point" && current.construction?.type === "point-on-object") {
+                  const newConstruction: any = { ...current.construction };
+                  const oldSliderId = current.construction.bindSliderId;
+                  const newSliderId = event.target.value;
+                  
+                  let newDependencies = [...current.dependencies];
+                  
+                  if (oldSliderId) {
+                    newDependencies = newDependencies.filter(id => id !== oldSliderId);
+                  }
+                  
+                  if (newSliderId) {
+                    newConstruction.bindSliderId = newSliderId;
+                    if (!newDependencies.includes(newSliderId)) {
+                      newDependencies.push(newSliderId);
+                    }
+                  } else {
+                    delete newConstruction.bindSliderId;
+                  }
+                  
+                  return {
+                    ...current,
+                    dependencies: newDependencies,
+                    construction: newConstruction,
+                    updatedAt: Date.now(),
+                  };
+                }
+                return current;
+              })
+            }
+          >
+            <option value="">-- None --</option>
+            {sliders.map((s) => (
+              <option key={s.id} value={s.id}>
+                {(s as any).variableName || s.id}
+              </option>
+            ))}
+          </SelectInput>
+        </Field>
       )}
     </Section>
   );

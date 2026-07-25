@@ -91,6 +91,12 @@ export function getBoundingBox(
   }
 
   if (object.type === "region") {
+    if (object.regionKind === "boundary") {
+      const points = object.dependencies
+        .map((id) => getPoint(id, objects))
+        .filter((p): p is PointObject => p !== null);
+      return boxFromPoints(points);
+    }
     return boxFromPoints(getPolygonPoints(object, objects) ?? []);
   }
 

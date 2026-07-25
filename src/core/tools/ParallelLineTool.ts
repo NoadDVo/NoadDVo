@@ -102,10 +102,6 @@ export class ParallelLineTool extends BaseTool {
       directionPoint,
       context.objects,
       construction,
-      {
-        namePrefix: `H${Date.now().toString(36)}`,
-        visible: false,
-      },
     );
 
     if (hasLineWithEndpoints(anchorPoint.id, helperPoint.id, context.objects)) {

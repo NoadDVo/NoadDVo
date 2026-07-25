@@ -7,6 +7,7 @@ import {
   Section,
   SelectInput,
   TextInput,
+  patternOptions,
 } from "./PropertyInspectorFields";
 import { TextAppearanceControls } from "./TextAppearanceControls";
 import { VectorArrowControls } from "./VectorArrowControls";
@@ -34,7 +35,15 @@ export function AppearancePanel({
         </Field>
         <Field label="Fill">
           <TextInput
-            onChange={(event) => updateStyle({ fill: event.target.value })}
+            onChange={(event) => {
+              const updates: any = { fill: event.target.value };
+              if (object.style.fillOpacity === 0 && event.target.value !== "transparent" && event.target.value !== "#000000") {
+                updates.fillOpacity = 0.2;
+              } else if (object.style.fillOpacity === 0 && object.style.fill === "transparent") {
+                 updates.fillOpacity = 0.2;
+              }
+              updateStyle(updates);
+            }}
             type="color"
             value={object.style.fill === "transparent" ? "#000000" : object.style.fill}
           />
@@ -129,6 +138,65 @@ export function AppearancePanel({
       )}
       {object.type === "text" && (
         <TextAppearanceControls object={object} updateSelected={updateSelected} />
+      )}
+      {(object.type === "circle" || object.type === "polygon" || object.type === "region" || object.type === "area" || object.type === "ellipse") && (
+        <>
+          <Field label="Pattern Type">
+            <SelectInput
+              onChange={(event) => {
+                const updates: any = { pattern: { ...(object.style.pattern ?? { type: "none", density: 0.5, size: 10 }), type: event.target.value as any } };
+                if (object.style.fillOpacity === 0 && event.target.value !== "none") {
+                  updates.fillOpacity = 0.2;
+                }
+                updateStyle(updates);
+              }}
+              value={object.style.pattern?.type ?? "none"}
+            >
+              {patternOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </SelectInput>
+          </Field>
+          {object.style.pattern?.type && object.style.pattern.type !== "none" && (
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Pattern Density">
+                <TextInput
+                  max={1}
+                  min={0.1}
+                  onChange={(event) =>
+                    updateStyle({
+                      pattern: {
+                        ...(object.style.pattern ?? { type: "none", density: 0.5, size: 10 }),
+                        density: clamp(parseNumber(event.target.value, object.style.pattern?.density ?? 0.5), 0.1, 1),
+                      }
+                    })
+                  }
+                  step={0.1}
+                  type="number"
+                  value={object.style.pattern?.density ?? 0.5}
+                />
+              </Field>
+              <Field label="Pattern Size">
+                <TextInput
+                  min={1}
+                  onChange={(event) =>
+                    updateStyle({
+                      pattern: {
+                        ...(object.style.pattern ?? { type: "none", density: 0.5, size: 10 }),
+                        size: Math.max(1, parseNumber(event.target.value, object.style.pattern?.size ?? 10)),
+                      }
+                    })
+                  }
+                  step={1}
+                  type="number"
+                  value={object.style.pattern?.size ?? 10}
+                />
+              </Field>
+            </div>
+          )}
+        </>
       )}
     </Section>
   );

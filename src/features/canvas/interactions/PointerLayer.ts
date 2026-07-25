@@ -30,6 +30,7 @@ export function getToolPointerEvent(
       altKey: event.altKey,
       button: event.button,
       buttons: event.buttons,
+      clickCount: event.detail || 1, // detail contains the click count for pointer/mouse events
       ctrlKey: event.ctrlKey,
       metaKey: event.metaKey,
       pointerId: event.pointerId,

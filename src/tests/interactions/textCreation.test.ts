@@ -104,6 +104,7 @@ function fakeContext(objects: GeometryObjectRecord = {}): ToolContext {
     },
     commitHistoryTransaction: () => {},
     deleteObject: () => {},
+    mergePoints: () => {},
     gridSize: 1,
     get hoveredObjectId() {
       return hoveredObjectId;
@@ -136,6 +137,7 @@ function pointerEvent(worldPoint: { readonly x: number; readonly y: number }): T
     altKey: false,
     button: 0,
     buttons: 1,
+    clickCount: 1,
     ctrlKey: false,
     metaKey: false,
     pointerId: 1,

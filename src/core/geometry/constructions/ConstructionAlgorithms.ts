@@ -52,7 +52,7 @@ function resolveVariable(
   return parseFloat(valueOrVariable) || defaultValue;
 }
 
-function getLinearPoints(
+export function getLinearPoints(
   object: LinearObject,
   objects: GeometryObjectRecord,
 ): readonly [PointObject, PointObject] | null {
@@ -695,4 +695,107 @@ export function recomputeConstructedPoint(
   }
 
   return pointsAlmostEqual(point, candidate) ? null : candidate;
+}
+
+export function evaluatePointOnPath(
+  object: GeometryObject,
+  t: number,
+  objects: GeometryObjectRecord,
+): Point2D | null {
+  if (
+    object.type === "segment" ||
+    object.type === "line" ||
+    object.type === "ray"
+  ) {
+    const points = getLinearPoints(object as LinearObject, objects);
+    if (!points) return null;
+    const [pA, pB] = points;
+    return { x: pA.x + t * (pB.x - pA.x), y: pA.y + t * (pB.y - pA.y) };
+  }
+  
+  if (object.type === "vector") {
+    const pA = getPoint(objects, object.startPointId);
+    const pB = getPoint(objects, object.endPointId);
+    if (!pA || !pB) return null;
+    return { x: pA.x + t * (pB.x - pA.x), y: pA.y + t * (pB.y - pA.y) };
+  }
+
+  if (object.type === "circle") {
+    const data = getCircleGeometry(object as any, objects);
+    if (!data) return null;
+    // t is usually in radians [0, 2pi]. Let's assume t is radians.
+    // If users use degrees, they can do so by binding to a slider ranging [0, 360] and multiplying by Math.PI/180?
+    // Wait, let's treat t as radians directly.
+    return {
+      x: data.center.x + data.radius * Math.cos(t),
+      y: data.center.y + data.radius * Math.sin(t),
+    };
+  }
+
+  if (object.type === "arc") {
+    // For Arc, it's a circle from startAngle to endAngle. t could be from 0 to 1 mapping the arc length,
+    // or t could be the angle. Let's just use t as angle for now.
+    const center = getPoint(objects, object.centerPointId);
+    const startPoint = getPoint(objects, object.startPointId);
+    if (!center || !startPoint) return null;
+    const r = distance(center, startPoint);
+    return {
+      x: center.x + r * Math.cos(t),
+      y: center.y + r * Math.sin(t),
+    };
+  }
+
+  if (object.type === "ellipse") {
+    const fA = getPoint(objects, object.focusAId);
+    const fB = getPoint(objects, object.focusBId);
+    if (!fA || !fB) return null;
+    const center = midpoint(fA, fB);
+    const c = distance(fA, center);
+    
+    // We need 'a'. Usually it's derived from pointOnEllipseId
+    const pOnCurve = getPoint(objects, object.pointOnEllipseId);
+    if (!pOnCurve) return null;
+    const a = (distance(fA, pOnCurve) + distance(fB, pOnCurve)) / 2;
+    
+    if (a <= c) return null;
+    const b = Math.sqrt(a * a - c * c);
+    const angle = Math.atan2(fB.y - fA.y, fB.x - fA.x);
+    
+    const cosT = Math.cos(t);
+    const sinT = Math.sin(t);
+    
+    // Parametric equation of ellipse rotated by angle
+    const localX = a * cosT;
+    const localY = b * sinT;
+    
+    return {
+      x: center.x + localX * Math.cos(angle) - localY * Math.sin(angle),
+      y: center.y + localX * Math.sin(angle) + localY * Math.cos(angle),
+    };
+  }
+
+  if (object.type === "polygon") {
+    // Basic mapping: integer part of t is the edge index, fractional part is the position on the edge.
+    if (object.pointIds.length < 2) return null;
+    const n = object.pointIds.length;
+    // Normalize t to [0, n] for mapping around the perimeter
+    const modT = ((t % n) + n) % n; 
+    const edgeIndex = Math.floor(modT);
+    const frac = modT - edgeIndex;
+    
+    const v1Id = object.pointIds[edgeIndex];
+    const v2Id = object.pointIds[(edgeIndex + 1) % n];
+    if (!v1Id || !v2Id) return null;
+    const p1 = getPoint(objects, v1Id);
+    const p2 = getPoint(objects, v2Id);
+    if (!p1 || !p2) return null;
+    
+    return {
+      x: p1.x + frac * (p2.x - p1.x),
+      y: p1.y + frac * (p2.y - p1.y),
+    };
+  }
+
+  // Not supported or not implemented path
+  return null;
 }

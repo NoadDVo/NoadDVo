@@ -13,6 +13,7 @@ import { LeftToolbar } from "../toolbar";
 import { StatusBar, TopBar } from "./layout";
 import { HelpDialog } from "./layout/HelpDialog";
 import { resolveThemeMode, useUiStore } from "../../app/store/uiStore";
+import { useSliderAnimation } from "../objects/useSliderAnimation";
 
 export function AppShell() {
   const theme = useUiStore((state) => state.theme);
@@ -41,6 +42,8 @@ export function AppShell() {
   useEffect(() => {
     projectManager.startAutosave();
   }, []);
+
+  useSliderAnimation();
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: light)");

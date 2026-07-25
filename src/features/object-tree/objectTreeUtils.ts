@@ -46,6 +46,7 @@ const sectionLabels: readonly {
   { accepts: (object) => object.type === "region", id: "regions", label: "Regions" },
   { accepts: (object) => object.type === "angle", id: "angles", label: "Angles" },
   { accepts: (object) => object.type === "text", id: "text", label: "Text" },
+  { accepts: (object) => object.type === "slider", id: "sliders", label: "Sliders" },
   {
     accepts: (object) => object.dependencies.length > 0,
     id: "construction",
@@ -57,7 +58,7 @@ function isLineLike(object: GeometryObject): boolean {
   return ["segment", "line", "ray", "vector"].includes(object.type);
 }
 
-function matchesFilter(object: GeometryObject, filter: ObjectTreeFilter): boolean {
+export function matchesFilter(object: GeometryObject, filter: ObjectTreeFilter): boolean {
   if (filter === "all") {
     return true;
   }
@@ -87,6 +88,24 @@ function matchesFilter(object: GeometryObject, filter: ObjectTreeFilter): boolea
   }
 
   return object.locked;
+}
+
+export function countObjectsPerFilter(
+  objects: GeometryObjectRecord,
+): Readonly<Record<ObjectTreeFilter, number>> {
+  const allObjects = Object.values(objects);
+  const visibleObjects = allObjects.filter((o) => o.visible);
+
+  return {
+    all: visibleObjects.length,
+    circles: visibleObjects.filter((o) => o.type === "circle").length,
+    construction: visibleObjects.filter((o) => o.dependencies.length > 0).length,
+    hidden: allObjects.filter((o) => !o.visible).length,
+    lines: visibleObjects.filter((o) => isLineLike(o)).length,
+    locked: allObjects.filter((o) => o.locked).length,
+    measurements: 0,
+    points: visibleObjects.filter((o) => o.type === "point").length,
+  };
 }
 
 function matchesSearch(object: GeometryObject, query: string): boolean {

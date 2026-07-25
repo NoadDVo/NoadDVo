@@ -1,5 +1,5 @@
 import type { PolygonObject } from "../../geometry";
-import { formatStyleOptions, styleToTikzParts, getTikzPointReference } from "../TikzFormatter";
+import { formatStyleOptions, styleToTikzParts, getTikzPointReference, formatPatternFill } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
 
 function hasVisibleFill(object: PolygonObject): boolean {
@@ -27,20 +27,44 @@ export const PolygonExporter: TikzObjectExporter<PolygonObject> = {
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
     const style = styleToTikzParts(object.style, context.options, colorFor);
-    const fillVisible = context.options.preserveStyle && hasVisibleFill(object);
-    const strokeVisible = hasVisibleStroke(object);
-    const options = formatStyleOptions({
-      ...style,
-      draw: strokeVisible ? style.draw : undefined,
-      fill: fillVisible ? style.fill : undefined,
-      fillOpacity: fillVisible ? style.fillOpacity : undefined,
-    });
-    const command = fillVisible ? (strokeVisible ? "\\filldraw" : "\\fill") : "\\draw";
-    const targetSection = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
+    
+    const path = names.map((name) => `(${name})`).join(" -- ") + " -- cycle";
 
-    targetSection.push(
-      `${command}${options} ${names.map((name) => `(${name})`).join(" -- ")} -- cycle;`,
-    );
+    const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+
+    if (hasPattern) {
+      const patternLines = formatPatternFill(
+        path,
+        object.style,
+        context.options,
+        colorFor
+      );
+      
+      patternLines.forEach(line => {
+        context.scene.sections.fills.push(line);
+      });
+
+      if (hasVisibleStroke(object)) {
+        const strokeStyle = { ...object.style, fill: "transparent", fillOpacity: 0 };
+        const strokeOptions = formatStyleOptions(
+          styleToTikzParts(strokeStyle, context.options, colorFor)
+        );
+        context.scene.sections.shapes.push(`\\draw${strokeOptions} ${path};`);
+      }
+    } else {
+      const fillVisible = context.options.preserveStyle && hasVisibleFill(object);
+      const strokeVisible = hasVisibleStroke(object);
+      const options = formatStyleOptions({
+        ...style,
+        draw: strokeVisible ? style.draw : undefined,
+        fill: fillVisible ? style.fill : undefined,
+        fillOpacity: fillVisible ? style.fillOpacity : undefined,
+      });
+      const command = fillVisible ? (strokeVisible ? "\\filldraw" : "\\fill") : "\\draw";
+      const targetSection = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
+
+      targetSection.push(`${command}${options} ${path};`);
+    }
   },
   objectType: "polygon",
 };

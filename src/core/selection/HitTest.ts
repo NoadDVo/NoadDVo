@@ -31,6 +31,7 @@ export const HIT_RADIUS = 8;
 
 type HitTestOptions = {
   readonly tolerancePx?: number;
+  readonly ignoreObjectIds?: ReadonlySet<string>;
 };
 
 function getPoint(
@@ -102,10 +103,11 @@ function distanceToRayPx(
 function visibleObjectsByType<TType extends GeometryObject["type"]>(
   objects: GeometryObjectRecord,
   type: TType,
+  ignoreObjectIds?: ReadonlySet<string>,
 ) {
   return Object.values(objects).filter(
     (object): object is Extract<GeometryObject, { readonly type: TType }> =>
-      object.visible && object.type === type,
+      object.visible && object.type === type && (!ignoreObjectIds || !ignoreObjectIds.has(object.id)),
   );
 }
 
@@ -139,7 +141,7 @@ export function hitTest(
 ): HitTestResult | null {
   const tolerancePx = options.tolerancePx ?? 10;
 
-  for (const object of visibleObjectsByType(objects, "point")) {
+  for (const object of visibleObjectsByType(objects, "point", options.ignoreObjectIds)) {
     const point = worldToScreen(object, viewport);
     const distance = Math.sqrt(
       Math.pow(screenPoint.x - point.x, 2) + Math.pow(screenPoint.y - point.y, 2)
@@ -150,7 +152,7 @@ export function hitTest(
     }
   }
 
-  for (const object of visibleObjectsByType(objects, "point")) {
+  for (const object of visibleObjectsByType(objects, "point", options.ignoreObjectIds)) {
     if (!object.name || !object.style.labelVisible) {
       continue;
     }
@@ -238,6 +240,8 @@ export function hitTest(
       return { object, objectId: object.id, type: "polygon" };
     }
   }
+
+
 
   for (const object of visibleObjectsByType(objects, "circle")) {
     const geometry = getCircleGeometry(object, objects);

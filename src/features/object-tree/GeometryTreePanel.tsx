@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Hash, Search } from "lucide-react";
+import { Eye, Hash, Search } from "lucide-react";
 import clsx from "clsx";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
@@ -9,6 +9,7 @@ import { Panel } from "../../ui/primitives";
 import { DependencySummary, EmptySearchState } from "./DependencySummary";
 import { ObjectTreeItem } from "./ObjectTreeItem";
 import {
+  countObjectsPerFilter,
   createObjectTreeSections,
   objectTreeFilters,
   type ObjectTreeFilter,
@@ -33,6 +34,15 @@ export function GeometryTreePanel() {
   const graph = useMemo(() => DependencyGraph.fromObjects(objects), [objects]);
   const selectedObject = selectedObjectIds[0] ? objects[selectedObjectIds[0]] : null;
   const objectCount = Object.keys(objects).length;
+  const filterCounts = useMemo(() => countObjectsPerFilter(objects), [objects]);
+
+  const hiddenObjects = useMemo(
+    () => Object.values(objects).filter((obj) => !obj.visible),
+    [objects],
+  );
+  const hiddenCount = hiddenObjects.length;
+
+
 
   const renameObject = (object: GeometryObject, name: string) => {
     const trimmedName = name.trim();
@@ -60,7 +70,7 @@ export function GeometryTreePanel() {
       eyebrow="Workspace"
       title="Object Tree"
     >
-      <div className="grid h-full min-h-0 grid-rows-[auto_auto_minmax(0,1fr)_auto]">
+      <div className="grid h-full min-h-0 grid-rows-[auto_auto_auto_minmax(0,1fr)_auto]">
       <div className="border-b border-arctic-border/8 px-3 py-2">
           <label className={clsx(
             "flex h-8 items-center gap-2 rounded-[12px] border px-2.5",
@@ -78,12 +88,21 @@ export function GeometryTreePanel() {
             />
           </label>
         </div>
-        <FilterBar filter={filter} setFilter={setFilter} />
+        <FilterBar
+          filter={filter}
+          filterCounts={filterCounts}
+          setFilter={setFilter}
+        />
+
         <div className="min-h-0 overflow-y-auto px-3 py-2">
           {objectCount === 0 ? (
             <EmptyTreeState />
           ) : sections.length === 0 ? (
-            <EmptySearchState />
+            filter === "hidden" && hiddenCount === 0 ? (
+              <EmptyHiddenState />
+            ) : (
+              <EmptySearchState />
+            )
           ) : (
             sections.map((section) => (
               <div className="mb-3" key={section.id}>
@@ -134,9 +153,11 @@ export function GeometryTreePanel() {
 
 function FilterBar({
   filter,
+  filterCounts,
   setFilter,
 }: {
   readonly filter: ObjectTreeFilter;
+  readonly filterCounts: Readonly<Record<ObjectTreeFilter, number>>;
   readonly setFilter: (filter: ObjectTreeFilter) => void;
 }) {
   const appTheme = useUiStore((state) => state.appTheme);
@@ -144,34 +165,52 @@ function FilterBar({
 
   return (
     <div className={clsx(
-      "flex gap-1 overflow-x-auto px-3 py-2",
+      "flex flex-wrap gap-1 px-3 py-2",
       isDark ? "border-b border-zinc-700/60 bg-[#18191E]" : "border-b-[3px] border-arctic-border bg-arctic-bg"
     )}>
-      {objectTreeFilters.map((item) => (
-        <button
-          className={clsx(
-            "shrink-0 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] transition",
-            isDark
-              ? clsx(
-                  "rounded-md border",
-                  filter === item.id
-                    ? "border-zinc-600 bg-zinc-700 text-zinc-100"
-                    : "border-transparent text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
-                )
-              : clsx(
-                  "rounded-none border-[3px] border-transparent",
-                  filter === item.id
-                    ? "bg-arctic-primary text-arctic-text border-arctic-border shadow-brutal"
-                    : "text-arctic-muted hover:bg-arctic-primary-hover hover:text-arctic-text hover:border-arctic-border hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5"
-                )
-          )}
-          key={item.id}
-          onClick={() => setFilter(item.id)}
-          type="button"
-        >
-          {item.label}
-        </button>
-      ))}
+      {objectTreeFilters.map((item) => {
+        const count = filterCounts[item.id];
+
+        return (
+          <button
+            className={clsx(
+              "relative flex shrink-0 items-center gap-1 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] transition",
+              isDark
+                ? clsx(
+                    "rounded-md border",
+                    filter === item.id
+                      ? "border-zinc-600 bg-zinc-700 text-zinc-100"
+                      : "border-transparent text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                  )
+                : clsx(
+                    "rounded-none border-[3px] border-transparent",
+                    filter === item.id
+                      ? "bg-arctic-primary text-arctic-text border-arctic-border shadow-brutal"
+                      : "text-arctic-muted hover:bg-arctic-primary-hover hover:text-arctic-text hover:border-arctic-border hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5"
+                  )
+            )}
+            key={item.id}
+            onClick={() => setFilter(item.id)}
+            type="button"
+          >
+            {item.label}
+            {count > 0 && (
+              <span className={clsx(
+                "inline-flex min-w-[16px] items-center justify-center rounded-full px-1 text-[8px] font-black leading-[16px]",
+                isDark
+                  ? filter === item.id
+                    ? "bg-zinc-500/40 text-zinc-200"
+                    : "bg-zinc-700 text-zinc-400"
+                  : filter === item.id
+                    ? "bg-arctic-border text-arctic-text"
+                    : "bg-arctic-muted/20 text-arctic-muted"
+              )}>
+                {count > 99 ? "99+" : count}
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -183,6 +222,30 @@ function EmptyTreeState() {
       <p className="mt-2 text-sm font-bold text-arctic-text">No geometry objects</p>
       <p className="mt-1 text-xs font-semibold text-arctic-muted">
         Create a point or load an example to populate the tree.
+      </p>
+    </div>
+  );
+}
+
+function EmptyHiddenState() {
+  const appTheme = useUiStore((state) => state.appTheme);
+  const isDark = appTheme === "theme2";
+
+  return (
+    <div className={clsx(
+      "rounded-[14px] border px-4 py-4",
+      isDark ? "border-zinc-700/40 bg-zinc-800/30" : "border-arctic-border/8 bg-arctic-surface/55"
+    )}>
+      <Eye size={18} strokeWidth={2} className={isDark ? "text-green-400/60" : "text-green-600/60"} />
+      <p className={clsx(
+        "mt-2 text-sm font-bold",
+        isDark ? "text-zinc-200" : "text-arctic-text"
+      )}>No hidden objects</p>
+      <p className={clsx(
+        "mt-1 text-xs font-semibold",
+        isDark ? "text-zinc-400" : "text-arctic-muted"
+      )}>
+        All objects are currently visible. Hide objects using the eye icon in the object list.
       </p>
     </div>
   );

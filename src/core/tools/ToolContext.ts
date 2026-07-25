@@ -15,6 +15,7 @@ export type ToolModifierKeys = {
 export type ToolPointerEvent = ToolModifierKeys & {
   readonly button: number;
   readonly buttons: number;
+  readonly clickCount: number;
   readonly pointerId: number;
   readonly screenPoint: ScreenPoint;
   readonly snappedWorldPoint: Point2D;
@@ -39,6 +40,7 @@ export type ToolContext = {
   readonly clearSelection: () => void;
   readonly commitHistoryTransaction: () => void;
   readonly deleteObject: (objectId: string) => void;
+  readonly mergePoints: (sourceId: string, targetId: string) => void;
   readonly selectObject: (objectId: string, additive?: boolean) => void;
   readonly setHoveredObject: (objectId: string | null) => void;
   readonly setActiveTool: (toolId: GeometryToolId) => void;
@@ -58,6 +60,7 @@ export type ToolContext = {
 export type ToolPointerInput = ToolModifierKeys & {
   readonly button: number;
   readonly buttons: number;
+  readonly clickCount: number;
   readonly pointerId: number;
   readonly screenPoint: ScreenPoint;
 };
@@ -76,6 +79,7 @@ export function createToolContext(): ToolContext {
     deleteObject: geometryState.deleteObject,
     gridSize: viewportState.gridSize,
     hoveredObjectId: geometryState.hoveredObjectId,
+    mergePoints: geometryState.mergePoints,
     objects: geometryState.objects,
     pointerWorld: viewportState.pointerWorld,
     selectObject: geometryState.selectObject,
@@ -104,6 +108,7 @@ export function createToolPointerEvent(
     altKey: input.altKey,
     button: input.button,
     buttons: input.buttons,
+    clickCount: input.clickCount,
     ctrlKey: input.ctrlKey,
     metaKey: input.metaKey,
     pointerId: input.pointerId,

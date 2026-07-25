@@ -3,6 +3,12 @@ import { getCircleGeometry } from "../geometry";
 import { worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer } from "./RendererRegistry";
 
+function getDashArray(dash: CircleObject["style"]["dash"]): string | undefined {
+  if (dash === "dashed") return "10 8";
+  if (dash === "dotted") return "2 7";
+  return undefined;
+}
+
 export const CircleRenderer: GeometryRenderer<CircleObject> = {
   objectType: "circle",
   render: (object, context) => {
@@ -16,6 +22,12 @@ export const CircleRenderer: GeometryRenderer<CircleObject> = {
     const radius = geometry.radius * context.viewport.scale;
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
+    const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+    const fillValue = hasPattern
+      ? `url(#pattern-${object.id})`
+      : object.style.fill === "transparent"
+        ? "transparent"
+        : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -44,10 +56,12 @@ export const CircleRenderer: GeometryRenderer<CircleObject> = {
         <circle
           cx={center.x}
           cy={center.y}
-          fill={object.style.fill}
+          fill={fillValue}
           fillOpacity={object.style.fillOpacity}
           r={radius}
           stroke={object.style.stroke}
+          strokeDasharray={getDashArray(object.style.dash)}
+          strokeLinecap="round"
           strokeOpacity={object.style.strokeOpacity}
           strokeWidth={object.style.strokeWidth}
         />

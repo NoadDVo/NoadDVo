@@ -12,10 +12,9 @@ export const SliderRenderer: GeometryRenderer<SliderObject> = {
     const ratio = (object.value - object.min) / (object.max - object.min);
     const knobX = trackStart.x + object.widthPx * ratio;
     
-    const isSelected = context.selectedObjectIds.includes(object.id);
-    const isHovered = context.hoveredObjectId === object.id && !isSelected;
+    // Sliders do not change color when selected/hovered to avoid UI confusion
 
-    const strokeColor = isSelected ? "#3b82f6" : isHovered ? "#64748b" : object.style.stroke;
+    const strokeColor = object.style.stroke;
     const strokeWidth = object.style.strokeWidth;
     const knobRadius = HIT_RADIUS;
 

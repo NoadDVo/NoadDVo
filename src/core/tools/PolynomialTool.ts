@@ -68,8 +68,6 @@ export class PolynomialTool extends BaseTool {
         style: {
           ...DEFAULT_GEOMETRY_STYLE,
           fill: "transparent",
-          stroke: "#3b82f6", // blue
-          strokeWidth: 2,
         },
         type: "polynomial",
         updatedAt: now,

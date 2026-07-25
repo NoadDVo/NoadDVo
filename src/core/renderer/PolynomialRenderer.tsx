@@ -89,7 +89,7 @@ const PolynomialRendererComponent = memo(function PolynomialRendererComponent({
         strokeOpacity={object.style.strokeOpacity}
         strokeWidth={isSelected || isHovered ? object.style.strokeWidth + 2 : object.style.strokeWidth}
         pointerEvents="none"
-        strokeDasharray={object.style.dash === "dashed" ? "8,4" : object.style.dash === "dotted" ? "2,4" : undefined}
+        strokeDasharray={object.style.dash === "dashed" ? "10 8" : object.style.dash === "dotted" ? "2 7" : undefined}
       />
     </g>
   );

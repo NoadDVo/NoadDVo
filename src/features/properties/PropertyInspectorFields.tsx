@@ -4,12 +4,14 @@ import type {
   GeometryObject,
   LabelPosition,
   PointObject,
+  PatternType,
 } from "../../core/geometry";
 import { getCircleGeometry } from "../../core/geometry";
 import { clsx } from "clsx";
 import { useUiStore } from "../../app/store/uiStore";
 
 export const dashOptions = ["solid", "dashed", "dotted"] satisfies readonly DashStyle[];
+export const patternOptions = ["none", "dots", "stars", "triangles", "squares"] satisfies readonly PatternType[];
 export const labelPositions = [
   "above",
   "below",

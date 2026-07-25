@@ -81,7 +81,7 @@ function createEllipticalArc(
       dash: "solid",
       fill: "transparent",
       fillOpacity: 0.2,
-      stroke: "#2C3E50",
+      stroke: DEFAULT_GEOMETRY_STYLE.stroke,
       strokeOpacity: 1,
       strokeWidth: 2,
     },

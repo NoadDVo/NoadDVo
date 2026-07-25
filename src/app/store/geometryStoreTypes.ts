@@ -34,6 +34,7 @@ export type GeometryState = {
     updater: GeometryObjectUpdater,
   ) => boolean;
   readonly deleteObject: (objectId: string) => void;
+  readonly mergePoints: (sourceId: string, targetId: string) => void;
   readonly selectObject: (objectId: string, additive?: boolean) => void;
   readonly setSelectedObjects: (objectIds: readonly string[]) => void;
   readonly setHoveredObject: (objectId: string | null) => void;

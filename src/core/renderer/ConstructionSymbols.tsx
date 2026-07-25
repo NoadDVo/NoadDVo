@@ -1,6 +1,6 @@
 import type { GeometryObjectRecord, Point2D, PointObject } from "../geometry/types";
 import type { LineObject } from "../geometry";
-import { intersectLinearObjects } from "../geometry/constructions/ConstructionAlgorithms";
+import { intersectLinearObjects, getLinearPoints } from "../geometry/constructions/ConstructionAlgorithms";
 import { normalize, vectorFromPoints, midpoint } from "../geometry/math";
 import { worldToScreen, type Viewport } from "../geometry/viewport";
 
@@ -163,19 +163,78 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
   }
 
   if (line.specialLineKind === "altitude") {
-    const dependentPointId = (line as any).pointBId || (line as any).endPointId;
-    const vertexId = (line as any).pointAId || (line as any).startPointId;
-    const dependentPoint = objects[dependentPointId];
-    if (dependentPoint?.type === "point" && dependentPoint.construction?.type === "special-line-projection") {
-      const segment = objects[dependentPoint.construction.segmentId];
-      if (segment?.type === "segment") {
-        const segPointA = objects[segment.startPointId];
-        const segPointB = objects[segment.endPointId];
+    const pAId = (line as any).pointAId || (line as any).startPointId;
+    const pBId = (line as any).pointBId || (line as any).endPointId;
+    const ptA = objects[pAId];
+    const ptB = objects[pBId];
+    
+    // Find which point is the projected foot and which is the vertex
+    let dependentPoint = ptB;
+    let vertexId = pAId;
+    
+    if (ptA?.type === "point" && (ptA.construction?.type === "special-line-projection" || ptA.construction?.type === "line-projection-point" || ptA.construction?.type === "perpendicular-intersection-point")) {
+      dependentPoint = ptA;
+      vertexId = pBId;
+    } else if (ptB?.type === "point" && (ptB.construction?.type === "special-line-projection" || ptB.construction?.type === "line-projection-point" || ptB.construction?.type === "perpendicular-intersection-point")) {
+      dependentPoint = ptB;
+      vertexId = pAId;
+    }
+
+    if (dependentPoint?.type === "point") {
+      let pB: Point2D | undefined;
+      let pC: Point2D | undefined;
+      let isAtVertex = false;
+      
+      if (dependentPoint.construction?.type === "special-line-projection") {
+        const segment = objects[dependentPoint.construction.segmentId];
+        if (segment?.type === "segment") {
+          pB = objects[segment.startPointId] as PointObject;
+          pC = objects[segment.endPointId] as PointObject;
+        }
+      } else if (dependentPoint.construction?.type === "line-projection-point") {
+        const lineObj = objects[dependentPoint.construction.lineId];
+        if (lineObj) {
+          const linePts = getLinearPoints(lineObj as any, objects);
+          if (linePts) {
+            pB = linePts[0];
+            pC = linePts[1];
+          }
+        }
+      } else if (dependentPoint.construction?.type === "perpendicular-intersection-point") {
+        const parentLineObj = objects[dependentPoint.construction.parentLineId];
+        if (parentLineObj) {
+          const linePts = getLinearPoints(parentLineObj as any, objects);
+          if (linePts) {
+            pB = linePts[0];
+            pC = linePts[1];
+            isAtVertex = true;
+          }
+        }
+      }
+
+      if (pB && pC) {
         const vertex = objects[vertexId];
-        if (segPointA?.type === "point" && segPointB?.type === "point" && vertex?.type === "point") {
-          const footScreen = worldToScreen(dependentPoint, viewport);
-          const u = getScreenVector(segPointA, segPointB, viewport);
-          const v = getScreenVector(dependentPoint, vertex, viewport);
+        if (vertex?.type === "point") {
+          const footScreen = worldToScreen(isAtVertex ? vertex : dependentPoint, viewport);
+          
+          let u = getScreenVector(pB, pC, viewport);
+          if (isAtVertex) {
+            const vScreen = worldToScreen(vertex, viewport);
+            const pBScreen = worldToScreen(pB, viewport);
+            const pCScreen = worldToScreen(pC, viewport);
+            // distance function is not imported here, use Math.hypot
+            if (Math.hypot(vScreen.x - pCScreen.x, vScreen.y - pCScreen.y) < 1e-6) {
+              u = getScreenVector(pC, pB, viewport);
+            } else if (Math.hypot(vScreen.x - pBScreen.x, vScreen.y - pBScreen.y) < 1e-6) {
+              u = getScreenVector(pB, pC, viewport);
+            }
+          }
+
+          let v = getScreenVector(dependentPoint, vertex, viewport);
+          if (isAtVertex) {
+            v = { x: -v.x, y: -v.y };
+          }
+          
           return <RightAngleSymbol foot={footScreen} u={u} v={v} size={size} color={stroke} />;
         }
       }

@@ -38,6 +38,13 @@ export const PolygonRenderer: GeometryRenderer<PolygonObject> = {
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
 
+    const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+    const fillValue = hasPattern
+      ? `url(#pattern-${object.id})`
+      : object.style.fill === "transparent"
+        ? "transparent"
+        : object.style.fill;
+
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
         {isSelected && (
@@ -64,7 +71,7 @@ export const PolygonRenderer: GeometryRenderer<PolygonObject> = {
         )}
         <path
           d={path}
-          fill={object.style.fill}
+          fill={fillValue}
           fillOpacity={object.style.fillOpacity}
           stroke={object.style.stroke}
           strokeDasharray={getDashArray(object.style.dash)}

@@ -250,7 +250,14 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
             icon={<Download size={15} strokeWidth={2} />}
             label="Export"
             onClick={() => {
-              exportManager.exportProjectText(projectManager.serializeCurrentProject());
+              const projectName = projectState.currentProject.name || "Untitled";
+              const suggestedName = `${projectName}.ndv`;
+              const filename = window.prompt("Enter file name (Nhập tên file để lưu):", suggestedName);
+              
+              if (filename) {
+                const finalName = filename.endsWith(".ndv") ? filename : `${filename}.ndv`;
+                exportManager.exportProjectText(projectManager.serializeCurrentProject(), finalName);
+              }
               setMenuOpen(false);
             }}
           />

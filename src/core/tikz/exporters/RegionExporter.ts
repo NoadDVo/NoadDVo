@@ -13,6 +13,7 @@ import {
   formatStyleOptions,
   getTikzPointReference,
   styleToTikzParts,
+  formatPatternFill,
 } from "../TikzFormatter";
 import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
 
@@ -164,9 +165,31 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
         fill: fillVisible ? style.fill : undefined,
         fillOpacity: fillVisible ? style.fillOpacity : undefined,
       });
-      const command = `\\${fillVisible && strokeVisible ? "filldraw" : fillVisible ? "fill" : "draw"}`;
-      const section = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
-      section.push(`${command} ${options} ${path};`);
+
+      const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+      if (hasPattern) {
+        const patternLines = formatPatternFill(
+          path,
+          object.style,
+          context.options,
+          colorFor
+        );
+        patternLines.forEach((line) => {
+          context.scene.sections.fills.push(line);
+        });
+
+        if (strokeVisible) {
+          const strokeStyle = { ...object.style, fill: "transparent", fillOpacity: 0 };
+          const strokeOptions = formatStyleOptions(
+            styleToTikzParts(strokeStyle, context.options, colorFor)
+          );
+          context.scene.sections.shapes.push(`\\draw${strokeOptions} ${path};`);
+        }
+      } else {
+        const command = `\\${fillVisible && strokeVisible ? "filldraw" : fillVisible ? "fill" : "draw"}`;
+        const section = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
+        section.push(`${command} ${options} ${path};`);
+      }
       return;
     }
 
@@ -195,12 +218,33 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
       fill: fillVisible ? style.fill : undefined,
       fillOpacity: fillVisible ? style.fillOpacity : undefined,
     });
-    const command = fillVisible ? (strokeVisible ? "\\filldraw" : "\\fill") : "\\draw";
-    const section = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
+    const path = names.map((name) => `(${name})`).join(" -- ") + " -- cycle";
+    
+    const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+    if (hasPattern) {
+      const patternLines = formatPatternFill(
+        path,
+        object.style,
+        context.options,
+        colorFor
+      );
+      patternLines.forEach((line) => {
+        context.scene.sections.fills.push(line);
+      });
 
-    section.push(
-      `${command}${options} ${names.map((name) => `(${name})`).join(" -- ")} -- cycle;`,
-    );
+      if (strokeVisible) {
+        const strokeStyle = { ...object.style, fill: "transparent", fillOpacity: 0 };
+        const strokeOptions = formatStyleOptions(
+          styleToTikzParts(strokeStyle, context.options, colorFor)
+        );
+        context.scene.sections.shapes.push(`\\draw${strokeOptions} ${path};`);
+      }
+    } else {
+      const command = fillVisible ? (strokeVisible ? "\\filldraw" : "\\fill") : "\\draw";
+      const section = fillVisible ? context.scene.sections.fills : context.scene.sections.shapes;
+
+      section.push(`${command}${options} ${path};`);
+    }
   },
   objectType: "region",
 };

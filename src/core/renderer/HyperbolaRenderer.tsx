@@ -3,6 +3,12 @@ import { getHyperbolaGeometry } from "../geometry/conicGeometry";
 import { worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer } from "./RendererRegistry";
 
+function getDashArray(dash: HyperbolaObject["style"]["dash"]): string | undefined {
+  if (dash === "dashed") return "10 8";
+  if (dash === "dotted") return "2 7";
+  return undefined;
+}
+
 function generateHyperbolaPath(
   cx: number, cy: number, a: number, b: number, angleDeg: number, scale: number,
   tRange: number
@@ -86,6 +92,8 @@ export const HyperbolaRenderer: GeometryRenderer<HyperbolaObject> = {
           fill={object.style.fill}
           fillOpacity={object.style.fillOpacity}
           stroke={object.style.stroke}
+          strokeDasharray={getDashArray(object.style.dash)}
+          strokeLinecap="round"
           strokeOpacity={object.style.strokeOpacity}
           strokeWidth={object.style.strokeWidth}
         />

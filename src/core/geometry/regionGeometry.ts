@@ -60,11 +60,21 @@ function edgeStartEnd(
   objects: GeometryObjectRecord,
 ): readonly [Point2D, Point2D] | null {
   if (edge.startParameter !== undefined && edge.endParameter !== undefined) {
-    const primitive = collectBoundaryPrimitives(objects).find((candidate) =>
+    const allPrimitives = collectBoundaryPrimitives(objects);
+    const primitive = allPrimitives.find((candidate) =>
       edge.sourcePrimitiveId
         ? candidate.id === edge.sourcePrimitiveId
         : candidate.objectId === edge.objectId,
     );
+
+    if (!primitive) {
+      console.log('[EDGE_START_END] primitive NOT FOUND for edge:', {
+        objectId: edge.objectId,
+        sourcePrimitiveId: edge.sourcePrimitiveId,
+        edgeKind: edge.edgeKind,
+        availablePrimitiveIds: allPrimitives.map(p => p.id).slice(0, 20),
+      });
+    }
 
     if (primitive?.kind === "linear" && primitive.origin && primitive.vector) {
       const start = {
@@ -226,7 +236,19 @@ export function getRegionBoundaryPath(
 ): ResolvedBoundaryPath | null {
   if (object.regionKind === "boundary" && object.loops?.length) {
     const paths = object.loops.map((loop) => {
-      const parts = loop.edges.map((edge, index) => edgePath(edge, objects, index === 0));
+      const parts = loop.edges.map((edge, index) => {
+        const result = edgePath(edge, objects, index === 0);
+        if (result === null) {
+          console.log('[REGION_RENDER] edgePath returned null for edge:', {
+            regionId: object.id,
+            edgeKind: edge.edgeKind,
+            objectId: edge.objectId,
+            sourcePrimitiveId: edge.sourcePrimitiveId,
+            objectExists: Boolean(objects[edge.objectId]),
+          });
+        }
+        return result;
+      });
 
       return parts.some((part) => part === null)
         ? null
@@ -234,6 +256,7 @@ export function getRegionBoundaryPath(
     });
 
     if (paths.some((path) => path === null)) {
+      console.log('[REGION_RENDER] boundary path returned null for region:', object.id);
       return null;
     }
 

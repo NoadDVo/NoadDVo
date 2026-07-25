@@ -18,7 +18,7 @@ export const clipboardContextMenuActions: readonly ContextMenuAction[] = [
     id: "copy",
     isEnabled: (context) => context.selectedObjectIds.length > 0,
     shortcut: "Ctrl+C",
-    targets: geometryTargets,
+    targets: ["canvas", ...geometryTargets],
   },
   {
     execute: () => {
@@ -28,7 +28,7 @@ export const clipboardContextMenuActions: readonly ContextMenuAction[] = [
     id: "cut",
     isEnabled: (context) => context.selectedObjectIds.length > 0,
     shortcut: "Ctrl+X",
-    targets: geometryTargets,
+    targets: ["canvas", ...geometryTargets],
   },
   {
     execute: () => {

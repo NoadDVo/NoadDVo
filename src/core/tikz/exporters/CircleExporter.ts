@@ -6,8 +6,13 @@ import {
   formatStyleOptions,
   styleToTikzParts,
   getTikzPointReference,
+  formatPatternFill,
 } from "../TikzFormatter";
 import type { TikzObjectExporter } from "../TikzTypes";
+
+function hasVisibleStroke(object: CircleObject): boolean {
+  return object.style.strokeOpacity > 0 && object.style.strokeWidth > 0;
+}
 
 export const CircleExporter: TikzObjectExporter<CircleObject> = {
   exportObject: (object, context) => {
@@ -35,9 +40,33 @@ export const CircleExporter: TikzObjectExporter<CircleObject> = {
     const style = styleToTikzParts(object.style, context.options, colorFor);
 
     if (centerExpression) {
-      context.scene.sections.shapes.push(
-        `\\draw${formatStyleOptions(style)} ${centerExpression} circle (${formatNumber(geometry.radius, context.options.coordinatePrecision)});`,
-      );
+      const path = `${centerExpression} circle (${formatNumber(geometry.radius, context.options.coordinatePrecision)})`;
+      const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+
+      if (hasPattern) {
+        const patternLines = formatPatternFill(
+          path,
+          object.style,
+          context.options,
+          colorFor
+        );
+        
+        patternLines.forEach(line => {
+          context.scene.sections.fills.push(line);
+        });
+
+        if (hasVisibleStroke(object)) {
+          const strokeStyle = { ...object.style, fill: "transparent", fillOpacity: 0 };
+          const strokeOptions = formatStyleOptions(
+            styleToTikzParts(strokeStyle, context.options, colorFor)
+          );
+          context.scene.sections.shapes.push(`\\draw${strokeOptions} ${path};`);
+        }
+      } else {
+        context.scene.sections.shapes.push(
+          `\\draw${formatStyleOptions(style)} ${path};`,
+        );
+      }
     } else {
       context.warnings.push({
         code: "TIKZ_INVALID_CIRCLE",

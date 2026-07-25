@@ -1,8 +1,11 @@
+import { createElement, type ReactNode } from "react";
+
 import type { ImageObject, Point2D, PointObject, SliderObject } from "../geometry";
 import { hitTest } from "../selection/HitTest";
 import { getClosestPointOnObject } from "../selection/closestPoint";
 import { BaseTool } from "./BaseTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import { worldToScreen } from "../geometry/viewport";
 
 type MovingPoint = {
   readonly id: string;
@@ -27,6 +30,9 @@ export class MoveTool extends BaseTool {
   private movingImages = [] as readonly MovingImage[];
   private movingPoints = [] as readonly MovingPoint[];
   private movingSliders = [] as readonly MovingSlider[];
+  
+  private dragReferencePointId: string | null = null;
+  private snapTargetId: string | null = null;
 
   constructor() {
     super({
@@ -63,6 +69,8 @@ export class MoveTool extends BaseTool {
       return;
     }
 
+
+
     const point = hit.object;
 
     if (!this.canMovePoint(point)) {
@@ -94,6 +102,8 @@ export class MoveTool extends BaseTool {
     this.movingPoints = movingPoints;
     this.movingSliders = [];
     this.hasDragged = false;
+    this.dragReferencePointId = point.id;
+    this.snapTargetId = null;
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {
@@ -110,12 +120,37 @@ export class MoveTool extends BaseTool {
       return;
     }
 
-    const delta = {
+    let delta = {
       x: event.snappedWorldPoint.x - this.dragStart.x,
       y: event.snappedWorldPoint.y - this.dragStart.y,
     };
 
-    if (delta.x === 0 && delta.y === 0) {
+    this.snapTargetId = null;
+
+    if (this.dragReferencePointId && this.movingPoints.length > 0) {
+      const movingIds = new Set(this.movingPoints.map(p => p.id));
+      const hit = hitTest(
+        event.screenPoint,
+        event.worldPoint,
+        context.objects,
+        context.viewport,
+        { ignoreObjectIds: movingIds }
+      );
+
+      if (hit && hit.type === "point") {
+        this.snapTargetId = hit.objectId;
+        const refPoint = this.movingPoints.find(p => p.id === this.dragReferencePointId);
+        const targetPoint = context.objects[hit.objectId];
+        if (refPoint && targetPoint && targetPoint.type === "point") {
+           delta = {
+             x: targetPoint.x - refPoint.start.x,
+             y: targetPoint.y - refPoint.start.y,
+           };
+        }
+      }
+    }
+
+    if (delta.x === 0 && delta.y === 0 && !this.snapTargetId) {
       return;
     }
 
@@ -201,6 +236,29 @@ export class MoveTool extends BaseTool {
         }
       });
     }
+
+
+  }
+
+  renderPreview(context: ToolContext): ReactNode {
+    if (!this.hasDragged || !this.snapTargetId) {
+      return null;
+    }
+
+    const snapTarget = context.objects[this.snapTargetId];
+    if (!snapTarget || snapTarget.type !== "point") {
+      return null;
+    }
+
+    const screen = worldToScreen(snapTarget as Point2D, context.viewport);
+    return createElement("circle", {
+      cx: screen.x,
+      cy: screen.y,
+      fill: "#EF4444",
+      r: 6,
+      stroke: "#B91C1C",
+      strokeWidth: 1.5,
+    });
   }
 
   pointerUp(_event: ToolPointerEvent, context: ToolContext): void {
@@ -208,7 +266,7 @@ export class MoveTool extends BaseTool {
   }
 
   cancel(context: ToolContext): void {
-    this.stopDrag(context);
+    this.stopDrag(context, true);
   }
 
   private canMovePoint(point: PointObject): boolean {
@@ -279,10 +337,13 @@ export class MoveTool extends BaseTool {
     this.hasDragged = false;
   }
 
-  private stopDrag(context: ToolContext): void {
+  private stopDrag(context: ToolContext, canceled: boolean = false): void {
     if (this.dragStart) {
-      if (this.hasDragged) {
+      if (this.hasDragged && !canceled) {
         context.commitHistoryTransaction();
+        if (this.snapTargetId && this.dragReferencePointId) {
+          context.mergePoints(this.dragReferencePointId, this.snapTargetId);
+        }
       } else {
         context.cancelHistoryTransaction();
       }
@@ -290,6 +351,8 @@ export class MoveTool extends BaseTool {
 
     this.dragStart = null;
     this.hasDragged = false;
+    this.dragReferencePointId = null;
+    this.snapTargetId = null;
     this.movingImages = [];
     this.movingPoints = [];
     this.movingSliders = [];

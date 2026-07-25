@@ -2,7 +2,6 @@ import { useGeometryStore } from "../../app/store/geometryStore";
 import type {
   GeometryObject,
   GeometryObjectRecord,
-  PointObject,
 } from "../geometry";
 
 type ClipboardPayload = {
@@ -52,7 +51,19 @@ function cloneObject<TValue>(value: TValue): TValue {
 
 function remapValue(value: unknown, idMap: ReadonlyMap<string, string>): unknown {
   if (typeof value === "string") {
-    return idMap.get(value) ?? value;
+    if (idMap.has(value)) {
+      return idMap.get(value);
+    }
+
+    const colonIndex = value.indexOf(":");
+    if (colonIndex !== -1) {
+      const baseId = value.substring(0, colonIndex);
+      if (idMap.has(baseId)) {
+        return `${idMap.get(baseId)}${value.substring(colonIndex)}`;
+      }
+    }
+
+    return value;
   }
 
   if (Array.isArray(value)) {
@@ -69,25 +80,32 @@ function remapValue(value: unknown, idMap: ReadonlyMap<string, string>): unknown
 }
 
 function offsetPointIfNeeded(object: GeometryObject, offset: { x: number; y: number }): GeometryObject {
-  if (object.type !== "point") {
-    return object;
+  if (object.type === "point") {
+    return {
+      ...object,
+      x: object.x + offset.x,
+      y: object.y + offset.y,
+    };
   }
 
-  const point = object as PointObject;
+  if (object.type === "text" || object.type === "image" || object.type === "slider") {
+    return {
+      ...object,
+      x: (object as any).x + offset.x,
+      y: (object as any).y + offset.y,
+    };
+  }
 
-  return {
-    ...point,
-    x: point.x + offset.x,
-    y: point.y + offset.y,
-  };
+  return object;
 }
 
 function instantiateClipboardObjects(
   payload: ClipboardPayload,
-  offset = { x: 0.5, y: 0.5 },
+  offset = { x: 0, y: 0 },
 ): {
   readonly objects: readonly GeometryObject[];
   readonly rootObjectIds: readonly string[];
+  readonly idMap: Map<string, string>;
 } {
   const idMap = new Map(payload.objects.map((object) => [object.id, createClipboardId(object)]));
   const now = Date.now();
@@ -111,6 +129,7 @@ function instantiateClipboardObjects(
     rootObjectIds: payload.rootObjectIds
       .map((objectId) => idMap.get(objectId))
       .filter((objectId): objectId is string => Boolean(objectId)),
+    idMap,
   };
 }
 
@@ -131,6 +150,15 @@ export function copySelectionToGeometryClipboard(): boolean {
     .map((objectId) => geometry.objects[objectId])
     .filter((object): object is GeometryObject => Boolean(object));
 
+  console.log('[CLIPBOARD_COPY] selectedIds:', selectedIds);
+  console.log('[CLIPBOARD_COPY] collected objectIds:', objectIds);
+  console.log('[CLIPBOARD_COPY] object types:', objects.map(o => `${o.id}(${o.type})`));
+  const regionObjects = objects.filter(o => o.type === 'region');
+  console.log('[CLIPBOARD_COPY] regions found:', regionObjects.length);
+  if (regionObjects.length > 0) {
+    console.log('[CLIPBOARD_COPY] region details:', JSON.stringify(regionObjects, null, 2));
+  }
+
   clipboardPayload = {
     copiedAt: Date.now(),
     objects,
@@ -144,15 +172,26 @@ export function pasteGeometryClipboard(): boolean {
   if (!clipboardPayload) {
     return false;
   }
+  
+  const geometry = useGeometryStore.getState();
+  geometry.setActiveTool("paste");
+  
+  return true;
+}
+
+export function commitPaste(offset: { x: number; y: number }, mergeInstruction?: { sourceId: string; targetId: string }): boolean {
+  if (!clipboardPayload) {
+    return false;
+  }
 
   const geometry = useGeometryStore.getState();
-  const instantiated = instantiateClipboardObjects(clipboardPayload);
+  const instantiated = instantiateClipboardObjects(clipboardPayload, offset);
 
   if (instantiated.objects.length === 0) {
     return false;
   }
 
-  return geometry.setObjects(
+  const success = geometry.setObjects(
     {
       ...geometry.objects,
       ...Object.fromEntries(instantiated.objects.map((object) => [object.id, object])),
@@ -160,6 +199,15 @@ export function pasteGeometryClipboard(): boolean {
     "Paste geometry",
     instantiated.rootObjectIds,
   );
+
+  if (success && mergeInstruction && mergeInstruction.sourceId && mergeInstruction.targetId) {
+    const newSourceId = instantiated.idMap.get(mergeInstruction.sourceId);
+    if (newSourceId) {
+      useGeometryStore.getState().mergePoints(newSourceId, mergeInstruction.targetId);
+    }
+  }
+
+  return success;
 }
 
 export function duplicateSelection(): boolean {

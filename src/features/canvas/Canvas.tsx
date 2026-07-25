@@ -15,6 +15,7 @@ import { SelectionLayer } from "./overlays/SelectionLayer";
 import { TextCreationOverlay } from "./overlays/TextCreationOverlay";
 import { GeometryLayer } from "./renderers";
 import { AxisLayer } from "./svg";
+import { SVGPatternDefs } from "./svg/SVGPatternDefs";
 
 export function Canvas() {
   const containerRef = useRef<HTMLElement | null>(null);
@@ -85,6 +86,7 @@ export function Canvas() {
       >
         {showGrid && <GridLayer viewport={viewport} />}
         {showAxes && <AxisLayer viewport={viewport} />}
+        <SVGPatternDefs objects={objects} />
         <GeometryLayer viewport={viewport} />
         <SelectionLayer />
         <PreviewLayer

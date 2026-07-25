@@ -86,7 +86,9 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
           const pointB = context.objects[object.construction.pointBId];
           if (pointA?.type === "point" && pointB?.type === "point") {
             const index = Math.min(getMidpointIndex(object, context.objects), 3);
-            const u = normalize(vectorFromPoints(pointA, pointB));
+            const pointAScreen = worldToScreen(pointA, context.viewport);
+            const pointBScreen = worldToScreen(pointB, context.viewport);
+            const u = normalize(vectorFromPoints(pointAScreen, pointBScreen));
             const v = { x: -u.y, y: u.x };
             const mid1Screen = worldToScreen(midpoint(pointA, object), context.viewport);
             const mid2Screen = worldToScreen(midpoint(object, pointB), context.viewport);

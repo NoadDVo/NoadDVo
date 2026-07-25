@@ -32,12 +32,13 @@ import { vectorTool } from "./VectorTool";
 import { reflectLineTool } from "./ReflectLineTool";
 import { reflectPointTool } from "./ReflectPointTool";
 import { rotatePointTool } from "./RotatePointTool";
-import { translateVectorTool } from "./TranslateVectorTool";
 import { dilatePointTool } from "./DilatePointTool";
 import { ellipseTool } from "./EllipseTool";
 import { hyperbolaTool } from "./HyperbolaTool";
 import { polynomialTool } from "./PolynomialTool";
+import { lassoTool } from "./LassoTool";
 import { sliderTool } from "./SliderTool";
+import { pasteTool } from "./PasteTool";
 import {
   createToolContext,
   type ToolContext,
@@ -76,12 +77,13 @@ const defaultTools = [
   reflectLineTool,
   reflectPointTool,
   rotatePointTool,
-  translateVectorTool,
   dilatePointTool,
   ellipseTool,
   hyperbolaTool,
   polynomialTool,
   sliderTool,
+  lassoTool,
+  pasteTool,
 ] satisfies readonly Tool[];
 
 export class ToolManager {

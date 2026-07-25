@@ -62,7 +62,7 @@ export class EllipseTool extends BaseTool {
       style: {
         ...DEFAULT_GEOMETRY_STYLE,
         fill: "transparent",
-        stroke: "#2563eb",
+        stroke: DEFAULT_GEOMETRY_STYLE.stroke,
         strokeWidth: 2,
       },
       type: "ellipse",

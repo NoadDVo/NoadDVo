@@ -30,9 +30,38 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
       context.options.usePointNames,
     );
 
-    context.scene.sections.coordinates.push(
-      `\\coordinate (${name}) at ${formatPoint(object, context.options.coordinatePrecision)};`,
-    );
+    let coordDef = `\\coordinate (${name}) at ${formatPoint(object, context.options.coordinatePrecision)};`;
+
+    if (object.construction?.type === "point-on-object" && object.construction.bindSliderId) {
+      const slider = context.scene.objects[object.construction.bindSliderId];
+      const parentObj = context.scene.objects[object.construction.objectId];
+      if (slider?.type === "slider" && parentObj) {
+        const tVal = slider.value;
+        const tMacro = `\\t${name}`;
+        context.scene.sections.coordinates.push(`\\pgfmathsetmacro{${tMacro}}{${tVal}}`);
+
+        if (parentObj.type === "segment" || parentObj.type === "line" || parentObj.type === "ray") {
+          const pA = context.scene.objects[(parentObj as any).pointAId ?? (parentObj as any).startPointId];
+          const pB = context.scene.objects[(parentObj as any).pointBId ?? (parentObj as any).endPointId ?? (parentObj as any).throughPointId];
+          if (pA && pB) {
+            const nameA = context.nameRegistry.registerPoint(pA as PointObject, -1, false);
+            const nameB = context.nameRegistry.registerPoint(pB as PointObject, -1, false);
+            coordDef = `\\coordinate (${name}) at ($(${nameA})!${tMacro}!(${nameB})$);`;
+          }
+        } else if (parentObj.type === "circle") {
+          const center = context.scene.objects[(parentObj as any).centerPointId];
+          if (center) {
+            const centerName = context.nameRegistry.registerPoint(center as PointObject, -1, false);
+            const r = typeof (parentObj as any).radius === "number" ? (parentObj as any).radius : 1; // Simplified radius
+            // Output parametric angle in deg since tikz cos/sin takes degrees. t is in radians
+            context.scene.sections.coordinates.push(`\\pgfmathsetmacro{\\ang${name}}{${tMacro} * 180 / pi}`);
+            coordDef = `\\coordinate (${name}) at ($(${centerName}) + ({\\ang${name}}:${r})$);`;
+          }
+        }
+      }
+    }
+
+    context.scene.sections.coordinates.push(coordDef);
 
     if (context.options.exportPoints) {
       const colorFor = (color: string) => context.colorRegistry.getColorName(color);
@@ -79,8 +108,10 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
             const pt = { x: center.x + u.x * offset, y: center.y + u.y * offset };
             const t1 = { x: pt.x + tickDir.x * tickLen, y: pt.y + tickDir.y * tickLen };
             const t2 = { x: pt.x - tickDir.x * tickLen, y: pt.y - tickDir.y * tickLen };
+            const colorOption = context.options.preserveColors ? context.colorRegistry.getColorName(object.style.stroke) : null;
+            const colorStr = colorOption ? `, ${colorOption}` : "";
             context.scene.sections.shapes.push(
-              `\\draw[line width=0.6pt, ${context.colorRegistry.getColorName(object.style.stroke)}] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
+              `\\draw[line width=0.6pt${colorStr}] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
             );
           }
         };

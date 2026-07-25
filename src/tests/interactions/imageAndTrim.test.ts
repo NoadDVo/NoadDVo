@@ -200,6 +200,7 @@ function pointerEvent(worldPoint: { readonly x: number; readonly y: number }): T
     altKey: false,
     button: 0,
     buttons: 1,
+    clickCount: 1,
     ctrlKey: false,
     metaKey: false,
     pointerId: 1,
@@ -245,6 +246,7 @@ function context(initialObjects: GeometryObjectRecord): {
       objects = next;
       selectedObjectIds = selectedObjectIds.filter((id) => id !== objectId);
     },
+    mergePoints: () => {},
     gridSize: 1,
     hoveredObjectId: null,
     get objects() {

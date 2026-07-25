@@ -93,7 +93,9 @@ export type GeometryToolId =
   | "pan"
   | "distance"
   | "area"
-  | "elliptical-arc";
+  | "elliptical-arc"
+  | "lasso"
+  | "paste";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
 
@@ -118,6 +120,14 @@ export type LabelPosition =
   | "below-left"
   | "below-right";
 
+export type PatternType = "none" | "dots" | "stars" | "triangles" | "squares";
+
+export type PatternFillConfig = {
+  readonly type: PatternType;
+  readonly density: number; // 0 to 1, or abstract scale
+  readonly size: number;
+};
+
 export type GeometryStyle = {
   readonly stroke: string;
   readonly strokeWidth: number;
@@ -129,6 +139,7 @@ export type GeometryStyle = {
   readonly labelVisible: boolean;
   readonly labelPosition: LabelPosition;
   readonly labelSize: number;
+  readonly pattern?: PatternFillConfig;
 };
 
 export const DEFAULT_GEOMETRY_STYLE: GeometryStyle = {
@@ -142,6 +153,7 @@ export const DEFAULT_GEOMETRY_STYLE: GeometryStyle = {
   labelVisible: true,
   labelPosition: "above-right",
   labelSize: 12,
+  pattern: { type: "none", density: 0.5, size: 10 },
 };
 
 export type BaseGeometryObject = {
@@ -202,6 +214,17 @@ export type ConstructionDefinition =
       readonly linePointBId: string;
     }
   | {
+      readonly type: "line-projection-point";
+      readonly pointId: string;
+      readonly lineId: string;
+    }
+  | {
+      readonly type: "perpendicular-intersection-point";
+      readonly pointId: string;
+      readonly parentLineId: string;
+      readonly targetLineId: string;
+    }
+  | {
       readonly type: "incenter";
       readonly pointAId: string;
       readonly pointBId: string;
@@ -256,6 +279,8 @@ export type ConstructionDefinition =
   | {
       readonly type: "point-on-object";
       readonly objectId: string;
+      readonly bindSliderId?: string;
+      readonly parameterValue?: number;
     }
   | {
       readonly type: "special-line-projection";
@@ -425,6 +450,9 @@ export type SliderObject = BaseGeometryObject & {
   readonly step: number;
   readonly value: number;
   readonly variableName: string;
+  readonly isAnimating?: boolean;
+  readonly animationSpeed?: number;
+  readonly animationDirection?: 1 | -1;
 };
 
 export type BoundaryEdgeKind =

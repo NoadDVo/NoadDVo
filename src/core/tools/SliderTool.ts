@@ -58,6 +58,9 @@ export class SliderTool extends BaseTool {
       step,
       value,
       variableName,
+      isAnimating: false,
+      animationSpeed: 1, // units per second
+      animationDirection: 1,
       visible: true,
       locked: false,
       style: {

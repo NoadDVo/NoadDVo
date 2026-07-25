@@ -309,6 +309,29 @@ function createTrimmedSegment(
   };
 }
 
+function createTrimmedRay(
+  source: SegmentObject | LineObject | RayObject,
+  startPoint: PointObject,
+  throughPoint: PointObject,
+): RayObject {
+  const now = Date.now();
+
+  return {
+    createdAt: now,
+    dependencies: [startPoint.id, throughPoint.id],
+    dependents: [],
+    id: nextTrimId("ray"),
+    locked: false,
+    name: source.name ? `${source.name} Trim` : "Trimmed Ray",
+    startPointId: startPoint.id,
+    throughPointId: throughPoint.id,
+    style: source.style,
+    type: "ray",
+    updatedAt: now,
+    visible: true,
+  };
+}
+
 function createTrimmedArc(
   source: CircleObject,
   centerPointId: string,
@@ -390,6 +413,160 @@ function collectCircleCutAngles(
   });
 
   return unique;
+}
+
+function linearParameter(point: Point2D, start: Point2D, end: Point2D): number {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length2 = dx * dx + dy * dy;
+
+  if (length2 === 0) return 0;
+
+  return ((point.x - start.x) * dx + (point.y - start.y) * dy) / Math.sqrt(length2);
+}
+
+function collectLinearCutParameters(
+  object: SegmentObject | LineObject | RayObject,
+  objects: GeometryObjectRecord,
+): readonly number[] {
+  const endpoints = getLinearEndpoints(object, objects);
+
+  if (!endpoints) {
+    return [];
+  }
+
+  const { start, end } = endpoints;
+  
+  const parameters = Object.values(objects)
+    .filter((obj): obj is PointObject => obj.type === "point" && obj.visible)
+    .filter((point) => {
+      if (object.type === "segment") {
+        return distanceToSegment(point, start, end) <= 0.02; // Tight tolerance for cuts
+      } else if (object.type === "ray") {
+        return distanceToRay(point, start, end) <= 0.02;
+      } else {
+        return distanceToLine(point, start, end) <= 0.02;
+      }
+    })
+    .map((point) => linearParameter(point, start, end))
+    .sort((a, b) => a - b);
+
+  const unique: number[] = [];
+
+  parameters.forEach((param) => {
+    if (!unique.some((candidate) => Math.abs(candidate - param) <= 0.5)) {
+      unique.push(param);
+    }
+  });
+
+  return unique;
+}
+
+function linearTrimCandidate(
+  object: SegmentObject | LineObject | RayObject,
+  point: Point2D,
+  objects: GeometryObjectRecord,
+  toleranceWorld: number,
+): EraseCandidate | null {
+  const endpoints = getLinearEndpoints(object, objects);
+
+  if (!endpoints) {
+    return null;
+  }
+
+  const { start, end } = endpoints;
+  let dist = 0;
+
+  if (object.type === "segment") {
+    dist = distanceToSegment(point, start, end);
+  } else if (object.type === "ray") {
+    dist = distanceToRay(point, start, end);
+  } else {
+    dist = distanceToLine(point, start, end);
+  }
+
+  if (dist > toleranceWorld) {
+    return null;
+  }
+
+  const cutParameters = collectLinearCutParameters(object, objects);
+  const pointerParam = linearParameter(point, start, end);
+  
+  // Add natural bounds
+  const bounds = [...cutParameters];
+  
+  if (object.type === "segment") {
+    bounds.push(0);
+    bounds.push(distance(start, end));
+  } else if (object.type === "ray") {
+    bounds.push(0);
+    bounds.push(Number.POSITIVE_INFINITY);
+  } else {
+    bounds.push(Number.NEGATIVE_INFINITY);
+    bounds.push(Number.POSITIVE_INFINITY);
+  }
+  
+  bounds.sort((a, b) => a - b);
+  const uniqueBounds: number[] = [];
+  bounds.forEach((b) => {
+    if (uniqueBounds.length === 0 || Math.abs(uniqueBounds[uniqueBounds.length - 1]! - b) > 0.001) {
+      uniqueBounds.push(b);
+    }
+  });
+  
+  if (uniqueBounds.length < 2) {
+    return candidateForDelete(object, { kind: "line", start, end });
+  }
+
+  let startParam = uniqueBounds[0]!;
+  let endParam = uniqueBounds[uniqueBounds.length - 1]!;
+
+  for (let i = 0; i < uniqueBounds.length - 1; i += 1) {
+    if (pointerParam >= uniqueBounds[i]! && pointerParam <= uniqueBounds[i + 1]!) {
+      startParam = uniqueBounds[i]!;
+      endParam = uniqueBounds[i + 1]!;
+      break;
+    }
+  }
+
+  const dirLength = distance(start, end);
+  const dx = (end.x - start.x) / dirLength;
+  const dy = (end.y - start.y) / dirLength;
+  
+  let previewStart: Point2D = start;
+  let previewEnd: Point2D = end;
+  
+  if (startParam === Number.NEGATIVE_INFINITY && endParam === Number.POSITIVE_INFINITY) {
+     previewStart = { x: start.x - dx * 1000, y: start.y - dy * 1000 };
+     previewEnd = { x: start.x + dx * 1000, y: start.y + dy * 1000 };
+  } else if (startParam === Number.NEGATIVE_INFINITY) {
+     previewStart = { x: start.x + dx * endParam - dx * 1000, y: start.y + dy * endParam - dy * 1000 };
+     previewEnd = { x: start.x + dx * endParam, y: start.y + dy * endParam };
+  } else if (endParam === Number.POSITIVE_INFINITY) {
+     previewStart = { x: start.x + dx * startParam, y: start.y + dy * startParam };
+     previewEnd = { x: start.x + dx * startParam + dx * 1000, y: start.y + dy * startParam + dy * 1000 };
+  } else {
+     previewStart = { x: start.x + dx * startParam, y: start.y + dy * startParam };
+     previewEnd = { x: start.x + dx * endParam, y: start.y + dy * endParam };
+  }
+
+  return {
+    affectedRange: {
+      startParameter: startParam,
+      endParameter: endParam,
+    },
+    candidateType: "trim-piece",
+    id: `linear-piece:${object.id}:${startParam.toFixed(2)}:${endParam.toFixed(2)}`,
+    objectType: object.type,
+    previewGeometry: {
+      end: previewEnd,
+      kind: "line",
+      start: previewStart,
+    },
+    severity: "safe",
+    sourceObjectId: object.id,
+    warnings: [],
+  };
 }
 
 function circleArcCandidate(
@@ -535,51 +712,29 @@ export function getEraseCandidates(
       const endpoints = getLinearEndpoints(object, objects);
 
       if (endpoints && distanceToSegment(point, endpoints.start, endpoints.end) <= toleranceWorld) {
-        candidates.push(candidateForDelete(object, {
-          end: endpoints.end,
-          kind: "line",
-          start: endpoints.start,
-        }));
+        if (object.type === "segment") {
+          const candidate = linearTrimCandidate(object, point, objects, toleranceWorld);
+          if (candidate) candidates.push(candidate);
+        } else {
+          candidates.push(candidateForDelete(object, {
+            end: endpoints.end,
+            kind: "line",
+            start: endpoints.start,
+          }));
+        }
       }
       return;
     }
 
     if (object.type === "line") {
-      const endpoints = getLinearEndpoints(object, objects);
-
-      if (endpoints && distanceToLine(point, endpoints.start, endpoints.end) <= toleranceWorld) {
-        const projected = projectPointToLine(point, endpoints.start, endpoints.end);
-
-        candidates.push(candidateForDelete(object, {
-          end: {
-            x: projected.x + (endpoints.end.x - endpoints.start.x),
-            y: projected.y + (endpoints.end.y - endpoints.start.y),
-          },
-          kind: "line",
-          start: {
-            x: projected.x - (endpoints.end.x - endpoints.start.x),
-            y: projected.y - (endpoints.end.y - endpoints.start.y),
-          },
-        }));
-      }
+      const candidate = linearTrimCandidate(object, point, objects, toleranceWorld);
+      if (candidate) candidates.push(candidate);
       return;
     }
 
     if (object.type === "ray") {
-      const endpoints = getLinearEndpoints(object, objects);
-
-      if (endpoints && distanceToRay(point, endpoints.start, endpoints.end) <= toleranceWorld) {
-        const projected = projectPointToRay(point, endpoints.start, endpoints.end);
-
-        candidates.push(candidateForDelete(object, {
-          end: {
-            x: projected.x + (endpoints.end.x - endpoints.start.x),
-            y: projected.y + (endpoints.end.y - endpoints.start.y),
-          },
-          kind: "line",
-          start: endpoints.start,
-        }));
-      }
+      const candidate = linearTrimCandidate(object, point, objects, toleranceWorld);
+      if (candidate) candidates.push(candidate);
       return;
     }
 
@@ -737,6 +892,91 @@ function buildDeleteObjectResult(
   return {
     description: `Erase ${candidate.objectType}`,
     objects: removeObjectAndDependents(candidate.sourceObjectId, objects),
+  };
+}
+
+function buildLinearTrimPieceResult(
+  candidate: EraseCandidate,
+  objects: GeometryObjectRecord,
+): { readonly description: string; readonly objects: GeometryObjectRecord; readonly selectedObjectId?: string } | null {
+  const object = objects[candidate.sourceObjectId];
+
+  if (!object || (object.type !== "line" && object.type !== "ray" && object.type !== "segment")) {
+    return buildDeleteObjectResult(candidate, objects);
+  }
+
+  const startParam = candidate.affectedRange?.startParameter;
+  const endParam = candidate.affectedRange?.endParameter;
+
+  if (startParam === undefined || endParam === undefined) {
+    return null;
+  }
+  
+  if (startParam === Number.NEGATIVE_INFINITY && endParam === Number.POSITIVE_INFINITY) {
+    return buildDeleteObjectResult(candidate, objects);
+  }
+
+  const endpoints = getLinearEndpoints(object, objects);
+  if (!endpoints) {
+    return buildDeleteObjectResult(candidate, objects);
+  }
+
+  const { start, end } = endpoints;
+  const dirLength = distance(start, end);
+  const dx = (end.x - start.x) / dirLength;
+  const dy = (end.y - start.y) / dirLength;
+
+  let remaining: Record<string, GeometryObject> = removeObjectAndDependents(object.id, objects);
+  const newObjects: Record<string, GeometryObject> = {};
+  
+  if (startParam > Number.NEGATIVE_INFINITY && (object.type === "line" || (object.type === "ray" && startParam > 0) || (object.type === "segment" && startParam > 0))) {
+    // Keep the piece before startParam
+    const cutPointStart = { x: start.x + dx * startParam, y: start.y + dy * startParam };
+    const ptCutStart = createNamedFreePoint(cutPointStart, remaining);
+    remaining = { ...remaining, [ptCutStart.id]: ptCutStart };
+    newObjects[ptCutStart.id] = ptCutStart;
+
+    if (object.type === "line") {
+      const ptDir = createNamedFreePoint({ x: cutPointStart.x - dx, y: cutPointStart.y - dy }, remaining);
+      remaining = { ...remaining, [ptDir.id]: { ...ptDir, visible: false } };
+      newObjects[ptDir.id] = ptDir;
+      const ray = createTrimmedRay(object, ptCutStart, ptDir);
+      newObjects[ray.id] = ray;
+    } else if (object.type === "ray" || object.type === "segment") {
+      const segment = createTrimmedSegment(object, start, ptCutStart);
+      newObjects[segment.id] = segment;
+    }
+  }
+
+  if (endParam < Number.POSITIVE_INFINITY && (object.type === "line" || object.type === "ray" || (object.type === "segment" && endParam < dirLength))) {
+    // Keep the piece after endParam
+    const cutPointEnd = { x: start.x + dx * endParam, y: start.y + dy * endParam };
+    const ptCutEnd = createNamedFreePoint(cutPointEnd, remaining);
+    remaining = { ...remaining, [ptCutEnd.id]: ptCutEnd };
+    newObjects[ptCutEnd.id] = ptCutEnd;
+
+    if (object.type === "line" || object.type === "ray") {
+      const ptDir = createNamedFreePoint({ x: cutPointEnd.x + dx, y: cutPointEnd.y + dy }, remaining);
+      remaining = { ...remaining, [ptDir.id]: { ...ptDir, visible: false } };
+      newObjects[ptDir.id] = ptDir;
+      const ray = createTrimmedRay(object, ptCutEnd, ptDir);
+      newObjects[ray.id] = ray;
+    } else if (object.type === "segment") {
+      const segment = createTrimmedSegment(object, ptCutEnd, end);
+      newObjects[segment.id] = segment;
+    }
+  }
+  
+  if (Object.keys(newObjects).length === 0) {
+    return buildDeleteObjectResult(candidate, objects);
+  }
+
+  return {
+    description: "Erase piece",
+    objects: {
+      ...remaining,
+      ...newObjects,
+    },
   };
 }
 
@@ -973,7 +1213,7 @@ export class TrimTool extends BaseTool {
     const object = objects[candidate.sourceObjectId];
 
     if (object?.type !== "circle") {
-      return buildDeleteObjectResult(candidate, objects);
+      return buildLinearTrimPieceResult(candidate, objects);
     }
 
     const circle = getCircleGeometry(object, objects);

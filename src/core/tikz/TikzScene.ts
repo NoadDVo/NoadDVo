@@ -2,7 +2,7 @@ import type { GeometryObject, GeometryObjectRecord, PointObject } from "../geome
 import type { TikzOptions } from "./TikzOptions";
 import type { TikzScene } from "./TikzTypes";
 
-const objectOrder = {
+const objectOrder: Record<GeometryObject["type"], number> = {
   region: 10,
   line: 20,
   segment: 30,
@@ -22,7 +22,7 @@ const objectOrder = {
   slider: 123,
   distance: 124,
   area: 125,
-} satisfies Record<GeometryObject["type"], number>;
+};
 
 export function buildTikzScene(
   objects: GeometryObjectRecord,

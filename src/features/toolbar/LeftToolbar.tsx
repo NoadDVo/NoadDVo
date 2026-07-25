@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  ArrowRight,
   ArrowUpRight,
   Circle,
   CircleDashed,
@@ -15,6 +14,7 @@ import {
   GitCommit,
   GripHorizontal,
   Image,
+  Lasso,
   Maximize,
   Minus,
   MousePointer2,
@@ -69,6 +69,7 @@ export const toolGroups = [
       { id: "select", label: "Select", icon: MousePointer2 },
       { id: "pan", label: "Pan", icon: Hand },
       { id: "move", label: "Move", icon: Move },
+      { id: "lasso", label: "Lasso", icon: Lasso },
     ],
   },
   {
@@ -127,7 +128,6 @@ export const toolGroups = [
       { id: "reflect-line", label: "Reflect about Line", icon: FlipHorizontal },
       { id: "reflect-point", label: "Reflect about Point", icon: Target },
       { id: "rotate-point", label: "Rotate around Point", icon: RotateCcw },
-      { id: "translate-vector", label: "Translate by Vector", icon: ArrowRight },
       { id: "dilate-point", label: "Dilate from Point", icon: Maximize },
     ],
   },

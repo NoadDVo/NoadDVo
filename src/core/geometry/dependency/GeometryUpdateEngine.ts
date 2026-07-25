@@ -5,6 +5,7 @@ import type {
   GeometryObjectRecord,
 } from "../types";
 import { getRegionDependencyIds } from "../regionGeometry";
+import { evaluatePointOnPath } from "../constructions/ConstructionAlgorithms";
 import { getClosestPointOnObject } from "../../selection/closestPoint";
 import { recomputeConstructedPoint } from "../constructions";
 import { DependencyGraph } from "./DependencyGraph";
@@ -195,9 +196,28 @@ export function propagateGeometryUpdates(
 
     if (dependent.type === "point" && dependent.pointKind === "derived" && dependent.construction) {
       if (dependent.construction.type === "point-on-object") {
-        const objectId = dependent.construction.objectId;
+        const { objectId, bindSliderId } = dependent.construction;
         const object = nextObjects[objectId];
         if (object) {
+          if (bindSliderId && nextObjects[bindSliderId]?.type === "slider") {
+            const slider = nextObjects[bindSliderId] as import("../types").SliderObject;
+            const t = slider.value;
+            const paramPoint = evaluatePointOnPath(object, t, nextObjects);
+            if (paramPoint) {
+              nextObjects = {
+                ...nextObjects,
+                [dependentId]: {
+                  ...dependent,
+                  x: paramPoint.x,
+                  y: paramPoint.y,
+                  visible: true,
+                  updatedAt,
+                },
+              };
+              continue;
+            }
+          }
+
           const closest = getClosestPointOnObject(object, dependent, nextObjects);
           if (closest) {
             nextObjects = {

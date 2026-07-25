@@ -3,6 +3,12 @@ import { getEllipseGeometry } from "../geometry/conicGeometry";
 import { worldToScreen } from "../geometry/viewport";
 import type { GeometryRenderer } from "./RendererRegistry";
 
+function getDashArray(dash: EllipseObject["style"]["dash"]): string | undefined {
+  if (dash === "dashed") return "10 8";
+  if (dash === "dotted") return "2 7";
+  return undefined;
+}
+
 export const EllipseRenderer: GeometryRenderer<EllipseObject> = {
   objectType: "ellipse",
   render: (object, context) => {
@@ -20,6 +26,13 @@ export const EllipseRenderer: GeometryRenderer<EllipseObject> = {
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
 
     const transform = `rotate(${-geometry.angleDegrees}, ${center.x}, ${center.y})`;
+    
+    const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
+    const fillValue = hasPattern
+      ? `url(#pattern-${object.id})`
+      : object.style.fill === "transparent"
+        ? "transparent"
+        : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -54,9 +67,11 @@ export const EllipseRenderer: GeometryRenderer<EllipseObject> = {
           cy={center.y}
           rx={rx}
           ry={ry}
-          fill={object.style.fill}
+          fill={fillValue}
           fillOpacity={object.style.fillOpacity}
           stroke={object.style.stroke}
+          strokeDasharray={getDashArray(object.style.dash)}
+          strokeLinecap="round"
           strokeOpacity={object.style.strokeOpacity}
           strokeWidth={object.style.strokeWidth}
           transform={transform}

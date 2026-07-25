@@ -15,7 +15,7 @@ import {
 
 type ObjectActions = Pick<
   GeometryState,
-  "addObject" | "deleteObject" | "updateObject"
+  "addObject" | "deleteObject" | "mergePoints" | "updateObject"
 >;
 
 export const createObjectStore: StateCreator<
@@ -55,6 +55,73 @@ export const createObjectStore: StateCreator<
     }));
 
     return true;
+  },
+  mergePoints: (sourceId: string, targetId: string) => {
+    const before = createHistorySnapshot(get());
+    const objects = { ...get().objects };
+    
+    Object.keys(objects).forEach((objId) => {
+      if (objId === sourceId) return;
+      
+      const obj = { ...objects[objId] } as any;
+      let changed = false;
+
+      if (Array.isArray(obj.pointIds) && obj.pointIds.includes(sourceId)) {
+        obj.pointIds = obj.pointIds.map((id: string) => id === sourceId ? targetId : id);
+        changed = true;
+      }
+
+      if (obj.construction) {
+        let consChanged = false;
+        const cons = { ...obj.construction };
+        for (const [k, v] of Object.entries(cons)) {
+          if (v === sourceId && k.endsWith("Id")) {
+             (cons as any)[k] = targetId;
+             consChanged = true;
+          }
+        }
+        if (consChanged) {
+           obj.construction = cons;
+           changed = true;
+        }
+      }
+
+      for (const [k, v] of Object.entries(obj)) {
+        if (typeof v === "string" && k.endsWith("Id") && v === sourceId && k !== "id") {
+          obj[k] = targetId;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        objects[objId] = obj;
+      }
+    });
+
+    delete objects[sourceId];
+    
+    const prepared = prepareObjectsForCommit(objects);
+    if (!prepared.valid) {
+      set({ lastError: prepared.error });
+      return;
+    }
+
+    const afterSelectedObjectIds = get().selectedObjectIds.filter(id => id !== sourceId);
+
+    historyManager.record(
+      "delete",
+      "Merge points",
+      before,
+      createHistorySnapshot({ ...get(), objects: prepared.objects, selectedObjectIds: afterSelectedObjectIds }),
+    );
+
+    set((state) => ({
+      ...getHistoryFlags(),
+      historyVersion: state.historyVersion + 1,
+      lastError: null,
+      objects: prepared.objects,
+      selectedObjectIds: afterSelectedObjectIds,
+    }));
   },
   deleteObject: (objectId) => {
     const before = createHistorySnapshot(get());

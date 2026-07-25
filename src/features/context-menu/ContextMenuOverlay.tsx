@@ -16,6 +16,7 @@ import {
   Plus,
   RotateCcw,
   Ruler,
+  Scissors,
   Settings2,
   Trash2,
 } from "lucide-react";
@@ -34,6 +35,8 @@ const icons: Record<string, IconComponent> = {
   area: Pentagon,
   clipboard: Clipboard,
   coordinates: MapPin,
+  copy: Copy,
+  cut: Scissors,
   delete: Trash2,
   duplicate: Copy,
   grid: Grid3X3,

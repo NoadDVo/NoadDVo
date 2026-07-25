@@ -61,14 +61,21 @@ function createArcPath(
   pointC: PointObject,
   radius: number,
   context: Parameters<GeometryRenderer["render"]>[1],
+  closed = false,
 ): string {
-  return createArcPoints(pointA, vertex, pointC, radius)
+  const arcPoints = createArcPoints(pointA, vertex, pointC, radius);
+  const path = arcPoints
     .map((point, index) => {
       const screen = worldToScreen(point, context.viewport);
-
       return `${index === 0 ? "M" : "L"} ${screen.x} ${screen.y}`;
     })
     .join(" ");
+  
+  if (closed) {
+    const screenVertex = worldToScreen(vertex, context.viewport);
+    return `${path} L ${screenVertex.x} ${screenVertex.y} Z`;
+  }
+  return path;
 }
 
 function labelPoint(
@@ -116,6 +123,36 @@ function rightAngleMarkerPath(
   return `M ${screenFirst.x} ${screenFirst.y} L ${screenCorner.x} ${screenCorner.y} L ${screenSecond.x} ${screenSecond.y}`;
 }
 
+function rightAngleFilledPath(
+  pointA: PointObject,
+  vertex: PointObject,
+  pointC: PointObject,
+  radius: number,
+  context: Parameters<GeometryRenderer["render"]>[1],
+): string {
+  const vectorA = normalize(vectorFromPoints(vertex, pointA));
+  const vectorC = normalize(vectorFromPoints(vertex, pointC));
+  const markerSize = radius * 0.48;
+  const first = {
+    x: vertex.x + scaleVector(vectorA, markerSize).x,
+    y: vertex.y + scaleVector(vectorA, markerSize).y,
+  };
+  const corner = {
+    x: first.x + scaleVector(vectorC, markerSize).x,
+    y: first.y + scaleVector(vectorC, markerSize).y,
+  };
+  const second = {
+    x: vertex.x + scaleVector(vectorC, markerSize).x,
+    y: vertex.y + scaleVector(vectorC, markerSize).y,
+  };
+  const screenVertex = worldToScreen(vertex, context.viewport);
+  const screenFirst = worldToScreen(first, context.viewport);
+  const screenCorner = worldToScreen(corner, context.viewport);
+  const screenSecond = worldToScreen(second, context.viewport);
+
+  return `M ${screenVertex.x} ${screenVertex.y} L ${screenFirst.x} ${screenFirst.y} L ${screenCorner.x} ${screenCorner.y} L ${screenSecond.x} ${screenSecond.y} Z`;
+}
+
 export const AngleRenderer: GeometryRenderer<AngleObject> = {
   objectType: "angle",
   render: (object, context) => {
@@ -134,13 +171,20 @@ export const AngleRenderer: GeometryRenderer<AngleObject> = {
     const strokeWidth = object.style.strokeWidth + (isSelected ? 1.25 : 0);
     const degrees = Math.round((angleRadians(pointA, vertex, pointC) * 180) / Math.PI);
     const label = object.label ?? object.name;
-    const displayLabel = label ? `${label} = ${degrees}°` : `${degrees}°`;
+    const displayLabel = object.showLabel
+      ? label
+        ? `${label} = ${degrees}°`
+        : `${degrees}°`
+      : label;
     const labelScreen = worldToScreen(
       labelPoint(pointA, vertex, pointC, radius * 1.5),
       context.viewport,
     );
     const isRight = isRightAngle(pointA, vertex, pointC);
     const arcPath = createArcPath(pointA, vertex, pointC, radius, context);
+    const filledArcPath = createArcPath(pointA, vertex, pointC, radius, context, true);
+    
+    const fillValue = object.style.fill === "transparent" ? "transparent" : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -156,24 +200,44 @@ export const AngleRenderer: GeometryRenderer<AngleObject> = {
           />
         )}
         {isRight ? (
-          <path
-            d={rightAngleMarkerPath(pointA, vertex, pointC, radius, context)}
-            fill="none"
-            stroke={stroke}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeOpacity={object.style.strokeOpacity}
-            strokeWidth={strokeWidth}
-          />
+          <>
+            {object.style.fillOpacity > 0 && fillValue !== "transparent" && (
+              <path
+                d={rightAngleFilledPath(pointA, vertex, pointC, radius, context)}
+                fill={fillValue}
+                fillOpacity={object.style.fillOpacity}
+                stroke="none"
+              />
+            )}
+            <path
+              d={rightAngleMarkerPath(pointA, vertex, pointC, radius, context)}
+              fill="none"
+              stroke={stroke}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeOpacity={object.style.strokeOpacity}
+              strokeWidth={strokeWidth}
+            />
+          </>
         ) : (
-          <path
-            d={arcPath}
-            fill="none"
-            stroke={stroke}
-            strokeLinecap="round"
-            strokeOpacity={object.style.strokeOpacity}
-            strokeWidth={strokeWidth}
-          />
+          <>
+            {object.style.fillOpacity > 0 && fillValue !== "transparent" && (
+              <path
+                d={filledArcPath}
+                fill={fillValue}
+                fillOpacity={object.style.fillOpacity}
+                stroke="none"
+              />
+            )}
+            <path
+              d={arcPath}
+              fill="none"
+              stroke={stroke}
+              strokeLinecap="round"
+              strokeOpacity={object.style.strokeOpacity}
+              strokeWidth={strokeWidth}
+            />
+          </>
         )}
         {object.style.labelVisible && label && (
           <text

@@ -9,6 +9,7 @@ import {
   Pentagon,
   Ruler,
   Slash,
+  Tag,
   Type,
   Unlock,
 } from "lucide-react";
@@ -74,21 +75,28 @@ export function ObjectTreeItem({
   const appTheme = useUiStore((state) => state.appTheme);
   const isDark = appTheme === "theme2";
 
+  const isHidden = !object.visible;
+
   return (
     <div
       className={clsx(
         "group flex min-h-10 items-center gap-2 rounded-[12px] border px-2 transition",
+        isHidden && "opacity-60",
         isDark
           ? selected
             ? "border-orange-500/40 bg-orange-500/10 text-zinc-100"
             : hovered
               ? "border-zinc-600/50 bg-zinc-700/30 text-zinc-200"
-              : "border-transparent bg-zinc-800/40 text-zinc-300 hover:bg-zinc-700/50"
+              : isHidden
+                ? "border-dashed border-amber-500/20 bg-zinc-800/20 text-zinc-400 hover:bg-zinc-700/40 hover:opacity-100"
+                : "border-transparent bg-zinc-800/40 text-zinc-300 hover:bg-zinc-700/50"
           : selected
             ? "border-arctic-ice/35 bg-arctic-ice/13 text-arctic-text shadow-[0_0_18px_rgb(168_216_255/0.12)]"
             : hovered
               ? "border-arctic-ice/20 bg-arctic-ice/8 text-arctic-text"
-              : "border-transparent bg-arctic-surface/35 text-arctic-muted hover:bg-arctic-surface/65"
+              : isHidden
+                ? "border-dashed border-amber-400/30 bg-amber-50/30 text-arctic-muted hover:bg-amber-50/60 hover:opacity-100"
+                : "border-transparent bg-arctic-surface/35 text-arctic-muted hover:bg-arctic-surface/65"
       )}
       onDoubleClick={() => {
         setDraftName(getObjectDisplayName(object));
@@ -142,7 +150,12 @@ export function ObjectTreeItem({
         )}
       </button>
       <IconButton
-        className="size-7 rounded-[9px] opacity-70 group-hover:opacity-100"
+        className={clsx(
+          "size-7 rounded-[9px] group-hover:opacity-100",
+          isHidden
+            ? "opacity-100 text-amber-500 hover:text-green-500"
+            : "opacity-70"
+        )}
         label={object.visible ? "Hide object" : "Show object"}
         onClick={() =>
           updateObject(object.id, {
@@ -154,6 +167,26 @@ export function ObjectTreeItem({
         size="sm"
       >
         {object.visible ? <Eye size={13} strokeWidth={2} /> : <EyeOff size={13} strokeWidth={2} />}
+      </IconButton>
+      <IconButton
+        className={clsx(
+          "size-7 rounded-[9px] opacity-70 group-hover:opacity-100",
+          !object.style.labelVisible && "opacity-100 text-blue-500 hover:text-red-500"
+        )}
+        label={object.style.labelVisible ? "Hide label" : "Show label"}
+        onClick={() =>
+          updateObject(object.id, {
+            ...object,
+            style: {
+              ...object.style,
+              labelVisible: !object.style.labelVisible,
+            },
+            updatedAt: Date.now(),
+          })
+        }
+        size="sm"
+      >
+        <Tag size={13} strokeWidth={2} />
       </IconButton>
       <IconButton
         className="size-7 rounded-[9px] opacity-70 group-hover:opacity-100"

@@ -27,6 +27,7 @@ import { HyperbolaRenderer } from "./HyperbolaRenderer";
 import { PolynomialRenderer } from "./PolynomialRenderer";
 import { SliderRenderer } from "./SliderRenderer";
 
+
 export type GeometryRendererContext = {
   readonly viewport: Viewport;
   readonly objects: GeometryObjectRecord;

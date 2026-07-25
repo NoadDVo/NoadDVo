@@ -31,16 +31,69 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
     );
 
     if (object.specialLineKind === "altitude") {
-      const depPt = context.scene.objects[object.endPointId];
-      if (depPt?.type === "point" && depPt.construction?.type === "special-line-projection") {
-        const segment = context.scene.objects[(depPt.construction as any).segmentId];
-        if (segment?.type === "segment") {
-          const nameA = getTikzPointReference(object.startPointId, context);
-          const nameB = getTikzPointReference(segment.startPointId, context);
-          const nameC = getTikzPointReference(segment.endPointId, context);
-          if (nameA && nameB && nameC) {
+      const ptA = context.scene.objects[object.startPointId];
+      const ptB = context.scene.objects[object.endPointId];
+      
+      let depPt = ptB;
+      let vertexId = object.startPointId;
+      if (ptA?.type === "point" && (ptA.construction?.type === "special-line-projection" || ptA.construction?.type === "line-projection-point" || ptA.construction?.type === "perpendicular-intersection-point")) {
+        depPt = ptA;
+        vertexId = object.endPointId;
+      } else if (ptB?.type === "point" && (ptB.construction?.type === "special-line-projection" || ptB.construction?.type === "line-projection-point" || ptB.construction?.type === "perpendicular-intersection-point")) {
+        depPt = ptB;
+        vertexId = object.startPointId;
+      }
+
+      if (depPt?.type === "point") {
+        let pB_id: string | undefined;
+        let pC_id: string | undefined;
+        let isAtVertex = false;
+
+        if (depPt.construction?.type === "special-line-projection") {
+          const segment = context.scene.objects[(depPt.construction as any).segmentId];
+          if (segment?.type === "segment") {
+            pB_id = segment.startPointId;
+            pC_id = segment.endPointId;
+          }
+        } else if (depPt.construction?.type === "line-projection-point") {
+          const lineObj = context.scene.objects[(depPt.construction as any).lineId];
+          if (lineObj) {
+            pB_id = (lineObj as any).pointAId || (lineObj as any).startPointId;
+            pC_id = (lineObj as any).pointBId || (lineObj as any).endPointId || (lineObj as any).throughPointId || (lineObj as any).directionPointId;
+          }
+        } else if (depPt.construction?.type === "perpendicular-intersection-point") {
+          const parentLineObj = context.scene.objects[(depPt.construction as any).parentLineId];
+          if (parentLineObj) {
+            pB_id = (parentLineObj as any).pointAId || (parentLineObj as any).startPointId;
+            pC_id = (parentLineObj as any).pointBId || (parentLineObj as any).endPointId || (parentLineObj as any).throughPointId || (parentLineObj as any).directionPointId;
+            isAtVertex = true;
+          }
+        }
+
+        if (pB_id && pC_id) {
+          const nameVertex = getTikzPointReference(vertexId, context);
+          const nameFoot = getTikzPointReference(depPt.id, context);
+          let nameB = getTikzPointReference(pB_id, context);
+          let nameC = getTikzPointReference(pC_id, context);
+          const pos = isAtVertex ? nameVertex : nameFoot;
+          const offLinePt = isAtVertex ? nameFoot : nameVertex;
+
+          if (isAtVertex) {
+            const vPt = context.scene.objects[vertexId];
+            const bPt = context.scene.objects[pB_id];
+            const cPt = context.scene.objects[pC_id];
+            if (vPt?.type === "point" && bPt?.type === "point" && cPt?.type === "point") {
+              if (Math.hypot(vPt.x - bPt.x, vPt.y - bPt.y) < 1e-6) {
+                const temp = nameB;
+                nameB = nameC;
+                nameC = temp;
+              }
+            }
+          }
+
+          if (nameVertex && nameFoot && nameB && nameC && pos) {
             context.scene.sections.shapes.push(
-              `\\draw[line width=0.5pt] ($($(${nameB})!(${nameA})!(${nameC})$)!0.15cm!(${nameA})$) -- ($($($(${nameB})!(${nameA})!(${nameC})$)!0.15cm!(${nameA})$)!0.15cm!90:($(${nameB})!(${nameA})!(${nameC})$)$) -- ($($(${nameB})!(${nameA})!(${nameC})$)!0.15cm!(${nameB})$);`
+              `\\draw[line width=0.5pt] ($($(${nameB})!(${offLinePt})!(${nameC})$)!0.15cm!(${offLinePt})$) -- ($($($(${nameB})!(${offLinePt})!(${nameC})$)!0.15cm!(${offLinePt})$)!0.15cm!90:($(${nameB})!(${offLinePt})!(${nameC})$)$) -- ($($(${nameB})!(${offLinePt})!(${nameC})$)!0.15cm!(${nameB})$);`
             );
           }
         }

@@ -120,6 +120,53 @@ export function styleToTikzParts(
   };
 }
 
+export function formatPatternFill(
+  path: string,
+  style: GeometryStyle,
+  options: TikzOptions,
+  colorFor: (color: string) => string | null,
+): string[] {
+  if (!style.pattern || style.pattern.type === "none" || !options.preserveStyle) {
+    return [];
+  }
+
+  const fill = options.preserveColors && style.fill !== "transparent" ? colorFor(style.fill) : null;
+  if (!fill) {
+    return [];
+  }
+
+  const lines = [
+    `\\begin{scope}`,
+    `  \\clip ${path};`,
+  ];
+  
+  // Calculate bounding box approximations based on viewport or object bounds in the future.
+  // For now, generate a fixed grid that covers typical shapes (-20 to 20 or similar).
+  // In tikz, coordinate systems usually fit within -30 to 30 for Untitled Geometry.
+  const step = Math.max(0.5, style.pattern.size / 10); // arbitrary scaling mapping
+  const densityScale = Math.max(0.2, style.pattern.density);
+  
+  let nodeContent = "";
+  if (style.pattern.type === "dots") {
+    nodeContent = `\\fill[${fill}] (\\x, \\y) circle (${densityScale * 0.1});`;
+  } else if (style.pattern.type === "stars") {
+    nodeContent = `\\node[inner sep=0pt, font=\\tiny, text=${fill}, scale=${densityScale}] at (\\x, \\y) {$\\star$};`;
+  } else if (style.pattern.type === "squares") {
+    nodeContent = `\\fill[${fill}] (\\x-${densityScale*0.1}, \\y-${densityScale*0.1}) rectangle (\\x+${densityScale*0.1}, \\y+${densityScale*0.1});`;
+  } else if (style.pattern.type === "triangles") {
+    nodeContent = `\\fill[${fill}] (\\x, \\y+${densityScale*0.1}) -- (\\x-${densityScale*0.1}, \\y-${densityScale*0.05}) -- (\\x+${densityScale*0.1}, \\y-${densityScale*0.05}) -- cycle;`;
+  }
+
+  lines.push(`  \\foreach \\x in {-30, -${30 - step}, ..., 30} {`);
+  lines.push(`    \\foreach \\y in {-30, -${30 - step}, ..., 30} {`);
+  lines.push(`      ${nodeContent}`);
+  lines.push(`    }`);
+  lines.push(`  }`);
+  lines.push(`\\end{scope}`);
+
+  return lines;
+}
+
 function formatSection(title: string, lines: readonly string[]): string[] {
   if (lines.length === 0) {
     return [];

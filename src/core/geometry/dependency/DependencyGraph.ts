@@ -45,15 +45,31 @@ export class DependencyGraph {
 
         childIdsByParent.get(parentId)?.push(object.id);
       }
+      
+      if (object.type === "point" && object.construction?.type === "point-on-object" && object.construction.bindSliderId) {
+        const sliderId = object.construction.bindSliderId;
+        if (!objects[sliderId]) {
+          return invalid({
+            code: "DEPENDENCY_MISSING_PARENT",
+            message: "Geometry object references a missing slider dependency.",
+            objectId: object.id,
+          });
+        }
+        childIdsByParent.get(sliderId)?.push(object.id);
+      }
     }
 
     const nodes = new Map<string, DependencyNode>();
 
     for (const object of Object.values(objects)) {
+      const implicitParents = object.type === "point" && object.construction?.type === "point-on-object" && object.construction.bindSliderId
+        ? [object.construction.bindSliderId]
+        : [];
+        
       nodes.set(object.id, {
         children: unique(childIdsByParent.get(object.id) ?? []),
         id: object.id,
-        parents: unique(object.dependencies),
+        parents: unique([...object.dependencies, ...implicitParents]),
       });
     }
 

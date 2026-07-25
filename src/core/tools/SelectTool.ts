@@ -10,6 +10,10 @@ import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 export class SelectTool extends BaseTool {
   private dragStartWorld = null as ToolPointerEvent["worldPoint"] | null;
   private dragCurrentWorld = null as ToolPointerEvent["worldPoint"] | null;
+  
+  private lastClickTime: number = 0;
+  private lastClickObjectId: string | null = null;
+  private internalClickCount: number = 0;
 
   constructor() {
     super({
@@ -39,6 +43,15 @@ export class SelectTool extends BaseTool {
       context.viewport,
     );
 
+    const now = Date.now();
+    if (hit && hit.objectId === this.lastClickObjectId && now - this.lastClickTime < 500) {
+      this.internalClickCount++;
+    } else {
+      this.internalClickCount = 1;
+      this.lastClickObjectId = hit ? hit.objectId : null;
+    }
+    this.lastClickTime = now;
+
     if (!hit) {
       context.clearSelection();
       context.setHoveredObject(null);
@@ -48,6 +61,23 @@ export class SelectTool extends BaseTool {
 
     context.selectObject(hit.objectId, event.ctrlKey || event.metaKey);
     context.setHoveredObject(hit.objectId);
+
+    if (this.internalClickCount > 1) {
+      const currentObject = context.objects[hit.objectId];
+      if (currentObject) {
+        let nextDash = "solid" as "solid" | "dashed" | "dotted";
+        if (currentObject.style.dash === "solid") nextDash = "dashed";
+        else if (currentObject.style.dash === "dashed") nextDash = "dotted";
+
+        context.updateObject(hit.objectId, {
+          ...currentObject,
+          style: {
+            ...currentObject.style,
+            dash: nextDash,
+          },
+        });
+      }
+    }
   }
 
   pointerMove(event: ToolPointerEvent, context: ToolContext): void {

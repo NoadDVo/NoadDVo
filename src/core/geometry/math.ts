@@ -132,3 +132,41 @@ export function isRightAngle(
 ): boolean {
   return Math.abs(angleDegrees(pointA, vertex, pointC) - 90) <= toleranceDegrees;
 }
+
+export function perpendicularDistance(pt: Point2D, lineStart: Point2D, lineEnd: Point2D): number {
+  const dx = lineEnd.x - lineStart.x;
+  const dy = lineEnd.y - lineStart.y;
+  const mag = Math.hypot(dx, dy);
+  if (mag > 0.0) {
+    const pdy = pt.y - lineStart.y;
+    const pdx = pt.x - lineStart.x;
+    return Math.abs(dx * pdy - pdx * dy) / mag;
+  } else {
+    return distance(pt, lineStart);
+  }
+}
+
+export function ramerDouglasPeucker(points: readonly Point2D[], epsilon: number): Point2D[] {
+  if (points.length < 3) return [...points];
+  
+  let dmax = 0;
+  let index = 0;
+  const end = points.length - 1;
+
+  for (let i = 1; i < end; i++) {
+    const d = perpendicularDistance(points[i]!, points[0]!, points[end]!);
+    if (d > dmax) {
+      index = i;
+      dmax = d;
+    }
+  }
+
+  if (dmax > epsilon) {
+    const recResults1 = ramerDouglasPeucker(points.slice(0, index + 1), epsilon);
+    const recResults2 = ramerDouglasPeucker(points.slice(index, end + 1), epsilon);
+    const result = recResults1.slice(0, recResults1.length - 1).concat(recResults2);
+    return result;
+  } else {
+    return [points[0]!, points[end]!];
+  }
+}

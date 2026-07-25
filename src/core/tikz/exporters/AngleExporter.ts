@@ -1,5 +1,4 @@
 import { angleRadians, isRightAngle, type AngleObject, type PointObject } from "../../geometry";
-import { formatNumber } from "../TikzFormatter";
 import type { TikzExportContext, TikzObjectExporter } from "../TikzTypes";
 
 const greekLabelMap: Record<string, string> = {
@@ -14,19 +13,20 @@ function getPoint(objectId: string, context: TikzExportContext): PointObject | n
   return object?.type === "point" ? object : null;
 }
 
-import { getTikzPointReference } from "../TikzFormatter";
+import { formatNumber, getTikzPointReference, formatStyleOptions, styleToTikzParts } from "../TikzFormatter";
 
 function getPointName(objectId: string, context: TikzExportContext): string | null {
   return getTikzPointReference(objectId, context);
 }
 
-function formatLabel(label: string | undefined, degrees: number): string | null {
+function formatLabel(label: string | undefined, degrees: number, showMeasure: boolean): string | null {
   const degreeStr = `${degrees}^\\circ`;
   if (!label) {
-    return `\\text{${degreeStr}}`;
+    return showMeasure ? `\\text{${degreeStr}}` : null;
   }
   const trimmed = label.trim();
-  return `${greekLabelMap[trimmed] ?? trimmed} = ${degreeStr}`;
+  const formattedLabel = greekLabelMap[trimmed] ?? trimmed;
+  return showMeasure ? `${formattedLabel} = ${degreeStr}` : formattedLabel;
 }
 
 export const AngleExporter: TikzObjectExporter<AngleObject> = {
@@ -63,25 +63,56 @@ export const AngleExporter: TikzObjectExporter<AngleObject> = {
     const mA = formatNumber(midAngle, 2);
 
     const isRight = object.showRightAngleMarker || isRightAngle(pointA, vertex, pointC);
-    
-    if (isRight) {
-      context.scene.sections.shapes.push(
-        `\\draw[line width=0.8pt, draw=black] ([shift=({${sA}:${radius}cm})] ${vertexName}) -- ++(${eA}:${radius}cm) -- ([shift=({${eA}:${radius}cm})] ${vertexName});`
-      );
-    } else {
-      context.scene.sections.shapes.push(
-        `\\draw[line width=0.8pt, draw=black] ([shift=({${sA}:${radius}cm})] ${vertexName}) arc [start angle=${sA}, end angle=${eA}, radius=${radius}cm];`
-      );
+    const colorFor = (color: string) => context.colorRegistry.getColorName(color);
+    const style = styleToTikzParts(object.style, context.options, colorFor);
+    const fillVisible = context.options.preserveStyle && object.style.fill !== "transparent" && object.style.fillOpacity > 0;
+    const strokeVisible = object.style.strokeOpacity > 0 && object.style.strokeWidth > 0;
+
+    if (fillVisible) {
+      const fillOptions = formatStyleOptions({
+        ...style,
+        draw: undefined,
+        fill: style.fill,
+        fillOpacity: style.fillOpacity,
+      });
+      if (isRight) {
+        context.scene.sections.fills.push(
+          `\\fill${fillOptions} (${vertexName}) -- ([shift=({${sA}:${radius}cm})] ${vertexName}) -- ++(${eA}:${radius}cm) -- ([shift=({${eA}:${radius}cm})] ${vertexName}) -- cycle;`
+        );
+      } else {
+        context.scene.sections.fills.push(
+          `\\fill${fillOptions} (${vertexName}) -- ([shift=({${sA}:${radius}cm})] ${vertexName}) arc [start angle=${sA}, end angle=${eA}, radius=${radius}cm] -- cycle;`
+        );
+      }
+    }
+
+    if (strokeVisible) {
+      const strokeOptions = formatStyleOptions({
+        ...style,
+        draw: style.draw,
+        fill: undefined,
+      });
+      if (isRight) {
+        context.scene.sections.shapes.push(
+          `\\draw${strokeOptions} ([shift=({${sA}:${radius}cm})] ${vertexName}) -- ++(${eA}:${radius}cm) -- ([shift=({${eA}:${radius}cm})] ${vertexName});`
+        );
+      } else {
+        context.scene.sections.shapes.push(
+          `\\draw${strokeOptions} ([shift=({${sA}:${radius}cm})] ${vertexName}) arc [start angle=${sA}, end angle=${eA}, radius=${radius}cm];`
+        );
+      }
     }
 
     // Command 2: Label
-    if (object.showLabel ?? true) {
+    if (object.style.labelVisible) {
       const labelRadius = formatNumber(Math.max(0.15, object.radius) + 0.35, 2);
       const degrees = Math.round((angleRadians(pointA, vertex, pointC) * 180) / Math.PI);
-      const labelStr = formatLabel(object.label ?? object.name, degrees);
-      context.scene.sections.shapes.push(
-        `\\path (${vertexName}) +(${mA}:${labelRadius}cm) node[inner sep=0pt, anchor=center] {$${labelStr}$};`
-      );
+      const labelStr = formatLabel(object.label ?? object.name, degrees, object.showLabel ?? true);
+      if (labelStr) {
+        context.scene.sections.shapes.push(
+          `\\path (${vertexName}) +(${mA}:${labelRadius}cm) node[inner sep=0pt, anchor=center] {$${labelStr}$};`
+        );
+      }
     }
   },
   objectType: "angle",
