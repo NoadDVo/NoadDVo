@@ -13,9 +13,16 @@ export const PolynomialExporter: TikzObjectExporter<PolynomialObject> = {
       if (p) points.push(p);
     }
     
-    if (points.length < 2) return;
+    const uniqueXPoints: Point2D[] = [];
+    for (const p of points) {
+      if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
+        uniqueXPoints.push(p);
+      }
+    }
     
-    const coeffs = getPolynomialCoefficients(points);
+    if (uniqueXPoints.length < 2) return;
+    
+    const coeffs = getPolynomialCoefficients(uniqueXPoints);
     
     // Format equation: a_0 + a_1*x + a_2*x^2 + ...
     let equation = "";
@@ -44,7 +51,7 @@ export const PolynomialExporter: TikzObjectExporter<PolynomialObject> = {
     // TikZ needs a domain to draw a function.
     let minX = Infinity;
     let maxX = -Infinity;
-    for (const p of points) {
+    for (const p of uniqueXPoints) {
       minX = Math.min(minX, p.x);
       maxX = Math.max(maxX, p.x);
     }

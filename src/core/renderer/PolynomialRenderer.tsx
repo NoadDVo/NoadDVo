@@ -28,7 +28,14 @@ const PolynomialRendererComponent = memo(function PolynomialRendererComponent({
     if (p) points.push(p);
   }
 
-  if (points.length < 2) {
+  const uniqueXPoints: Point2D[] = [];
+  for (const p of points) {
+    if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
+      uniqueXPoints.push(p);
+    }
+  }
+
+  if (uniqueXPoints.length < 2) {
     return null;
   }
 
@@ -38,7 +45,7 @@ const PolynomialRendererComponent = memo(function PolynomialRendererComponent({
   // Bounded polynomial: only draw between the minimum and maximum x-coordinates of the selected points
   let minX = Infinity;
   let maxX = -Infinity;
-  for (const p of points) {
+  for (const p of uniqueXPoints) {
     minX = Math.min(minX, p.x);
     maxX = Math.max(maxX, p.x);
   }
@@ -53,7 +60,7 @@ const PolynomialRendererComponent = memo(function PolynomialRendererComponent({
   
   for (let i = 0; i <= numSamples; i++) {
     const x = minX + i * step;
-    const y = evaluateLagrange(x, points);
+    const y = evaluateLagrange(x, uniqueXPoints);
     
     if (!Number.isNaN(y) && isFinite(y)) {
       const screenP = worldToScreen({ x, y }, viewport);
