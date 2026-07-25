@@ -441,11 +441,22 @@ export function recomputeConstructedPoint(
 
   if (construction.type === "perpendicular-intersection-point") {
     const point = getPoint(objects, construction.pointId);
+    const parentLine = objects[construction.parentLineId];
     const targetLine = objects[construction.targetLineId];
-    if (!point || !targetLine) return null;
-    const linePoints = getLinearPoints(targetLine as import("../types").LineObject, objects);
-    if (!linePoints) return null;
-    return projectPointToLine(point, linePoints[0], linePoints[1]);
+    if (!point || !parentLine || !targetLine) return null;
+    const parentPoints = getLinearPoints(parentLine as import("../types").LineObject, objects);
+    const targetPoints = getLinearPoints(targetLine as import("../types").LineObject, objects);
+    if (!parentPoints || !targetPoints) return null;
+    
+    const u = vectorFromPoints(parentPoints[0], parentPoints[1]);
+    const perp = perpendicular(u);
+    const intersection = lineLineIntersection(
+      point,
+      { x: point.x + perp.x, y: point.y + perp.y },
+      targetPoints[0],
+      targetPoints[1]
+    );
+    return intersection ? intersection.point : null;
   }
 
   if (construction.type === "inradius-point") {
