@@ -165,7 +165,7 @@ function FilterBar({
 
   return (
     <div className={clsx(
-      "flex flex-wrap gap-1 px-3 py-2",
+      "flex overflow-x-auto gap-1 px-3 py-2",
       isDark ? "border-b border-zinc-700/60 bg-[#18191E]" : "border-b-[3px] border-arctic-border bg-arctic-bg"
     )}>
       {objectTreeFilters.map((item) => {
