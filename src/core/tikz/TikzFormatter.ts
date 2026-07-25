@@ -257,6 +257,39 @@ export function optimizeShapes(shapes: readonly string[]): string[] {
   return optimized;
 }
 
+export function optimizePoints(points: readonly string[]): string[] {
+  const regex = /^\\fill(\[.*?\])? \(([^)]+)\) circle \(([^)]+)\);$/;
+  const groups = new Map<string, Array<{ coord: string }>>();
+  const unoptimized: string[] = [];
+  
+  for (const point of points) {
+    const match = point.match(regex);
+    if (match) {
+      const [, options = "", coord, radius] = match;
+      const key = `${options}|||${radius}`;
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+      groups.get(key)!.push({ coord: coord! });
+    } else {
+      unoptimized.push(point);
+    }
+  }
+  
+  const optimized: string[] = [];
+  for (const [key, items] of groups.entries()) {
+    const [options, radius] = key.split("|||");
+    if (items.length === 1) {
+      optimized.push(`\\fill${options} (${items[0]!.coord}) circle (${radius});`);
+    } else {
+      const coords = items.map(item => item.coord).join(", ");
+      optimized.push(`\\foreach \\p in {${coords}} \\fill${options} (\\p) circle (${radius});`);
+    }
+  }
+  
+  return [...optimized, ...unoptimized];
+}
+
 function formatSection(title: string, lines: readonly string[]): string[] {
   if (lines.length === 0) {
     return [];
@@ -296,7 +329,7 @@ function formatTikzPicture(
   lines.push(...formatSectionLines("Coordinates", sections.coordinates, options.includeComments));
   lines.push(...formatSectionLines("Filled regions", sections.fills, options.includeComments));
   lines.push(...formatSectionLines("Lines and shapes", optimizeShapes(sections.shapes), options.includeComments));
-  lines.push(...formatSectionLines("Points", sections.points, options.includeComments));
+  lines.push(...formatSectionLines("Points", optimizePoints(sections.points), options.includeComments));
   lines.push(...formatSectionLines("Labels", optimizeLabels(sections.labels), options.includeComments));
   lines.push(...formatSectionLines("Measurements", sections.measurements, options.includeComments));
 
@@ -353,7 +386,7 @@ export function formatTikzDocument({
       ...sections.coordinates,
       ...sections.fills,
       ...optimizeShapes(sections.shapes),
-      ...sections.points,
+      ...optimizePoints(sections.points),
       ...optimizeLabels(sections.labels),
       ...sections.measurements,
     ].join("\n");
