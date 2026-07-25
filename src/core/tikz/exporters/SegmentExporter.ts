@@ -24,7 +24,7 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
     }
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
-    const style = styleToTikzParts(object.style, context.options, colorFor);
+    const { fill, fillOpacity, ...style } = styleToTikzParts(object.style, context.options, colorFor);
 
     context.scene.sections.shapes.push(
       `\\draw${formatStyleOptions(style)} (${startName}) -- (${endName});`,

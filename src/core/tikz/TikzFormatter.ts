@@ -167,6 +167,96 @@ export function formatPatternFill(
   return lines;
 }
 
+export function optimizeLabels(labels: readonly string[]): string[] {
+  const regex = /^\\node\[(.*?)\] at \(([^)]+)\) \{(.+)\};$/;
+  const groups = new Map<string, Array<{ coord: string; content: string }>>();
+  const unoptimized: string[] = [];
+  
+  for (const label of labels) {
+    const match = label.match(regex);
+    if (match) {
+      const [, anchor, coord, content] = match;
+      if (!groups.has(anchor!)) {
+        groups.set(anchor!, []);
+      }
+      groups.get(anchor!)!.push({ coord: coord!, content: content! });
+    } else {
+      unoptimized.push(label);
+    }
+  }
+  
+  const optimized: string[] = [];
+  for (const [anchor, items] of groups.entries()) {
+    if (items.length === 1) {
+      optimized.push(`\\node[${anchor}] at (${items[0]!.coord}) {${items[0]!.content}};`);
+    } else {
+      let canUseSimple = true;
+      for (const item of items) {
+        if (item.content !== `$${item.coord}$`) {
+          canUseSimple = false;
+          break;
+        }
+      }
+      
+      if (canUseSimple) {
+        const coords = items.map(item => item.coord).join(", ");
+        optimized.push(`\\foreach \\p in {${coords}} \\node[${anchor}] at (\\p) {$\\p$};`);
+      } else {
+        const pairs = items.map(item => `${item.coord}/${item.content}`).join(", ");
+        optimized.push(`\\foreach \\p/\\t in {${pairs}} \\node[${anchor}] at (\\p) {\\t};`);
+      }
+    }
+  }
+  
+  return [...optimized, ...unoptimized];
+}
+
+export function optimizeShapes(shapes: readonly string[]): string[] {
+  const optimized: string[] = [];
+  let currentStyle: string | null = null;
+  let currentPath: string = "";
+  
+  const regex = /^\\draw\[(.*?)\] (.*?);$/;
+  
+  for (const shape of shapes) {
+    const match = shape.match(regex);
+    if (match) {
+      const [, style, path] = match;
+      if (style === currentStyle) {
+        const lastParenStart = currentPath.lastIndexOf("(");
+        let endCoord = "";
+        if (lastParenStart !== -1) {
+            endCoord = currentPath.substring(lastParenStart);
+        }
+        if (endCoord !== "" && path!.startsWith(endCoord + " -- ")) {
+            currentPath += " -- " + path!.substring(endCoord.length + 4);
+        } else {
+            currentPath += " " + path!;
+        }
+      } else {
+        if (currentStyle !== null) {
+          optimized.push(`\\draw[${currentStyle}] ${currentPath};`);
+        }
+        currentStyle = style!;
+        currentPath = path!;
+      }
+    } else {
+      if (currentStyle !== null) {
+        optimized.push(`\\draw[${currentStyle}] ${currentPath};`);
+        currentStyle = null;
+        currentPath = "";
+      }
+      optimized.push(shape);
+    }
+  }
+  
+  if (currentStyle !== null) {
+    optimized.push(`\\draw[${currentStyle}] ${currentPath};`);
+  }
+  
+  return optimized;
+}
+
 function formatSection(title: string, lines: readonly string[]): string[] {
   if (lines.length === 0) {
     return [];
@@ -205,9 +295,9 @@ function formatTikzPicture(
 
   lines.push(...formatSectionLines("Coordinates", sections.coordinates, options.includeComments));
   lines.push(...formatSectionLines("Filled regions", sections.fills, options.includeComments));
-  lines.push(...formatSectionLines("Lines and shapes", sections.shapes, options.includeComments));
+  lines.push(...formatSectionLines("Lines and shapes", optimizeShapes(sections.shapes), options.includeComments));
   lines.push(...formatSectionLines("Points", sections.points, options.includeComments));
-  lines.push(...formatSectionLines("Labels", sections.labels, options.includeComments));
+  lines.push(...formatSectionLines("Labels", optimizeLabels(sections.labels), options.includeComments));
   lines.push(...formatSectionLines("Measurements", sections.measurements, options.includeComments));
 
   if (!options.includeComments) {
@@ -262,9 +352,9 @@ export function formatTikzDocument({
       ...colorDefinitions,
       ...sections.coordinates,
       ...sections.fills,
-      ...sections.shapes,
+      ...optimizeShapes(sections.shapes),
       ...sections.points,
-      ...sections.labels,
+      ...optimizeLabels(sections.labels),
       ...sections.measurements,
     ].join("\n");
   }
