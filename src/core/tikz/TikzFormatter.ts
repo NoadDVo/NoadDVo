@@ -257,6 +257,37 @@ export function optimizeShapes(shapes: readonly string[]): string[] {
   return optimized;
 }
 
+export function optimizeCoordinates(coordinates: readonly string[]): string[] {
+  const regex = /^\\coordinate \(([^)]+)\) at \(([^,]+),([^)]+)\);$/;
+  const groups: Array<{ name: string; x: string; y: string }> = [];
+  const unoptimized: string[] = [];
+  
+  for (const coord of coordinates) {
+    const match = coord.match(regex);
+    if (match) {
+      const [, name, x, y] = match;
+      groups.push({ name: name!, x: x!, y: y! });
+    } else {
+      unoptimized.push(coord);
+    }
+  }
+  
+  const optimized: string[] = [];
+  if (groups.length === 1) {
+    optimized.push(`\\coordinate (${groups[0]!.name}) at (${groups[0]!.x},${groups[0]!.y});`);
+  } else if (groups.length > 1) {
+    // Chunking to avoid overly long lines
+    const chunkSize = 10;
+    for (let i = 0; i < groups.length; i += chunkSize) {
+      const chunk = groups.slice(i, i + chunkSize);
+      const pairs = chunk.map(g => `${g.name}/${g.x}/${g.y}`).join(", ");
+      optimized.push(`\\foreach \\p/\\x/\\y in {${pairs}} \\coordinate (\\p) at (\\x,\\y);`);
+    }
+  }
+  
+  return [...optimized, ...unoptimized];
+}
+
 export function optimizePoints(points: readonly string[]): string[] {
   const regex = /^\\fill(\[.*?\])? \(([^)]+)\) circle \(([^)]+)\);$/;
   const groups = new Map<string, Array<{ coord: string }>>();
@@ -326,7 +357,7 @@ function formatTikzPicture(
     lines.push("");
   }
 
-  lines.push(...formatSectionLines("Coordinates", sections.coordinates, options.includeComments));
+  lines.push(...formatSectionLines("Coordinates", optimizeCoordinates(sections.coordinates), options.includeComments));
   lines.push(...formatSectionLines("Filled regions", sections.fills, options.includeComments));
   lines.push(...formatSectionLines("Lines and shapes", optimizeShapes(sections.shapes), options.includeComments));
   lines.push(...formatSectionLines("Points", optimizePoints(sections.points), options.includeComments));
@@ -383,7 +414,7 @@ export function formatTikzDocument({
   if (options.outputType === "raw") {
     return [
       ...colorDefinitions,
-      ...sections.coordinates,
+      ...optimizeCoordinates(sections.coordinates),
       ...sections.fills,
       ...optimizeShapes(sections.shapes),
       ...optimizePoints(sections.points),
