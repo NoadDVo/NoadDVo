@@ -162,6 +162,8 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
       const options = formatStyleOptions({
         ...style,
         draw: strokeVisible ? style.draw : undefined,
+        lineWidth: strokeVisible ? style.lineWidth : undefined,
+        strokeOpacity: strokeVisible ? style.strokeOpacity : undefined,
         fill: fillVisible ? style.fill : undefined,
         fillOpacity: fillVisible ? style.fillOpacity : undefined,
       });
@@ -215,6 +217,8 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
     const options = formatStyleOptions({
       ...style,
       draw: strokeVisible ? style.draw : undefined,
+      lineWidth: strokeVisible ? style.lineWidth : undefined,
+      strokeOpacity: strokeVisible ? style.strokeOpacity : undefined,
       fill: fillVisible ? style.fill : undefined,
       fillOpacity: fillVisible ? style.fillOpacity : undefined,
     });

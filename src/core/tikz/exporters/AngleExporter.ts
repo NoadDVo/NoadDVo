@@ -72,6 +72,8 @@ export const AngleExporter: TikzObjectExporter<AngleObject> = {
       const fillOptions = formatStyleOptions({
         ...style,
         draw: undefined,
+        lineWidth: undefined,
+        strokeOpacity: undefined,
         fill: style.fill,
         fillOpacity: style.fillOpacity,
       });

@@ -57,6 +57,8 @@ export const PolygonExporter: TikzObjectExporter<PolygonObject> = {
       const options = formatStyleOptions({
         ...style,
         draw: strokeVisible ? style.draw : undefined,
+        lineWidth: strokeVisible ? style.lineWidth : undefined,
+        strokeOpacity: strokeVisible ? style.strokeOpacity : undefined,
         fill: fillVisible ? style.fill : undefined,
         fillOpacity: fillVisible ? style.fillOpacity : undefined,
       });
