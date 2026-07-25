@@ -210,9 +210,17 @@ function buildConicTikz(
 }
 
 function buildPolynomialTikz(pts: Point2D[]): string {
-  const n = pts.length;
-  const X = pts.map(p => p.x);
-  const Y = pts.map(p => p.y);
+  // Filter out duplicate X coordinates to avoid singular matrix
+  const uniquePts: Point2D[] = [];
+  for (const p of pts) {
+    if (!uniquePts.some(u => Math.abs(u.x - p.x) < 1e-9)) {
+      uniquePts.push(p);
+    }
+  }
+
+  const n = uniquePts.length;
+  const X = uniquePts.map(p => p.x);
+  const Y = uniquePts.map(p => p.y);
   
   const A = Array.from({ length: n }, (_, i) =>
     Array.from({ length: n }, (_, j) => Math.pow(X[i]!, j))

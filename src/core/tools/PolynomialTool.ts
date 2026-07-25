@@ -105,9 +105,17 @@ export class PolynomialTool extends BaseTool {
     if (this.points.length >= 2) {
       const { viewport } = context;
       const numSamples = 100;
+      // Filter out points with duplicate X coordinates to avoid NaN
+      const uniqueXPoints: PointObject[] = [];
+      for (const p of this.points) {
+        if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
+          uniqueXPoints.push(p);
+        }
+      }
+
       let minX = Infinity;
       let maxX = -Infinity;
-      for (const p of this.points) {
+      for (const p of uniqueXPoints) {
         minX = Math.min(minX, p.x);
         maxX = Math.max(maxX, p.x);
       }
@@ -125,7 +133,7 @@ export class PolynomialTool extends BaseTool {
       
       for (let i = 0; i <= numSamples; i++) {
         const x = minX + i * step;
-        const y = evaluateLagrange(x, this.points);
+        const y = evaluateLagrange(x, uniqueXPoints);
         if (!Number.isNaN(y) && isFinite(y)) {
           const screenP = worldToScreen({ x, y }, viewport);
           if (pathPoints.length === 0) {

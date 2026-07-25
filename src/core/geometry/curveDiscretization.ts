@@ -139,11 +139,19 @@ export function discretizePolynomial(
   points: readonly Point2D[],
   steps: number = POLYNOMIAL_STEPS,
 ): PolylineSegment[] {
-  if (points.length < 2) return [];
+  // Filter out points with duplicate X coordinates to avoid NaN (division by zero)
+  const uniqueXPoints: Point2D[] = [];
+  for (const p of points) {
+    if (!uniqueXPoints.some(u => Math.abs(u.x - p.x) < 1e-9)) {
+      uniqueXPoints.push(p);
+    }
+  }
+
+  if (uniqueXPoints.length < 2) return [];
 
   let minX = Infinity;
   let maxX = -Infinity;
-  for (const p of points) {
+  for (const p of uniqueXPoints) {
     minX = Math.min(minX, p.x);
     maxX = Math.max(maxX, p.x);
   }
@@ -158,7 +166,7 @@ export function discretizePolynomial(
 
   for (let i = 0; i <= steps; i++) {
     const x = minX + i * step;
-    const y = evaluateLagrange(x, points as Point2D[]);
+    const y = evaluateLagrange(x, uniqueXPoints);
 
     if (Number.isNaN(y) || !isFinite(y)) {
       prevValid = false;
