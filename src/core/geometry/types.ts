@@ -120,12 +120,16 @@ export type LabelPosition =
   | "below-left"
   | "below-right";
 
-export type PatternType = "none" | "dots" | "stars" | "triangles" | "squares";
+export type PatternType = "none" | "dots" | "stars" | "triangles" | "squares" | "hatch" | "crosshatch";
 
 export type PatternFillConfig = {
   readonly type: PatternType;
   readonly density: number; // 0 to 1, or abstract scale
   readonly size: number;
+  readonly angle?: number; // hatch angle in degrees (default 45)
+  readonly spacing?: number; // hatch line spacing in cm (default 0.2)
+  readonly lineWidth?: number; // hatch line width in pt (default 0.4)
+  readonly color?: string;
 };
 
 export type GeometryStyle = {

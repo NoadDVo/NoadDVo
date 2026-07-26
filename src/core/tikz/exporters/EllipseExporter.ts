@@ -14,18 +14,28 @@ export const EllipseExporter: TikzObjectExporter<EllipseObject> = {
 
     const { center, rx, ry, angleDegrees } = geometry;
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
-    const styleParts = styleToTikzParts(object.style, context.options, colorFor);
-    const styleOptions = formatStyleOptions(styleParts).replace(/^\[|\]$/g, "");
 
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
     const path = `[rotate around={${angleDegrees}:(${center.x.toFixed(4)},${center.y.toFixed(4)})}] (${center.x.toFixed(4)},${center.y.toFixed(4)}) ellipse (${rx.toFixed(4)} and ${ry.toFixed(4)})`;
 
+    if (object.style.fill !== "transparent" && object.style.fillOpacity > 0) {
+      context.scene.sections.shapes.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+    }
+
     if (hasPattern) {
+      const maxR = Math.max(rx, ry);
+      const bb = {
+        xMin: center.x - maxR,
+        xMax: center.x + maxR,
+        yMin: center.y - maxR,
+        yMax: center.y + maxR,
+      };
       const patternLines = formatPatternFill(
         path,
         object.style,
         context.options,
-        colorFor
+        colorFor,
+        bb
       );
       
       patternLines.forEach(line => {
@@ -40,7 +50,13 @@ export const EllipseExporter: TikzObjectExporter<EllipseObject> = {
         context.scene.sections.shapes.push(`\\draw [${strokeOptions}] ${path};`);
       }
     } else {
-      context.scene.sections.shapes.push(`\\draw [${styleOptions}] ${path};`);
+      if (object.style.strokeOpacity > 0 && object.style.strokeWidth > 0) {
+        const strokeStyle = { ...object.style, fill: "transparent", fillOpacity: 0 };
+        const strokeOptions = formatStyleOptions(
+          styleToTikzParts(strokeStyle, context.options, colorFor)
+        ).replace(/^\[|\]$/g, "");
+        context.scene.sections.shapes.push(`\\draw [${strokeOptions}] ${path};`);
+      }
     }
   },
 };

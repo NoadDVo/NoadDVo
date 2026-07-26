@@ -68,11 +68,6 @@ export const RegionRenderer: GeometryRenderer<RegionObject> = {
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
-    const fillValue = hasPattern
-      ? `url(#pattern-${object.id})`
-      : object.style.fill === "transparent"
-        ? object.style.stroke
-        : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -100,12 +95,22 @@ export const RegionRenderer: GeometryRenderer<RegionObject> = {
         )}
         <path
           d={path}
-          fill={fillValue}
+          fill={
+            object.style.fill === "transparent"
+              ? object.style.stroke
+              : object.style.fill
+          }
           fillOpacity={
             object.style.fill === "transparent"
               ? Math.max(0.12, object.style.fillOpacity)
               : object.style.fillOpacity
           }
+          stroke="none"
+        />
+        <path
+          d={path}
+          fill={hasPattern ? `url(#pattern-${object.id})` : "none"}
+          fillOpacity={1}
           stroke={object.style.stroke}
           strokeLinejoin="round"
           strokeOpacity={object.style.strokeOpacity}

@@ -28,11 +28,6 @@ export const EllipseRenderer: GeometryRenderer<EllipseObject> = {
     const transform = `rotate(${-geometry.angleDegrees}, ${center.x}, ${center.y})`;
     
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
-    const fillValue = hasPattern
-      ? `url(#pattern-${object.id})`
-      : object.style.fill === "transparent"
-        ? "transparent"
-        : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -62,13 +57,25 @@ export const EllipseRenderer: GeometryRenderer<EllipseObject> = {
             transform={transform}
           />
         )}
+        {object.style.fill !== "transparent" && object.style.fillOpacity > 0 && (
+          <ellipse
+            cx={center.x}
+            cy={center.y}
+            rx={rx}
+            ry={ry}
+            fill={object.style.fill}
+            fillOpacity={object.style.fillOpacity}
+            stroke="none"
+            transform={transform}
+          />
+        )}
         <ellipse
           cx={center.x}
           cy={center.y}
           rx={rx}
           ry={ry}
-          fill={fillValue}
-          fillOpacity={object.style.fillOpacity}
+          fill={hasPattern ? `url(#pattern-${object.id})` : "none"}
+          fillOpacity={hasPattern ? 1 : 0}
           stroke={object.style.stroke}
           strokeDasharray={getDashArray(object.style.dash)}
           strokeLinecap="round"

@@ -160,9 +160,25 @@ export function AppearancePanel({
             </SelectInput>
           </Field>
           {object.style.pattern?.type && object.style.pattern.type !== "none" && (
-            <div className="grid grid-cols-2 gap-2">
-              <Field label="Pattern Density">
+            <>
+              <Field label="Pattern Color">
                 <TextInput
+                  onChange={(event) =>
+                    updateStyle({
+                      pattern: {
+                        ...(object.style.pattern ?? { type: "none", density: 0.5, size: 10 }),
+                        color: event.target.value,
+                      }
+                    })
+                  }
+                  type="color"
+                  value={object.style.pattern?.color ?? "#000000"}
+                />
+              </Field>
+              {object.style.pattern.type !== "hatch" && object.style.pattern.type !== "crosshatch" && (
+                <div className="grid grid-cols-2 gap-2">
+                <Field label="Pattern Density">
+                  <TextInput
                   max={1}
                   min={0.1}
                   onChange={(event) =>
@@ -192,6 +208,63 @@ export function AppearancePanel({
                   step={1}
                   type="number"
                   value={object.style.pattern?.size ?? 10}
+                />
+              </Field>
+                </div>
+              )}
+            </>
+          )}
+          {(object.style.pattern?.type === "hatch" || object.style.pattern?.type === "crosshatch") && (
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="Angle">
+                <TextInput
+                  max={180}
+                  min={0}
+                  onChange={(event) =>
+                    updateStyle({
+                      pattern: {
+                        ...(object.style.pattern ?? { type: "hatch", density: 0.5, size: 10 }),
+                        angle: clamp(parseNumber(event.target.value, object.style.pattern?.angle ?? 45), 0, 180),
+                      }
+                    })
+                  }
+                  step={5}
+                  type="number"
+                  value={object.style.pattern?.angle ?? 45}
+                />
+              </Field>
+              <Field label="Spacing">
+                <TextInput
+                  max={2}
+                  min={0.1}
+                  onChange={(event) =>
+                    updateStyle({
+                      pattern: {
+                        ...(object.style.pattern ?? { type: "hatch", density: 0.5, size: 10 }),
+                        spacing: clamp(parseNumber(event.target.value, object.style.pattern?.spacing ?? 0.2), 0.1, 2),
+                      }
+                    })
+                  }
+                  step={0.05}
+                  type="number"
+                  value={object.style.pattern?.spacing ?? 0.2}
+                />
+              </Field>
+              <Field label="Line W.">
+                <TextInput
+                  max={2}
+                  min={0.1}
+                  onChange={(event) =>
+                    updateStyle({
+                      pattern: {
+                        ...(object.style.pattern ?? { type: "hatch", density: 0.5, size: 10 }),
+                        lineWidth: clamp(parseNumber(event.target.value, object.style.pattern?.lineWidth ?? 0.4), 0.1, 2),
+                      }
+                    })
+                  }
+                  step={0.1}
+                  type="number"
+                  value={object.style.pattern?.lineWidth ?? 0.4}
                 />
               </Field>
             </div>

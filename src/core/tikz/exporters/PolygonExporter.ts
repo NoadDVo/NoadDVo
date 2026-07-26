@@ -33,11 +33,30 @@ export const PolygonExporter: TikzObjectExporter<PolygonObject> = {
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
 
     if (hasPattern) {
+      if (hasVisibleFill(object)) {
+        context.scene.sections.fills.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+      }
+
+      const points = object.pointIds
+        .map(id => context.scene.objects[id])
+        .filter(o => o && o.type === "point") as any[];
+        
+      let bb: { xMin: number; xMax: number; yMin: number; yMax: number } | undefined;
+      if (points.length > 0) {
+        bb = {
+          xMin: Math.min(...points.map((p: any) => p.geometry.x)),
+          xMax: Math.max(...points.map((p: any) => p.geometry.x)),
+          yMin: Math.min(...points.map((p: any) => p.geometry.y)),
+          yMax: Math.max(...points.map((p: any) => p.geometry.y)),
+        };
+      }
+
       const patternLines = formatPatternFill(
         path,
         object.style,
         context.options,
-        colorFor
+        colorFor,
+        bb
       );
       
       patternLines.forEach(line => {

@@ -37,18 +37,28 @@ export const CircleExporter: TikzObjectExporter<CircleObject> = {
           })();
 
     const colorFor = (color: string) => context.colorRegistry.getColorName(color);
-    const style = styleToTikzParts(object.style, context.options, colorFor);
 
     if (centerExpression) {
       const path = `${centerExpression} circle (${formatNumber(geometry.radius, context.options.coordinatePrecision)})`;
+      if (object.style.fill !== "transparent" && object.style.fillOpacity > 0) {
+        context.scene.sections.shapes.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+      }
+
       const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
 
       if (hasPattern) {
+        const bb = {
+          xMin: geometry.center.x - geometry.radius,
+          xMax: geometry.center.x + geometry.radius,
+          yMin: geometry.center.y - geometry.radius,
+          yMax: geometry.center.y + geometry.radius,
+        };
         const patternLines = formatPatternFill(
           path,
           object.style,
           context.options,
-          colorFor
+          colorFor,
+          bb
         );
         
         patternLines.forEach(line => {
@@ -63,9 +73,12 @@ export const CircleExporter: TikzObjectExporter<CircleObject> = {
           context.scene.sections.shapes.push(`\\draw${strokeOptions} ${path};`);
         }
       } else {
-        context.scene.sections.shapes.push(
-          `\\draw${formatStyleOptions(style)} ${path};`,
-        );
+        if (hasVisibleStroke(object)) {
+          const strokeStyle = { ...object.style, fill: "transparent", fillOpacity: 0 };
+          context.scene.sections.shapes.push(
+            `\\draw${formatStyleOptions(styleToTikzParts(strokeStyle, context.options, colorFor))} ${path};`,
+          );
+        }
       }
     } else {
       context.warnings.push({

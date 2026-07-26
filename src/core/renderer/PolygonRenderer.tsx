@@ -5,7 +5,7 @@ import type { GeometryRenderer, GeometryRendererContext } from "./RendererRegist
 function getPoint(objectId: string, context: GeometryRendererContext) {
   const object = context.objects[objectId];
 
-  return object?.type === "point" ? object as PointObject : null;
+  return object?.type === "point" ? (object as PointObject) : null;
 }
 
 function getDashArray(dash: PolygonObject["style"]["dash"]): string | undefined {
@@ -37,13 +37,7 @@ export const PolygonRenderer: GeometryRenderer<PolygonObject> = {
       .join(" ")} Z`;
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
-
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
-    const fillValue = hasPattern
-      ? `url(#pattern-${object.id})`
-      : object.style.fill === "transparent"
-        ? "transparent"
-        : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -69,10 +63,18 @@ export const PolygonRenderer: GeometryRenderer<PolygonObject> = {
             strokeWidth={object.style.strokeWidth + 6}
           />
         )}
+        {object.style.fill !== "transparent" && object.style.fillOpacity > 0 && (
+          <path
+            d={path}
+            fill={object.style.fill}
+            fillOpacity={object.style.fillOpacity}
+            stroke="none"
+          />
+        )}
         <path
           d={path}
-          fill={fillValue}
-          fillOpacity={object.style.fillOpacity}
+          fill={hasPattern ? `url(#pattern-${object.id})` : object.style.fill === "transparent" ? "none" : object.style.fill}
+          fillOpacity={hasPattern ? 1 : object.style.fillOpacity}
           stroke={object.style.stroke}
           strokeDasharray={getDashArray(object.style.dash)}
           strokeLinejoin="round"

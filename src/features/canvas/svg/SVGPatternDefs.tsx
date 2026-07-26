@@ -52,6 +52,32 @@ function renderPatternElement(
   }
 }
 
+function renderHatchPattern(
+  spacing: number,
+  hatchLineWidth: number,
+  fillColor: string,
+  isCrosshatch: boolean,
+) {
+  const mid = spacing / 2;
+  const halfW = hatchLineWidth / 2;
+  return (
+    <>
+      <rect
+        x={mid - halfW} y={0}
+        width={hatchLineWidth} height={spacing}
+        fill={fillColor}
+      />
+      {isCrosshatch && (
+        <rect
+          x={0} y={mid - halfW}
+          width={spacing} height={hatchLineWidth}
+          fill={fillColor}
+        />
+      )}
+    </>
+  );
+}
+
 export function SVGPatternDefs({ objects }: SVGPatternDefsProps) {
   const patternedObjects = Object.values(objects).filter(
     (obj) => obj.style.pattern && obj.style.pattern.type !== "none" && obj.visible,
@@ -65,10 +91,31 @@ export function SVGPatternDefs({ objects }: SVGPatternDefsProps) {
     <defs>
       {patternedObjects.map((obj) => {
         const pattern = obj.style.pattern!;
+        const isHatch = pattern.type === "hatch" || pattern.type === "crosshatch";
+        const fillColor = pattern.color ?? "#000000";
+
+        if (isHatch) {
+          const angle = pattern.angle ?? 45;
+          const hatchSpacing = Math.max(2, (pattern.spacing ?? 0.2) * 40);
+          const hatchLineWidth = Math.max(0.5, (pattern.lineWidth ?? 0.4) * 1.5);
+
+          return (
+            <pattern
+              key={`pattern-${obj.id}`}
+              id={`pattern-${obj.id}`}
+              patternUnits="userSpaceOnUse"
+              width={hatchSpacing}
+              height={hatchSpacing}
+              patternTransform={`rotate(${angle})`}
+            >
+              {renderHatchPattern(hatchSpacing, hatchLineWidth, fillColor, pattern.type === "crosshatch")}
+            </pattern>
+          );
+        }
+
         // density is 0.1 to 1.
         // If density is 1, spacing = size * 1.5. If density is 0.1, spacing = size * 5.
         const spacing = Math.max(pattern.size * 1.5, pattern.size * (1.5 + (1 - pattern.density) * 3));
-        const fillColor = obj.style.fill === "transparent" ? "#000000" : obj.style.fill;
 
         return (
           <pattern
@@ -85,3 +132,4 @@ export function SVGPatternDefs({ objects }: SVGPatternDefsProps) {
     </defs>
   );
 }
+

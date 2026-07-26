@@ -23,11 +23,6 @@ export const CircleRenderer: GeometryRenderer<CircleObject> = {
     const isSelected = context.selectedObjectIds.includes(object.id);
     const isHovered = context.hoveredObjectId === object.id && !isSelected;
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
-    const fillValue = hasPattern
-      ? `url(#pattern-${object.id})`
-      : object.style.fill === "transparent"
-        ? "transparent"
-        : object.style.fill;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
@@ -53,11 +48,21 @@ export const CircleRenderer: GeometryRenderer<CircleObject> = {
             strokeWidth={object.style.strokeWidth + 6}
           />
         )}
+        {object.style.fill !== "transparent" && object.style.fillOpacity > 0 && (
+          <circle
+            cx={center.x}
+            cy={center.y}
+            fill={object.style.fill}
+            fillOpacity={object.style.fillOpacity}
+            r={radius}
+            stroke="none"
+          />
+        )}
         <circle
           cx={center.x}
           cy={center.y}
-          fill={fillValue}
-          fillOpacity={object.style.fillOpacity}
+          fill={hasPattern ? `url(#pattern-${object.id})` : "none"}
+          fillOpacity={hasPattern ? 1 : 0}
           r={radius}
           stroke={object.style.stroke}
           strokeDasharray={getDashArray(object.style.dash)}
