@@ -1,6 +1,5 @@
 import { useRef, type ChangeEvent, type ReactNode } from "react";
 import {
-  Download,
   FilePlus2,
   FolderClock,
   FolderOpen,
@@ -20,7 +19,6 @@ import { useViewportStore } from "../../../app/store/viewportStore";
 import { useUiStore } from "../../../app/store/uiStore";
 import { createReferenceImageObject } from "../../../core/geometry";
 import { screenToWorld } from "../../../core/geometry/viewport";
-import { exportManager } from "../../../core/export";
 import {
   copySelectionToGeometryClipboard,
   duplicateSelection,
@@ -246,21 +244,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
             label="Import"
             onClick={() => fileInputRef.current?.click()}
           />
-          <ProjectOption
-            icon={<Download size={15} strokeWidth={2} />}
-            label="Export"
-            onClick={() => {
-              const projectName = projectState.currentProject.name || "Untitled";
-              const suggestedName = `${projectName}.ndv`;
-              const filename = window.prompt("Enter file name (Nhập tên file để lưu):", suggestedName);
-              
-              if (filename) {
-                const finalName = filename.endsWith(".ndv") ? filename : `${filename}.ndv`;
-                exportManager.exportProjectText(projectManager.serializeCurrentProject(), finalName);
-              }
-              setMenuOpen(false);
-            }}
-          />
+
         </div>
       </AnchoredOverlay>
     </>

@@ -6,6 +6,7 @@ import { useGeometryStore } from "../../../app/store/geometryStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
 import { useUiStore } from "../../../app/store/uiStore";
 import { exportManager } from "../../../core/export";
+import { projectManager } from "../../../core/project";
 import { Button } from "../../../ui/primitives";
 import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
 
@@ -52,6 +53,14 @@ export function ExportMenu() {
     }
   };
 
+  const promptFilename = (extension: string) => {
+    const projectName = projectManager.getSnapshot().currentProject.name || "Untitled";
+    const suggestedName = `${projectName}.${extension}`;
+    const filename = window.prompt("Enter file name (Nhập tên file để lưu):", suggestedName);
+    if (!filename) return null;
+    return filename.endsWith(`.${extension}`) ? filename : `${filename}.${extension}`;
+  };
+
   return (
     <div>
       <Button
@@ -69,41 +78,30 @@ export function ExportMenu() {
         <div className="overflow-hidden border-[3px] border-arctic-border bg-arctic-surface p-1.5 shadow-brutal">
           <ExportOption
             label="TikZ"
-            onClick={() =>
-              runExport(() =>
-                exportManager.exportTikz(useGeometryStore.getState().objects),
-              )
-            }
+            onClick={() => {
+              const filename = promptFilename("tex");
+              if (filename) {
+                runExport(() => exportManager.exportTikz(useGeometryStore.getState().objects, filename));
+              }
+            }}
           />
           <ExportOption
             label="TeX"
-            onClick={() =>
-              runExport(() =>
-                exportManager.exportTex(useGeometryStore.getState().objects),
-              )
-            }
-          />
-          <ExportOption
-            label="SVG"
-            onClick={() =>
-              runExport(() => {
-                const svg = document.querySelector<SVGSVGElement>(
-                  'svg[aria-label="Geometry canvas"]',
-                );
-
-                if (!svg) {
-                  throw new Error("Missing canvas SVG.");
-                }
-
-                exportManager.exportSvg(svg);
-              })
-            }
+            onClick={() => {
+              const filename = promptFilename("tex");
+              if (filename) {
+                runExport(() => exportManager.exportTex(useGeometryStore.getState().objects, filename));
+              }
+            }}
           />
           <ExportOption
             label="JSON"
-            onClick={() =>
-              runExport(() => exportManager.exportJson(createProjectSnapshot()))
-            }
+            onClick={() => {
+              const filename = promptFilename("json");
+              if (filename) {
+                runExport(() => exportManager.exportJson(createProjectSnapshot(), filename));
+              }
+            }}
           />
         </div>
       </AnchoredOverlay>

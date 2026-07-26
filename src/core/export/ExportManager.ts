@@ -39,21 +39,21 @@ export class ExportManager {
     return navigator.clipboard.writeText(tikz);
   }
 
-  exportTikz(objects: GeometryObjectRecord, mode: TikzMode = "academic"): void {
+  exportTikz(objects: GeometryObjectRecord, filename: string = defaultFilename("tex"), mode: TikzMode = "academic"): void {
     const tikz = generateTikz(objects, mode).code;
 
-    downloadText(tikz, defaultFilename("tex"), "tikz");
+    downloadText(tikz, filename, "tikz");
   }
 
-  exportTex(objects: GeometryObjectRecord, mode: TikzMode = "academic"): void {
+  exportTex(objects: GeometryObjectRecord, filename: string = defaultFilename("tex"), mode: TikzMode = "academic"): void {
     const tikz = generateTikz(objects, mode).code;
     const tex = wrapTikzInStandaloneDocument(tikz);
 
-    downloadText(tex, defaultFilename("tex"), "tex");
+    downloadText(tex, filename, "tex");
   }
 
-  exportJson(snapshot: ProjectExportSnapshot): void {
-    downloadText(exportProjectJson(snapshot), defaultFilename("ndv"), "json");
+  exportJson(snapshot: ProjectExportSnapshot, filename: string = defaultFilename("ndv")): void {
+    downloadText(exportProjectJson(snapshot), filename, "json");
   }
 
   exportProjectText(content: string, filename = defaultFilename("ndv")): void {
