@@ -36,6 +36,8 @@ import {
   Wifi,
   Slash,
   Gauge,
+  Compass,
+  Ruler,
   Radius
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -137,6 +139,8 @@ export const toolGroups = [
     icon: Gauge,
     items: [
       { id: "angle", label: "Angle", icon: DraftingCompass },
+      { id: "angle-given-size", label: "Construct Angle (Given Size)", icon: Compass },
+      { id: "point-by-distance", label: "Point By Distance", icon: Ruler },
       { id: "distance", label: "Distance", icon: MoveDiagonal },
       { id: "area", label: "Area", icon: Square },
       { id: "text", label: "Text", icon: Type },

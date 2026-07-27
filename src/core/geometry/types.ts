@@ -95,7 +95,9 @@ export type GeometryToolId =
   | "area"
   | "elliptical-arc"
   | "lasso"
-  | "paste";
+  | "paste"
+  | "angle-given-size"
+  | "point-by-distance";
 
 export type DashStyle = "solid" | "dashed" | "dotted";
 
@@ -299,6 +301,19 @@ export type ConstructionDefinition =
       readonly type: "special-line-bisector";
       readonly vertexId: string;
       readonly segmentId: string;
+    }
+  | {
+      readonly type: "angle-given-size-point";
+      readonly vertexPointId: string;
+      readonly anchorPointId: string;
+      readonly angleDeg: number;
+      readonly direction: "ccw" | "cw";
+    }
+  | {
+      readonly type: "point-by-distance";
+      readonly fromPointId: string;
+      readonly toPointId: string;
+      readonly distance: number;
     };
 
 export type PointObject = BaseGeometryObject & {
