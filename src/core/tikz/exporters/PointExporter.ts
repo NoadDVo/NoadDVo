@@ -61,6 +61,46 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
       }
     }
 
+    // angle-given-size-point: \path (V) -- ++({angle}:{r}cm) coordinate (B);
+    if (object.construction?.type === "angle-given-size-point") {
+      const { vertexPointId, anchorPointId, angleDeg, direction } = object.construction;
+      const vertexObj = context.scene.objects[vertexPointId] as PointObject | undefined;
+      const anchorObj = context.scene.objects[anchorPointId] as PointObject | undefined;
+      if (vertexObj?.type === "point" && anchorObj?.type === "point") {
+        const vName = context.nameRegistry.registerPoint(vertexObj, -1, false);
+        const aName = context.nameRegistry.registerPoint(anchorObj, -1, false);
+        const dx = anchorObj.x - vertexObj.x;
+        const dy = anchorObj.y - vertexObj.y;
+        const r = Math.sqrt(dx * dx + dy * dy);
+        const alphaRad = Math.atan2(dy, dx);
+        const thetaRad = (angleDeg * Math.PI) / 180;
+        const finalAngle = direction === "ccw" ? alphaRad + thetaRad : alphaRad - thetaRad;
+        const finalDeg = (finalAngle * 180) / Math.PI;
+        const rStr = r.toFixed(context.options.coordinatePrecision);
+        const angStr = finalDeg.toFixed(1);
+        // Semantic comment for readability
+        coordDef = `% Construct angle ${direction === "ccw" ? "+" : "-"}${angleDeg}° from (${aName})-(${vName})\n\\coordinate (${name}) at ($(${vName}) + (${angStr}:${rStr})$);`;
+      }
+    }
+
+    // point-by-distance: \coordinate (P) at ($(A)!{d/|AB|}!(B)$);
+    if (object.construction?.type === "point-by-distance") {
+      const { fromPointId, toPointId, distance } = object.construction;
+      const fromObj = context.scene.objects[fromPointId] as PointObject | undefined;
+      const toObj = context.scene.objects[toPointId] as PointObject | undefined;
+      if (fromObj?.type === "point" && toObj?.type === "point") {
+        const fromName = context.nameRegistry.registerPoint(fromObj, -1, false);
+        const toName = context.nameRegistry.registerPoint(toObj, -1, false);
+        const dx = toObj.x - fromObj.x;
+        const dy = toObj.y - fromObj.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len > 1e-9) {
+          const t = (distance / len).toFixed(context.options.coordinatePrecision);
+          coordDef = `\\coordinate (${name}) at ($(${fromName})!${t}!(${toName})$);`;
+        }
+      }
+    }
+
     context.scene.sections.coordinates.push(coordDef);
 
     if (context.options.exportPoints) {

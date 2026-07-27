@@ -39,6 +39,8 @@ import { polynomialTool } from "./PolynomialTool";
 import { lassoTool } from "./LassoTool";
 import { sliderTool } from "./SliderTool";
 import { pasteTool } from "./PasteTool";
+import { constructAngleWithGivenSizeTool } from "./ConstructAngleWithGivenSizeTool";
+import { constructPointByDistanceTool } from "./ConstructPointByDistanceTool";
 import {
   createToolContext,
   type ToolContext,
@@ -84,6 +86,8 @@ const defaultTools = [
   sliderTool,
   lassoTool,
   pasteTool,
+  constructAngleWithGivenSizeTool,
+  constructPointByDistanceTool,
 ] satisfies readonly Tool[];
 
 export class ToolManager {
