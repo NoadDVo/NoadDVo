@@ -158,9 +158,13 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
       return;
     }
 
-    const alpha = Math.atan2(dy, dx); // góc của VA
+    // IMPORTANT: Canvas SVG dùng Y-down (Y tăng xuống dưới), còn toạ độ nội tại dùng Y-up.
+    // Vì vậy CCW trên màn hình = alpha - thetaRad trong toạ độ math.
+    // CW trên màn hình = alpha + thetaRad trong toạ độ math.
+    const alpha = Math.atan2(dy, dx); // góc của VA trong toạ độ math (Y-up)
     const thetaRad = (theta * Math.PI) / 180;
-    const newAngle = direction === "ccw" ? alpha + thetaRad : alpha - thetaRad;
+    // Đảo chiều vì Y-flip: ccw_screen = cw_math
+    const newAngle = direction === "ccw" ? alpha - thetaRad : alpha + thetaRad;
 
     const bPrime = {
       x: vertex.x + r * Math.cos(newAngle),
@@ -182,9 +186,11 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
       return;
     }
 
-    // Tạo AngleMark giữa anchor (A), vertex (V), và B'
-    // pointAId = A, vertexPointId = V, pointCId = B'
-    const angleMark = createAngleMark(anchor, vertex, pointB, context.objects);
+    // Tạo AngleMark: pointAId = B' (điểm vừa dựng), vertexPointId = V, pointCId = A (điểm mốc gốc)
+    // Theo AngleRenderer, arc đi từ pointA → pointC (delta = angle_C - angle_A).
+    // Ta muốn arc vẽ từ B' → A theo chiều ngắn nhất để hiển thị đúng góc theta.
+    // normalizeDelta(-thetaRad) = -thetaRad khi theta < 180, arc vẽ CW trong math = CCW trên screen.
+    const angleMark = createAngleMark(pointB, vertex, anchor, context.objects);
     context.addObject(angleMark);
 
     context.selectObject(pointB.id);

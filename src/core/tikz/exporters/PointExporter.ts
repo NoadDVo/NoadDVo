@@ -61,7 +61,7 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
       }
     }
 
-    // angle-given-size-point: \path (V) -- ++({angle}:{r}cm) coordinate (B);
+    // angle-given-size-point: tính toạ độ tuyệt đối của B' rồi dùng cú pháp TikZ polar
     if (object.construction?.type === "angle-given-size-point") {
       const { vertexPointId, anchorPointId, angleDeg, direction } = object.construction;
       const vertexObj = context.scene.objects[vertexPointId] as PointObject | undefined;
@@ -72,14 +72,14 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
         const dx = anchorObj.x - vertexObj.x;
         const dy = anchorObj.y - vertexObj.y;
         const r = Math.sqrt(dx * dx + dy * dy);
-        const alphaRad = Math.atan2(dy, dx);
+        const alphaRad = Math.atan2(dy, dx); // góc V→A trong toạ độ math (Y-up, đồng bộ với TikZ)
         const thetaRad = (angleDeg * Math.PI) / 180;
-        const finalAngle = direction === "ccw" ? alphaRad + thetaRad : alphaRad - thetaRad;
+        // Đồng bộ với buildAngle(): ccw_screen = alpha - thetaRad trong math/TikZ coords
+        const finalAngle = direction === "ccw" ? alphaRad - thetaRad : alphaRad + thetaRad;
         const finalDeg = (finalAngle * 180) / Math.PI;
         const rStr = r.toFixed(context.options.coordinatePrecision);
         const angStr = finalDeg.toFixed(1);
-        // Semantic comment for readability
-        coordDef = `% Construct angle ${direction === "ccw" ? "+" : "-"}${angleDeg}° from (${aName})-(${vName})\n\\coordinate (${name}) at ($(${vName}) + (${angStr}:${rStr})$);`;
+        coordDef = `% Construct angle ${direction === "ccw" ? "-" : "+"}${angleDeg}deg from (${aName})-(${vName})\n\\coordinate (${name}) at ($(${vName}) + (${angStr}:${rStr})$);`;
       }
     }
 
