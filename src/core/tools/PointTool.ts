@@ -85,9 +85,9 @@ export function createNamedDerivedPoint(
   return {
     construction,
     createdAt: now,
-    dependencies: Object.values(construction).filter(
-      (value): value is string => typeof value === "string" && value !== construction.type,
-    ),
+    dependencies: Object.entries(construction)
+      .filter(([key, value]) => key.endsWith("Id") && typeof value === "string")
+      .map(([, value]) => value as string),
     dependents: [],
     id: `point-${name.toLowerCase()}-${Date.now().toString(36)}-${pointIdCounter}`,
     locked: false,

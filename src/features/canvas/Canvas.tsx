@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { useUiStore } from "../../app/store/uiStore";
 
@@ -28,7 +28,6 @@ export function Canvas() {
   const isPanning = useViewportStore((state) => state.isPanning);
   const isSpacePressed = useViewportStore((state) => state.isSpacePressed);
   const objects = useGeometryStore((state) => state.objects);
-  const loadExample = useGeometryStore((state) => state.loadExample);
   const hoveredObjectId = useGeometryStore((state) => state.hoveredObjectId);
   const activeTool = useGeometryStore((state) => state.activeTool);
   const activeToolCursor = toolManager.getTool(activeTool).cursor;
@@ -104,7 +103,6 @@ export function Canvas() {
 
       {objectCount === 0 && (
         <EmptyWorkspacePrompt
-          loadExample={() => loadExample("triangle")}
           startPointTool={() => toolManager.activateTool("point")}
         />
       )}
@@ -116,24 +114,27 @@ export function Canvas() {
 }
 
 function EmptyWorkspacePrompt({
-  loadExample,
   startPointTool,
 }: {
-  readonly loadExample: () => void;
   readonly startPointTool: () => void;
 }) {
   const appTheme = useUiStore((state) => state.appTheme);
+  const setObjects = useGeometryStore((state) => state.setObjects);
+  
+  const [isHidden, setIsHidden] = useState(false);
+  const [mode, setMode] = useState<"default" | "examples">("default");
 
-  return (
-    <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-6">
-      <div
-        className={clsx(
-          "pointer-events-auto px-4 py-3 text-center",
-          appTheme === "theme1" ? "rounded-none border-[3px] border-arctic-border bg-arctic-surface text-arctic-text shadow-brutal-lg" : "",
-          appTheme === "theme2" ? "rounded-xl border border-zinc-800/60 bg-[#18191E]/90 backdrop-blur text-zinc-200 shadow-2xl" : ""
-        )}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
+  if (isHidden) return null;
+
+  const handleCreate = () => {
+    setIsHidden(true);
+    startPointTool();
+  };
+
+  let content;
+  if (mode === "default") {
+    content = (
+      <>
         <p className={clsx(
           "text-[10px] font-black uppercase tracking-[0.18em] mb-2",
           appTheme === "theme1" ? "text-arctic-text bg-arctic-primary-hover inline-block px-2 py-0.5 border-[3px] border-arctic-border" : "",
@@ -146,21 +147,76 @@ function EmptyWorkspacePrompt({
           appTheme === "theme1" ? "text-base font-black uppercase tracking-[0.05em]" : "text-sm font-bold"
         )}>Create your first object</p>
         <div className="mt-4 flex items-center justify-center gap-3">
-          <Button
-            onClick={startPointTool}
-            size="sm"
-            variant="primary"
-          >
+          <Button onClick={handleCreate} size="sm" variant="primary">
             Create a point
           </Button>
-          <Button
-            onClick={loadExample}
-            size="sm"
-            variant="secondary"
-          >
+          <Button onClick={() => setMode("examples")} size="sm" variant="secondary">
             Load Example
           </Button>
         </div>
+      </>
+    );
+  } else {
+    // Examples mode
+    const examplesGlob = import.meta.glob('/EXAMPLE/*.json', { eager: true });
+    const examplesList = Object.entries(examplesGlob).map(([path, mod]: [string, any]) => {
+      const filename = path.split('/').pop()?.replace('.json', '') || 'Unknown';
+      return { name: filename, data: mod.default || mod };
+    });
+
+    content = (
+      <>
+        <p className={clsx(
+          "text-[10px] font-black uppercase tracking-[0.18em] mb-2",
+          appTheme === "theme1" ? "text-arctic-text bg-arctic-primary-hover inline-block px-2 py-0.5 border-[3px] border-arctic-border" : "",
+          appTheme === "theme2" ? "text-zinc-500" : ""
+        )}>
+          Select Example
+        </p>
+        <div className="mt-4 flex flex-col items-center justify-center gap-2 max-h-48 overflow-y-auto w-full px-2">
+          {examplesList.length === 0 ? (
+            <p className="text-sm text-gray-500 my-2">No examples found in /EXAMPLE</p>
+          ) : (
+            examplesList.map(ex => (
+              <Button 
+                key={ex.name} 
+                className="w-full text-center" 
+                size="sm" 
+                variant="secondary"
+                onClick={() => {
+                  if (ex.data && ex.data.objects) {
+                    setObjects(ex.data.objects, `Load Example: ${ex.name}`);
+                  } else {
+                    setObjects(ex.data, `Load Example: ${ex.name}`);
+                  }
+                  setIsHidden(true);
+                }}
+              >
+                {ex.name}
+              </Button>
+            ))
+          )}
+        </div>
+        <div className="mt-3">
+          <Button onClick={() => setMode("default")} size="sm" variant="primary">
+            Back
+          </Button>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-6">
+      <div
+        className={clsx(
+          "pointer-events-auto px-4 py-3 text-center min-w-[280px]",
+          appTheme === "theme1" ? "rounded-none border-[3px] border-arctic-border bg-arctic-surface text-arctic-text shadow-brutal-lg" : "",
+          appTheme === "theme2" ? "rounded-xl border border-zinc-800/60 bg-[#18191E]/90 backdrop-blur text-zinc-200 shadow-2xl" : ""
+        )}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        {content}
       </div>
     </div>
   );

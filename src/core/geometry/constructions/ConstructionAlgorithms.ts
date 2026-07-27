@@ -469,6 +469,49 @@ export function recomputeConstructedPoint(
       : null;
   }
 
+  if (construction.type === "angle-given-size-point") {
+    const vertex = getPoint(objects, construction.vertexPointId);
+    const anchor = getPoint(objects, construction.anchorPointId);
+
+    if (!vertex || !anchor) {
+      return null;
+    }
+
+    const dx = anchor.x - vertex.x;
+    const dy = anchor.y - vertex.y;
+    const r = Math.sqrt(dx * dx + dy * dy);
+    if (r < EPSILON) return null;
+
+    const alpha = Math.atan2(dy, dx);
+    const thetaRad = (construction.angleDeg * Math.PI) / 180;
+    const newAngle = construction.direction === "ccw" ? alpha - thetaRad : alpha + thetaRad;
+
+    return {
+      x: vertex.x + r * Math.cos(newAngle),
+      y: vertex.y + r * Math.sin(newAngle),
+    };
+  }
+
+  if (construction.type === "point-by-distance") {
+    const startPoint = getPoint(objects, construction.fromPointId);
+    const targetPoint = getPoint(objects, construction.toPointId);
+
+    if (!startPoint || !targetPoint) return null;
+
+    const dx = targetPoint.x - startPoint.x;
+    const dy = targetPoint.y - startPoint.y;
+    const r = Math.sqrt(dx * dx + dy * dy);
+    
+    if (r < EPSILON) return null;
+
+    const ratio = construction.distance / r;
+
+    return {
+      x: startPoint.x + dx * ratio,
+      y: startPoint.y + dy * ratio,
+    };
+  }
+
   const pointId = "pointId" in construction ? construction.pointId : undefined;
   const point = pointId ? getPoint(objects, pointId) : null;
   const lineId = "lineId" in construction ? construction.lineId : undefined;

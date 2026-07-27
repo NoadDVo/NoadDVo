@@ -13,6 +13,7 @@ import { createConstructionId, getHitPoint } from "./ConstructionToolUtils";
 import { createNamedDerivedPoint } from "./PointTool";
 import { renderPreviewPoint } from "./ToolPreviewPrimitives";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import { useGeometryStore } from "../../app/store/geometryStore";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -126,16 +127,16 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
 
       // Nhập chiều quay
       const dirStr = window.prompt(
-        "Chiều quay:\n  1 = Ngược chiều kim đồng hồ (CCW)\n  2 = Cùng chiều kim đồng hồ (CW)\nNhập 1 hoặc 2:",
-        "1",
+        "Chiều quay:\n  1 = Chiều âm (-)\n  2 = Chiều dương (+)\nNhập 1 hoặc 2:",
+        "2",
       );
       if (dirStr === null) {
         this.cancel(context);
         return;
       }
-      const direction: "ccw" | "cw" = dirStr.trim() === "2" ? "cw" : "ccw";
+      const direction: "ccw" | "cw" = dirStr.trim() === "1" ? "cw" : "ccw";
 
-      this.buildAngle(theta, direction, context);
+      this.buildAngle(theta, direction);
       return;
     }
   }
@@ -143,7 +144,6 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
   private buildAngle(
     theta: number,
     direction: "ccw" | "cw",
-    context: ToolContext,
   ): void {
     const vertex = this.vertex!;
     const anchor = this.anchorPoint!;
@@ -158,12 +158,10 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
       return;
     }
 
-    // IMPORTANT: Canvas SVG dùng Y-down (Y tăng xuống dưới), còn toạ độ nội tại dùng Y-up.
-    // Vì vậy CCW trên màn hình = alpha - thetaRad trong toạ độ math.
-    // CW trên màn hình = alpha + thetaRad trong toạ độ math.
-    const alpha = Math.atan2(dy, dx); // góc của VA trong toạ độ math (Y-up)
+    // IMPORTANT: Canvas SVG dùng Y-down, toạ độ nội tại dùng Y-up.
+    // CCW trên màn hình = alpha - thetaRad trong toạ độ math (Y-up).
+    const alpha = Math.atan2(dy, dx);
     const thetaRad = (theta * Math.PI) / 180;
-    // Đảo chiều vì Y-flip: ccw_screen = cw_math
     const newAngle = direction === "ccw" ? alpha - thetaRad : alpha + thetaRad;
 
     const bPrime = {
@@ -171,8 +169,15 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
       y: vertex.y + r * Math.sin(newAngle),
     };
 
-    // Tạo điểm B'
-    const pointB = createNamedDerivedPoint(bPrime, context.objects, {
+    // Lấy fresh state từ store sau khi window.prompt đã block (tránh stale context)
+    const freshState = useGeometryStore.getState();
+    const freshObjects = freshState.objects;
+    const freshAddObject = freshState.addObject;
+    const freshSelectObject = freshState.selectObject;
+    const freshSetHovered = freshState.setHoveredObject;
+
+    // Tạo điểm B' với fresh objects để lấy tên đúng
+    const pointB = createNamedDerivedPoint(bPrime, freshObjects, {
       type: "angle-given-size-point",
       vertexPointId: vertex.id,
       anchorPointId: anchor.id,
@@ -180,21 +185,21 @@ export class ConstructAngleWithGivenSizeTool extends BaseTool {
       direction,
     });
 
-    if (!context.addObject(pointB)) {
+    if (!freshAddObject(pointB)) {
       this.reset();
       this.transitionState("waitingInput", "await-input");
       return;
     }
 
-    // Tạo AngleMark: pointAId = B' (điểm vừa dựng), vertexPointId = V, pointCId = A (điểm mốc gốc)
-    // Theo AngleRenderer, arc đi từ pointA → pointC (delta = angle_C - angle_A).
-    // Ta muốn arc vẽ từ B' → A theo chiều ngắn nhất để hiển thị đúng góc theta.
-    // normalizeDelta(-thetaRad) = -thetaRad khi theta < 180, arc vẽ CW trong math = CCW trên screen.
-    const angleMark = createAngleMark(pointB, vertex, anchor, context.objects);
-    context.addObject(angleMark);
+    // Lấy fresh state lần 2 (đã có pointB)
+    const freshObjects2 = useGeometryStore.getState().objects;
 
-    context.selectObject(pointB.id);
-    context.setHoveredObject(pointB.id);
+    // Tạo AngleMark: B' → V → A để arc hiển thị góc theta đúng chiều
+    const angleMark = createAngleMark(pointB, vertex, anchor, freshObjects2);
+    useGeometryStore.getState().addObject(angleMark);
+
+    freshSelectObject(pointB.id);
+    freshSetHovered(pointB.id);
     this.transitionState("completed", "complete");
     this.reset();
     this.transitionState("waitingInput", "await-input");

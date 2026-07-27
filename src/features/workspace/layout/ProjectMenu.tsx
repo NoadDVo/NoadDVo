@@ -13,7 +13,6 @@ import {
 
 import {
   useGeometryStore,
-  type ExampleSceneId,
 } from "../../../app/store/geometryStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
 import { useUiStore } from "../../../app/store/uiStore";
@@ -50,13 +49,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
   
   const isDisabled = (activeMenu !== null && activeMenu !== "project") || openDialog !== null;
 
-  const loadExample = (exampleId: ExampleSceneId) => {
-    if (!useGeometryStore.getState().loadExample(exampleId)) {
-      window.alert("The example scene could not be loaded.");
-    }
 
-    setMenuOpen(false);
-  };
 
   const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -227,18 +220,32 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           <MenuHeading icon={<FolderOpen size={14} strokeWidth={2} />}>
             Load Example
           </MenuHeading>
-          {([
-            ["triangle", "Triangle"],
-            ["circle", "Circle"],
-            ["olympiad", "Olympiad Sample"],
-            ["coordinate", "Coordinate Geometry"],
-          ] as const).map(([id, label]) => (
-            <ProjectOption
-              key={id}
-              label={label}
-              onClick={() => loadExample(id as ExampleSceneId)}
-            />
-          ))}
+          {(() => {
+            const examplesGlob = import.meta.glob('/EXAMPLE/*.json', { eager: true });
+            const examplesList = Object.entries(examplesGlob).map(([path, mod]: [string, any]) => {
+              const filename = path.split('/').pop()?.replace('.json', '') || 'Unknown';
+              return { name: filename, data: mod.default || mod };
+            });
+
+            if (examplesList.length === 0) {
+              return <div className="px-3 pb-2 text-xs text-arctic-muted/60">No examples found</div>;
+            }
+
+            return examplesList.map(ex => (
+              <ProjectOption
+                key={ex.name}
+                label={ex.name}
+                onClick={() => {
+                  if (ex.data && ex.data.objects) {
+                    useGeometryStore.getState().setObjects(ex.data.objects, `Load Example: ${ex.name}`);
+                  } else {
+                    useGeometryStore.getState().setObjects(ex.data, `Load Example: ${ex.name}`);
+                  }
+                  setMenuOpen(false);
+                }}
+              />
+            ));
+          })()}
           <ProjectOption
             icon={<Upload size={15} strokeWidth={2} />}
             label="Import"

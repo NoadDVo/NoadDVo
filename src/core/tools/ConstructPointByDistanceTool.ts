@@ -7,6 +7,7 @@ import { getHitPoint } from "./ConstructionToolUtils";
 import { createNamedDerivedPoint } from "./PointTool";
 import { renderPreviewPoint } from "./ToolPreviewPrimitives";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
+import { useGeometryStore } from "../../app/store/geometryStore";
 
 // ─── Tool ────────────────────────────────────────────────────────────────────
 
@@ -62,14 +63,12 @@ export class ConstructPointByDistanceTool extends BaseTool {
       this.cancel(context);
       return;
     }
-
-    this.buildPoint(toPoint, d, context);
+    this.buildPoint(toPoint, d);
   }
 
   private buildPoint(
     toPoint: PointObject,
     d: number,
-    context: ToolContext,
   ): void {
     const from = this.fromPoint!;
 
@@ -89,16 +88,17 @@ export class ConstructPointByDistanceTool extends BaseTool {
       y: from.y + (dy / len) * d,
     };
 
-    const constructedPoint = createNamedDerivedPoint(newPoint, context.objects, {
+    const freshState = useGeometryStore.getState();
+    const constructedPoint = createNamedDerivedPoint(newPoint, freshState.objects, {
       type: "point-by-distance",
       fromPointId: from.id,
       toPointId: toPoint.id,
       distance: d,
     });
 
-    if (context.addObject(constructedPoint)) {
-      context.selectObject(constructedPoint.id);
-      context.setHoveredObject(constructedPoint.id);
+    if (freshState.addObject(constructedPoint)) {
+      freshState.selectObject(constructedPoint.id);
+      freshState.setHoveredObject(constructedPoint.id);
       this.transitionState("completed", "complete");
       this.reset();
       this.transitionState("waitingInput", "await-input");
