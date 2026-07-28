@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { useUiStore, type ThemeMode, type AppTheme, type Language } from "../../app/store/uiStore";
+import { useUiStore, type ThemeMode, type AppTheme } from "../../app/store/uiStore";
 import { useViewportStore } from "../../app/store/viewportStore";
 import type { TikzMode } from "../../core/tikz";
 import { useTranslation } from "../../lib/useTranslation";
@@ -86,8 +86,6 @@ export function SettingsDialog() {
   const setTheme = useUiStore((state) => state.setTheme);
   const appTheme = useUiStore((state) => state.appTheme);
   const setAppTheme = useUiStore((state) => state.setAppTheme);
-  const language = useUiStore((state) => state.language);
-  const setLanguage = useUiStore((state) => state.setLanguage);
   const tikzMode = useUiStore((state) => state.tikzMode);
   const setTikzMode = useUiStore((state) => state.setTikzMode);
   const viewport = useViewportStore();
@@ -185,17 +183,7 @@ export function SettingsDialog() {
             <CheckboxField checked label={t("settings.includeMetadata")} onChange={() => undefined} />
             <CheckboxField checked label={t("settings.preserveStyles")} onChange={() => undefined} />
           </Section>
-          <Section title={t("settings.language")}>
-            <Field label={t("settings.language")}>
-              <SelectInput
-                value={language}
-                onChange={(event) => setLanguage(event.target.value as Language)}
-              >
-                <option value="en">{t("lang.english")}</option>
-                <option value="vi">{t("lang.vietnamese")}</option>
-              </SelectInput>
-            </Field>
-          </Section>
+
           <Section title={t("settings.autosave")}>
             <CheckboxField checked label={t("settings.autosaveProjects")} onChange={() => undefined} />
             <p className="text-[11px] leading-5 text-arctic-muted">

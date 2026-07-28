@@ -3,7 +3,6 @@ import { create } from "zustand";
 import type { TikzMode } from "../../core/tikz";
 
 export type ThemeMode = "dark-arctic" | "dark" | "light" | "system";
-export type Language = "en" | "vi";
 export type ResolvedThemeMode = Exclude<ThemeMode, "system">;
 export type AppTheme = "theme1" | "theme2";
 type SidebarPanel = "tools" | "layers" | "history" | "settings";
@@ -13,7 +12,6 @@ type KeyboardModeHint = "pan" | "snap-off" | "constraint" | null;
 type UIState = {
   readonly appTheme: AppTheme;
   readonly theme: ThemeMode;
-  readonly language: Language;
   readonly activeSidebar: SidebarPanel;
   readonly openDialog: DialogId;
   readonly commandPaletteOpen: boolean;
@@ -27,7 +25,6 @@ type UIState = {
   readonly activeTopBarMenu: "project" | "export" | null;
   readonly setAppTheme: (theme: AppTheme) => void;
   readonly setTheme: (theme: ThemeMode) => void;
-  readonly setLanguage: (language: Language) => void;
   readonly setActiveSidebar: (sidebar: SidebarPanel) => void;
   readonly setOpenDialog: (dialog: DialogId) => void;
   readonly setCommandPaletteOpen: (open: boolean) => void;
@@ -48,7 +45,6 @@ const DEFAULT_UI_STATE = {
   commandPaletteOpen: false,
   hoveredToolId: null,
   keyboardModeHint: null,
-  language: "en" as Language,
   openDialog: null,
   theme: "dark-arctic",
   tikzMode: "academic",
@@ -64,7 +60,6 @@ const DEFAULT_UI_STATE = {
   | "commandPaletteOpen"
   | "hoveredToolId"
   | "keyboardModeHint"
-  | "language"
   | "openDialog"
   | "theme"
   | "tikzMode"
@@ -87,16 +82,6 @@ function readStoredTheme(): ThemeMode {
     : DEFAULT_UI_STATE.theme;
 }
 
-function readStoredLanguage(): Language {
-  if (typeof window === "undefined") {
-    return DEFAULT_UI_STATE.language;
-  }
-
-  const stored = window.localStorage.getItem("ndv.language");
-
-  return stored === "en" || stored === "vi" ? stored : DEFAULT_UI_STATE.language;
-}
-
 export function resolveThemeMode(
   theme: ThemeMode,
   systemPrefersLight: boolean,
@@ -107,7 +92,6 @@ export function resolveThemeMode(
 export const useUiStore = create<UIState>((set) => ({
   ...DEFAULT_UI_STATE,
   theme: readStoredTheme(),
-  language: readStoredLanguage(),
   setAppTheme: (appTheme) => {
     set({ appTheme });
     if (typeof window !== "undefined") {
@@ -120,13 +104,6 @@ export const useUiStore = create<UIState>((set) => ({
     }
 
     set({ theme });
-  },
-  setLanguage: (language) => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("ndv.language", language);
-    }
-
-    set({ language });
   },
   setActiveSidebar: (activeSidebar) => {
     set({ activeSidebar });
