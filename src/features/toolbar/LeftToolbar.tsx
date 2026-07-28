@@ -44,7 +44,6 @@ import type { LucideIcon } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
-import { useTranslation } from "../../lib/useTranslation";
 import { toolManager } from "../../core/tools/ToolManager";
 import type { GeometryToolId } from "../../core/geometry";
 import { IconButton } from "../../ui/primitives";
@@ -170,7 +169,6 @@ export function LeftToolbar() {
   const activeTool = useGeometryStore((state) => state.activeTool);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
