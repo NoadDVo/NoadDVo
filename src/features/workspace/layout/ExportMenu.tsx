@@ -7,12 +7,14 @@ import { useViewportStore } from "../../../app/store/viewportStore";
 import { useUiStore } from "../../../app/store/uiStore";
 import { exportManager } from "../../../core/export";
 import { projectManager } from "../../../core/project";
+import { useTranslation } from "../../../lib/useTranslation";
 import { Button } from "../../../ui/primitives";
 import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
 
 export function ExportMenu() {
   const appName = useAppStore((state) => state.appName);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const { t } = useTranslation();
   
   const activeMenu = useUiStore((state) => state.activeTopBarMenu);
   const setActiveMenu = useUiStore((state) => state.setActiveTopBarMenu);
@@ -49,14 +51,14 @@ export function ExportMenu() {
       action();
       setExportOpen(false);
     } catch {
-      window.alert("Export failed. Please try again.");
+      window.alert(t("export.failed"));
     }
   };
 
   const promptFilename = (extension: string) => {
     const projectName = projectManager.getSnapshot().currentProject.name || "Untitled";
     const suggestedName = `${projectName}.${extension}`;
-    const filename = window.prompt("Enter file name (Nhập tên file để lưu):", suggestedName);
+    const filename = window.prompt(t("export.filenameprompt"), suggestedName);
     if (!filename) return null;
     return filename.endsWith(`.${extension}`) ? filename : `${filename}.${extension}`;
   };
@@ -72,7 +74,7 @@ export function ExportMenu() {
         active={exportOpen}
         disabled={isDisabled}
       >
-        Export
+        {t("export.title")}
       </Button>
       <AnchoredOverlay anchorRef={buttonRef} open={exportOpen} width={176}>
         <div className="overflow-hidden border-[3px] border-arctic-border bg-arctic-surface p-1.5 shadow-brutal">

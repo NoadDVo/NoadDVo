@@ -1,4 +1,5 @@
 import type { GeometryObject, GeometryStyle, LabelPosition } from "../../core/geometry";
+import { useTranslation } from "../../lib/useTranslation";
 import {
   Field,
   labelPositions,
@@ -16,14 +17,16 @@ type LabelPanelProps = {
 };
 
 export function LabelPanel({ object, updateSelected, updateStyle }: LabelPanelProps) {
+  const { t } = useTranslation();
+
   return (
-    <Section title="Label">
+    <Section title={t("panel.label")}>
       <ToggleRow
         checked={object.style.labelVisible}
-        label="Show Label"
+        label={t("prop.showLabel")}
         onChange={(labelVisible) => updateStyle({ labelVisible })}
       />
-      <Field label="Label Text">
+      <Field label={t("prop.labelText")}>
         <TextInput
           onChange={(event) =>
             updateSelected((current) => ({
@@ -40,7 +43,7 @@ export function LabelPanel({ object, updateSelected, updateStyle }: LabelPanelPr
           }
         />
       </Field>
-      <Field label="Label Position">
+      <Field label={t("prop.labelPosition")}>
         <SelectInput
           onChange={(event) =>
             updateStyle({ labelPosition: event.target.value as LabelPosition })
@@ -54,7 +57,7 @@ export function LabelPanel({ object, updateSelected, updateStyle }: LabelPanelPr
           ))}
         </SelectInput>
       </Field>
-      <Field label="Label Size">
+      <Field label={t("prop.labelSize")}>
         <TextInput
           min={8}
           onChange={(event) =>

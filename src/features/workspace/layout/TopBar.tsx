@@ -5,6 +5,7 @@ import { useUiStore } from "../../../app/store/uiStore";
 
 import { useAppStore } from "../../../app/store/appStore";
 import { projectManager } from "../../../core/project";
+import { useTranslation } from "../../../lib/useTranslation";
 import { Divider, Button } from "../../../ui/primitives";
 import { ExportMenu } from "./ExportMenu";
 import { HelpGroup } from "./HelpGroup";
@@ -27,6 +28,7 @@ export function TopBar() {
   const isRightPanelOpen = useUiStore((state) => state.isRightPanelOpen);
   const toggleLeftPanel = useUiStore((state) => state.toggleLeftPanel);
   const toggleRightPanel = useUiStore((state) => state.toggleRightPanel);
+  const { t } = useTranslation();
 
   return (
     <>
@@ -69,23 +71,23 @@ export function TopBar() {
           <div className="flex items-center gap-1 mr-2">
             <Button
               onClick={toggleLeftPanel}
-              title="Toggle Object Tree"
+              title={t("topbar.toggleObjectTree")}
               icon={<PanelLeft size={14} strokeWidth={2.5} />}
               size="xs"
               variant="panel-toggle"
               active={isLeftPanelOpen}
             >
-              <span className="hidden md:inline">Object Tree</span>
+              <span className="hidden md:inline">{t("topbar.objectTree")}</span>
             </Button>
             <Button
               onClick={toggleRightPanel}
-              title="Toggle Properties"
+              title={t("topbar.toggleInspector")}
               icon={<PanelRight size={14} strokeWidth={2.5} />}
               size="xs"
               variant="panel-toggle"
               active={isRightPanelOpen}
             >
-              <span className="hidden md:inline">Inspector</span>
+              <span className="hidden md:inline">{t("topbar.inspector")}</span>
             </Button>
           </div>
 

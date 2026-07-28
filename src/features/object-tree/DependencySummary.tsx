@@ -3,6 +3,7 @@ import clsx from "clsx";
 
 import { DependencyGraph, type GeometryObject } from "../../core/geometry";
 import { getObjectDisplayName } from "./objectTreeUtils";
+import { useTranslation } from "../../lib/useTranslation";
 
 type DependencySummaryProps = {
   readonly graph: DependencyGraph | null;
@@ -17,13 +18,15 @@ export function DependencySummary({
   objects,
   selectedObject,
 }: DependencySummaryProps) {
+  const { t } = useTranslation();
+
   if (!selectedObject || !graph) {
     return (
       <div className={clsx(
         "border-t px-4 py-3 text-[11px] font-semibold",
         isDark ? "border-zinc-700/60 text-zinc-500" : "border-arctic-border/8 text-arctic-muted"
       )}>
-        Select an object to inspect dependency links.
+        {t("tree.selectToInspect")}
       </div>
     );
   }
@@ -42,11 +45,11 @@ export function DependencySummary({
         isDark ? "text-zinc-400" : "text-arctic-muted"
       )}>
         <GitBranch size={13} strokeWidth={2} />
-        Dependencies
+        {t("adv.dependencies")}
       </div>
-      <DependencyLine isDark={isDark} label="Parents" objectIds={parents} objects={objects} />
-      <DependencyLine isDark={isDark} label="Children" objectIds={children} objects={objects} />
-      <DependencyLine isDark={isDark} label="Chain" objectIds={chain} objects={objects} />
+      <DependencyLine isDark={isDark} label={t("tree.parents")} objectIds={parents} objects={objects} />
+      <DependencyLine isDark={isDark} label={t("tree.children")} objectIds={children} objects={objects} />
+      <DependencyLine isDark={isDark} label={t("tree.chain")} objectIds={chain} objects={objects} />
     </div>
   );
 }
@@ -62,6 +65,7 @@ function DependencyLine({
   readonly objectIds: readonly string[];
   readonly objects: Record<string, GeometryObject>;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="mt-1 flex items-start gap-2 text-[11px]">
       <span className={clsx(
@@ -75,7 +79,7 @@ function DependencyLine({
         isDark ? "text-zinc-200" : "text-arctic-text/85"
       )}>
         {objectIds.length === 0
-          ? "None"
+          ? t("adv.none")
           : objectIds.map((objectId) => displayObjectId(objectId, objects)).join(" -> ")}
       </span>
     </div>
@@ -83,12 +87,13 @@ function DependencyLine({
 }
 
 export function EmptySearchState() {
+  const { t } = useTranslation();
   return (
     <div className="rounded-[14px] border border-arctic-border/8 bg-arctic-surface/55 px-4 py-4">
       <FileText size={18} strokeWidth={2} className="text-arctic-ice/80" />
-      <p className="mt-2 text-sm font-bold text-arctic-text">No matching objects</p>
+      <p className="mt-2 text-sm font-bold text-arctic-text">{t("tree.emptySearch")}</p>
       <p className="mt-1 text-xs font-semibold text-arctic-muted">
-        Try another search or filter.
+        {t("tree.emptySearchDesc")}
       </p>
     </div>
   );

@@ -18,39 +18,39 @@ export type ObjectTreeSection = {
 
 export const objectTreeFilters: readonly {
   readonly id: ObjectTreeFilter;
-  readonly label: string;
+  readonly labelKey: string;
 }[] = [
-  { id: "all", label: "All" },
-  { id: "points", label: "Points" },
-  { id: "lines", label: "Lines" },
-  { id: "circles", label: "Circles" },
-  { id: "construction", label: "Construction" },
-  { id: "measurements", label: "Measurements" },
-  { id: "hidden", label: "Hidden" },
-  { id: "locked", label: "Locked" },
+  { id: "all", labelKey: "tree.filterAll" },
+  { id: "points", labelKey: "tree.filterPoints" },
+  { id: "lines", labelKey: "tree.filterLines" },
+  { id: "circles", labelKey: "tree.filterCircles" },
+  { id: "construction", labelKey: "tree.filterConstruction" },
+  { id: "measurements", labelKey: "tree.filterMeasurements" },
+  { id: "hidden", labelKey: "tree.filterHidden" },
+  { id: "locked", labelKey: "tree.filterLocked" },
 ];
 
 const sectionLabels: readonly {
   readonly id: string;
-  readonly label: string;
+  readonly labelKey: string;
   readonly accepts: (object: GeometryObject) => boolean;
 }[] = [
-  { accepts: (object) => object.type === "point", id: "points", label: "Points" },
-  { accepts: (object) => object.type === "segment", id: "segments", label: "Segments" },
-  { accepts: (object) => object.type === "line", id: "lines", label: "Lines" },
-  { accepts: (object) => object.type === "ray", id: "rays", label: "Rays" },
-  { accepts: (object) => object.type === "vector", id: "vectors", label: "Vectors" },
-  { accepts: (object) => object.type === "circle", id: "circles", label: "Circles" },
-  { accepts: (object) => object.type === "arc", id: "arcs", label: "Arcs" },
-  { accepts: (object) => object.type === "polygon", id: "polygons", label: "Polygons" },
-  { accepts: (object) => object.type === "region", id: "regions", label: "Regions" },
-  { accepts: (object) => object.type === "angle", id: "angles", label: "Angles" },
-  { accepts: (object) => object.type === "text", id: "text", label: "Text" },
-  { accepts: (object) => object.type === "slider", id: "sliders", label: "Sliders" },
+  { accepts: (object) => object.type === "point", id: "points", labelKey: "tree.sectionPoints" },
+  { accepts: (object) => object.type === "segment", id: "segments", labelKey: "tree.sectionSegments" },
+  { accepts: (object) => object.type === "line", id: "lines", labelKey: "tree.sectionLines" },
+  { accepts: (object) => object.type === "ray", id: "rays", labelKey: "tree.sectionRays" },
+  { accepts: (object) => object.type === "vector", id: "vectors", labelKey: "tree.sectionVectors" },
+  { accepts: (object) => object.type === "circle", id: "circles", labelKey: "tree.sectionCircles" },
+  { accepts: (object) => object.type === "arc", id: "arcs", labelKey: "tree.sectionArcs" },
+  { accepts: (object) => object.type === "polygon", id: "polygons", labelKey: "tree.sectionPolygons" },
+  { accepts: (object) => object.type === "region", id: "regions", labelKey: "tree.sectionRegions" },
+  { accepts: (object) => object.type === "angle", id: "angles", labelKey: "tree.sectionAngles" },
+  { accepts: (object) => object.type === "text", id: "text", labelKey: "tree.sectionText" },
+  { accepts: (object) => object.type === "slider", id: "sliders", labelKey: "tree.sectionSliders" },
   {
     accepts: (object) => object.dependencies.length > 0,
     id: "construction",
-    label: "Construction",
+    labelKey: "tree.sectionConstruction",
   },
 ];
 
@@ -128,7 +128,7 @@ export function createObjectTreeSections(
   objects: GeometryObjectRecord,
   filter: ObjectTreeFilter,
   query: string,
-): readonly ObjectTreeSection[] {
+): readonly (Omit<ObjectTreeSection, 'label'> & { labelKey: string })[] {
   const orderedObjects = Object.values(objects)
     .filter((object) => {
       // Always hide internal/ghost derived points (visible === false) unless user explicitly browsing hidden items
@@ -141,7 +141,7 @@ export function createObjectTreeSections(
   return sectionLabels
     .map((section) => ({
       id: section.id,
-      label: section.label,
+      labelKey: section.labelKey,
       objects: orderedObjects.filter(section.accepts),
     }))
     .filter((section) => section.objects.length > 0);

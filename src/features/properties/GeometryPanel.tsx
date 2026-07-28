@@ -9,6 +9,7 @@ import {
   getEllipticalArcGeometry,
   type GeometryObject,
 } from "../../core/geometry";
+import { useTranslation } from "../../lib/useTranslation";
 import { TextAnnotationPanel } from "./TextAnnotationPanel";
 import {
   Field,
@@ -58,83 +59,23 @@ export function GeometryPanel({
       return next ? sum + distance(point, next) : sum;
     }, 0);
 
-    return (
-      <Section title="Geometry">
-        <Readout label="Vertices" value={String(object.pointIds.length)} />
-        <Readout label="Perimeter" value={formatNumber(perimeter)} />
-        <Readout label="Area" value={formatNumber(Math.abs(polygonArea(vertices)))} />
-      </Section>
-    );
+    return <PolygonGeometryPanel vertices={vertices} perimeter={perimeter} object={object} />;
   }
 
   if (object.type === "line") {
-    return (
-      <Section title="Geometry">
-        <Readout label="Point A" value={object.pointAId} />
-        <Readout label="Point B" value={object.pointBId} />
-        {(object.lineKind === "perpendicular" ||
-          object.lineKind === "perpendicular-bisector" ||
-          object.lineKind === "angle-bisector" ||
-          object.lineKind === "angle-bisector-4step" ||
-          object.specialLineKind === "perpendicular-bisector-3step" ||
-          object.specialLineKind === "angle-bisector" ||
-          object.specialLineKind === "altitude") && (
-          <ToggleRow
-            checked={object.showEqualityTicks ?? false}
-            label="Show Equality Ticks"
-            onChange={(checked) =>
-              updateSelected((current) =>
-                current.type === "line"
-                  ? { ...current, showEqualityTicks: checked }
-                  : current
-              )
-            }
-          />
-        )}
-      </Section>
-    );
+    return <LineGeometryPanel object={object} updateSelected={updateSelected} />;
   }
 
   if (object.type === "ray") {
-    return (
-      <Section title="Geometry">
-        <Readout label="Start" value={object.startPointId} />
-        <Readout label="Through" value={object.throughPointId} />
-      </Section>
-    );
+    return <RayGeometryPanel object={object} />;
   }
 
   if (object.type === "vector") {
-    return (
-      <Section title="Geometry">
-        <Readout label="Start" value={object.startPointId} />
-        <Readout label="End" value={object.endPointId} />
-      </Section>
-    );
+    return <VectorGeometryPanel object={object} />;
   }
 
   if (object.type === "segment") {
-    return (
-      <Section title="Geometry">
-        <Readout label="Start" value={object.startPointId} />
-        <Readout label="End" value={object.endPointId} />
-        {(object.specialLineKind === "perpendicular-bisector-3step" ||
-          object.specialLineKind === "angle-bisector" ||
-          object.specialLineKind === "altitude") && (
-          <ToggleRow
-            checked={object.showEqualityTicks ?? false}
-            label="Show Equality Ticks"
-            onChange={(checked) =>
-              updateSelected((current) =>
-                current.type === "segment"
-                  ? { ...current, showEqualityTicks: checked }
-                  : current
-              )
-            }
-          />
-        )}
-      </Section>
-    );
+    return <SegmentGeometryPanel object={object} updateSelected={updateSelected} />;
   }
 
   if (object.type === "angle") {
@@ -148,60 +89,15 @@ export function GeometryPanel({
   }
 
   if (object.type === "arc") {
-    const arc = getArcGeometry(object, objects);
-
-    return (
-      <Section title="Geometry">
-        <Readout label="Center" value={object.centerPointId} />
-        <Readout label="Start" value={object.startPointId} />
-        <Readout label="End" value={object.endPointId} />
-        <Readout label="Direction" value={object.direction} />
-        <Readout label="Radius" value={arc ? formatNumber(arc.radius) : "Unavailable"} />
-      </Section>
-    );
+    return <ArcGeometryPanel object={object} objects={objects} />;
   }
 
   if (object.type === "elliptical-arc") {
-    const ellipticalArc = getEllipticalArcGeometry(object, objects);
-
-    return (
-      <Section title="Geometry">
-        <Readout label="Center" value={object.centerPointId} />
-        <Readout label="Start" value={object.startPointId} />
-        <Readout label="End" value={object.endPointId} />
-        <Readout label="Direction" value={object.direction} />
-        <Readout label="x radius" value={ellipticalArc ? formatNumber(ellipticalArc.rx) : "Unavailable"} />
-        <Field label="y radius">
-          <TextInput
-            onChange={(event) =>
-              updateSelected((current) =>
-                current.type === "elliptical-arc"
-                  ? {
-                      ...current,
-                      updatedAt: Date.now(),
-                      ry: parseNumber(event.target.value, current.ry),
-                    }
-                  : current,
-              )
-            }
-            step={0.1}
-            type="number"
-            value={object.ry}
-          />
-        </Field>
-      </Section>
-    );
+    return <EllipticalArcGeometryPanel object={object} objects={objects} updateSelected={updateSelected} />;
   }
 
   if (object.type === "region") {
-    const area = getRegionArea(object, objects);
-
-    return (
-      <Section title="Geometry">
-        <Readout label="Boundary Points" value={String(object.boundaryPointIds.length)} />
-        <Readout label="Area" value={area === null ? "Unavailable" : formatNumber(area)} />
-      </Section>
-    );
+    return <RegionGeometryPanel object={object} objects={objects} />;
   }
 
   if (object.type === "text") {
@@ -222,9 +118,204 @@ export function GeometryPanel({
     return <SliderGeometry object={object as import("../../core/geometry").SliderObject} updateSelected={updateSelected} />;
   }
 
+  return <DefaultGeometryPanel />;
+}
+
+function DefaultGeometryPanel() {
+  const { t } = useTranslation();
   return (
-    <Section title="Geometry">
-      <Readout label="Details" value="No editable geometry fields" />
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.details")} value={t("geom.noEditable")} />
+    </Section>
+  );
+}
+
+function PolygonGeometryPanel({
+  vertices,
+  perimeter,
+  object,
+}: {
+  readonly vertices: { x: number; y: number }[];
+  readonly perimeter: number;
+  readonly object: Extract<GeometryObject, { readonly type: "polygon" }>;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.vertices")} value={String(object.pointIds.length)} />
+      <Readout label={t("geom.perimeter")} value={formatNumber(perimeter)} />
+      <Readout label={t("geom.area")} value={formatNumber(Math.abs(polygonArea(vertices)))} />
+    </Section>
+  );
+}
+
+function LineGeometryPanel({
+  object,
+  updateSelected,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "line" }>;
+  readonly updateSelected: GeometryPanelProps["updateSelected"];
+}) {
+  const { t } = useTranslation();
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.pointA")} value={object.pointAId} />
+      <Readout label={t("geom.pointB")} value={object.pointBId} />
+      {(object.lineKind === "perpendicular" ||
+        object.lineKind === "perpendicular-bisector" ||
+        object.lineKind === "angle-bisector" ||
+        object.lineKind === "angle-bisector-4step" ||
+        object.specialLineKind === "perpendicular-bisector-3step" ||
+        object.specialLineKind === "angle-bisector" ||
+        object.specialLineKind === "altitude") && (
+        <ToggleRow
+          checked={object.showEqualityTicks ?? false}
+          label={t("geom.showEqualityTicks")}
+          onChange={(checked) =>
+            updateSelected((current) =>
+              current.type === "line"
+                ? { ...current, showEqualityTicks: checked }
+                : current
+            )
+          }
+        />
+      )}
+    </Section>
+  );
+}
+
+function RayGeometryPanel({
+  object,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "ray" }>;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.start")} value={object.startPointId} />
+      <Readout label={t("geom.through")} value={object.throughPointId} />
+    </Section>
+  );
+}
+
+function VectorGeometryPanel({
+  object,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "vector" }>;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.start")} value={object.startPointId} />
+      <Readout label={t("geom.end")} value={object.endPointId} />
+    </Section>
+  );
+}
+
+function SegmentGeometryPanel({
+  object,
+  updateSelected,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "segment" }>;
+  readonly updateSelected: GeometryPanelProps["updateSelected"];
+}) {
+  const { t } = useTranslation();
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.start")} value={object.startPointId} />
+      <Readout label={t("geom.end")} value={object.endPointId} />
+      {(object.specialLineKind === "perpendicular-bisector-3step" ||
+        object.specialLineKind === "angle-bisector" ||
+        object.specialLineKind === "altitude") && (
+        <ToggleRow
+          checked={object.showEqualityTicks ?? false}
+          label={t("geom.showEqualityTicks")}
+          onChange={(checked) =>
+            updateSelected((current) =>
+              current.type === "segment"
+                ? { ...current, showEqualityTicks: checked }
+                : current
+            )
+          }
+        />
+      )}
+    </Section>
+  );
+}
+
+function ArcGeometryPanel({
+  object,
+  objects,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "arc" }>;
+  readonly objects: Record<string, GeometryObject>;
+}) {
+  const { t } = useTranslation();
+  const arc = getArcGeometry(object, objects);
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.center")} value={object.centerPointId} />
+      <Readout label={t("geom.start")} value={object.startPointId} />
+      <Readout label={t("geom.end")} value={object.endPointId} />
+      <Readout label={t("geom.direction")} value={object.direction} />
+      <Readout label={t("geom.radius")} value={arc ? formatNumber(arc.radius) : t("geom.unavailable")} />
+    </Section>
+  );
+}
+
+function EllipticalArcGeometryPanel({
+  object,
+  objects,
+  updateSelected,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "elliptical-arc" }>;
+  readonly objects: Record<string, GeometryObject>;
+  readonly updateSelected: GeometryPanelProps["updateSelected"];
+}) {
+  const { t } = useTranslation();
+  const ellipticalArc = getEllipticalArcGeometry(object, objects);
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.center")} value={object.centerPointId} />
+      <Readout label={t("geom.start")} value={object.startPointId} />
+      <Readout label={t("geom.end")} value={object.endPointId} />
+      <Readout label={t("geom.direction")} value={object.direction} />
+      <Readout label={t("geom.xRadius")} value={ellipticalArc ? formatNumber(ellipticalArc.rx) : t("geom.unavailable")} />
+      <Field label={t("geom.yRadius")}>
+        <TextInput
+          onChange={(event) =>
+            updateSelected((current) =>
+              current.type === "elliptical-arc"
+                ? {
+                    ...current,
+                    updatedAt: Date.now(),
+                    ry: parseNumber(event.target.value, current.ry),
+                  }
+                : current,
+            )
+          }
+          step={0.1}
+          type="number"
+          value={object.ry}
+        />
+      </Field>
+    </Section>
+  );
+}
+
+function RegionGeometryPanel({
+  object,
+  objects,
+}: {
+  readonly object: Extract<GeometryObject, { readonly type: "region" }>;
+  readonly objects: Record<string, GeometryObject>;
+}) {
+  const { t } = useTranslation();
+  const area = getRegionArea(object, objects);
+  return (
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.boundaryPoints")} value={String(object.boundaryPointIds.length)} />
+      <Readout label={t("geom.area")} value={area === null ? t("geom.unavailable") : formatNumber(area)} />
     </Section>
   );
 }
@@ -235,8 +326,9 @@ function ImageGeometry({
 }: Pick<GeometryPanelProps, "updateSelected"> & {
   readonly object: Extract<GeometryObject, { readonly type: "image" }>;
 }) {
+  const { t } = useTranslation();
   return (
-    <Section title="Geometry">
+    <Section title={t("geom.geometry")}>
       <div className="grid grid-cols-2 gap-2">
         <Field label="X">
           <TextInput
@@ -274,7 +366,7 @@ function ImageGeometry({
             value={object.y}
           />
         </Field>
-        <Field label="Width">
+        <Field label={t("geom.width")}>
           <TextInput
             min={EPSILON}
             onChange={(event) =>
@@ -293,7 +385,7 @@ function ImageGeometry({
             value={object.width}
           />
         </Field>
-        <Field label="Height">
+        <Field label={t("geom.height")}>
           <TextInput
             min={EPSILON}
             onChange={(event) =>
@@ -313,7 +405,7 @@ function ImageGeometry({
           />
         </Field>
       </div>
-      <Field label="Opacity">
+      <Field label={t("geom.opacity")}>
         <TextInput
           max={1}
           min={0}
@@ -333,7 +425,7 @@ function ImageGeometry({
           value={object.opacity}
         />
       </Field>
-      <Readout label="Source Type" value={object.mimeType} />
+      <Readout label={t("geom.sourceType")} value={object.mimeType} />
     </Section>
   );
 }
@@ -344,10 +436,11 @@ function SliderGeometry({
 }: Pick<GeometryPanelProps, "updateSelected"> & {
   readonly object: Extract<GeometryObject, { readonly type: "slider" }>;
 }) {
+  const { t } = useTranslation();
   return (
-    <Section title="Slider Settings">
+    <Section title={t("geom.sliderSettings")}>
       <div className="grid grid-cols-2 gap-2 mb-2">
-        <Field label="Min">
+        <Field label={t("geom.min")}>
           <TextInput
             onChange={(event) =>
               updateSelected((current) =>
@@ -365,7 +458,7 @@ function SliderGeometry({
             value={object.min}
           />
         </Field>
-        <Field label="Max">
+        <Field label={t("geom.max")}>
           <TextInput
             onChange={(event) =>
               updateSelected((current) =>
@@ -385,7 +478,7 @@ function SliderGeometry({
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-2 mb-2">
-        <Field label="Step">
+        <Field label={t("geom.step")}>
           <TextInput
             onChange={(event) =>
               updateSelected((current) =>
@@ -403,7 +496,7 @@ function SliderGeometry({
             value={object.step}
           />
         </Field>
-        <Field label="Value">
+        <Field label={t("geom.value")}>
           <TextInput
             onChange={(event) =>
               updateSelected((current) =>
@@ -423,7 +516,7 @@ function SliderGeometry({
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-2 mb-2">
-        <Field label="Auto Play">
+        <Field label={t("geom.autoPlay")}>
           <button
             onClick={() =>
               updateSelected((current) =>
@@ -442,10 +535,10 @@ function SliderGeometry({
                 : "bg-blue-500 hover:bg-blue-600 text-white"
             }`}
           >
-            {object.isAnimating ? "Pause" : "Play"}
+            {object.isAnimating ? t("geom.pause") : t("geom.play")}
           </button>
         </Field>
-        <Field label="Speed (units/s)">
+        <Field label={t("geom.speed")}>
           <TextInput
             onChange={(event) =>
               updateSelected((current) =>
@@ -464,7 +557,7 @@ function SliderGeometry({
           />
         </Field>
       </div>
-      <Field label="Variable Name">
+      <Field label={t("geom.variableName")}>
         <TextInput
           onChange={(event) =>
             updateSelected((current) =>
@@ -492,11 +585,12 @@ function PointGeometry({
 }: Pick<GeometryPanelProps, "objects" | "updateSelected"> & {
   readonly object: Extract<GeometryObject, { readonly type: "point" }>;
 }) {
+  const { t } = useTranslation();
   const sliders = Object.values(objects).filter((obj) => obj.type === "slider");
   const isPointOnObject = object.construction?.type === "point-on-object";
   const boundSliderId = isPointOnObject ? (object.construction as any).bindSliderId : undefined;
   return (
-    <Section title="Geometry">
+    <Section title={t("geom.geometry")}>
       <div className="grid grid-cols-2 gap-2">
         <Field label="X">
           <TextInput
@@ -536,7 +630,7 @@ function PointGeometry({
       {object.construction?.type === "midpoint" && (
         <ToggleRow
           checked={object.showEqualityTicks ?? false}
-          label="Show Equality Ticks"
+          label={t("geom.showEqualityTicks")}
           onChange={(checked) =>
             updateSelected((current) =>
               current.type === "point"
@@ -547,7 +641,7 @@ function PointGeometry({
         />
       )}
       {isPointOnObject && sliders.length > 0 && (
-        <Field label="Bind to Slider">
+        <Field label={t("geom.bindSlider")}>
           <SelectInput
             value={boundSliderId || ""}
             onChange={(event) =>
@@ -583,7 +677,7 @@ function PointGeometry({
               })
             }
           >
-            <option value="">-- None --</option>
+            <option value="">{t("geom.noneOption")}</option>
             {sliders.map((s) => (
               <option key={s.id} value={s.id}>
                 {(s as any).variableName || s.id}
@@ -603,11 +697,12 @@ function CircleGeometry({
 }: Pick<GeometryPanelProps, "objects" | "updateSelected"> & {
   readonly object: Extract<GeometryObject, { readonly type: "circle" }>;
 }) {
+  const { t } = useTranslation();
   const radius = getCircleRadius(object, objects);
 
   return (
-    <Section title="Geometry">
-      <Field label="Radius">
+    <Section title={t("geom.geometry")}>
+      <Field label={t("geom.radius")}>
         <TextInput
           disabled={radius === null}
           min={EPSILON}
@@ -660,25 +755,26 @@ function AngleGeometry({
 }: Pick<GeometryPanelProps, "objects" | "updateSelected"> & {
   readonly object: Extract<GeometryObject, { readonly type: "angle" }>;
 }) {
+  const { t } = useTranslation();
   const pointA = getPoint(objects, object.pointAId);
   const vertex = getPoint(objects, object.vertexPointId);
   const pointC = getPoint(objects, object.pointCId);
   const angleValue =
     pointA && vertex && pointC
       ? `${formatNumber(angleDegrees(pointA, vertex, pointC))} deg`
-      : "Unavailable";
+      : t("geom.unavailable");
 
   return (
-    <Section title="Geometry">
-      <Readout label="Point A" value={object.pointAId} />
-      <Readout label="Vertex" value={object.vertexPointId} />
-      <Readout label="Point C" value={object.pointCId} />
+    <Section title={t("geom.geometry")}>
+      <Readout label={t("geom.pointA")} value={object.pointAId} />
+      <Readout label={t("geom.vertex")} value={object.vertexPointId} />
+      <Readout label={t("geom.pointC")} value={object.pointCId} />
       <Readout
-        label="Right Angle"
-        value={pointA && vertex && pointC && isRightAngle(pointA, vertex, pointC) ? "Yes" : "No"}
+        label={t("geom.rightAngle")}
+        value={pointA && vertex && pointC && isRightAngle(pointA, vertex, pointC) ? t("geom.yes") : t("geom.no")}
       />
-      <Readout label="Current Angle" value={angleValue} />
-      <Field label="Radius">
+      <Readout label={t("geom.currentAngle")} value={angleValue} />
+      <Field label={t("geom.radius")}>
         <TextInput
           min={EPSILON}
           onChange={(event) =>
@@ -699,7 +795,7 @@ function AngleGeometry({
       </Field>
       <ToggleRow
         checked={object.showLabel ?? true}
-        label="Show Angle Measure"
+        label={t("geom.showAngleMeasure")}
         onChange={(checked) =>
           updateSelected((current) =>
             current.type === "angle"
@@ -712,7 +808,7 @@ function AngleGeometry({
           )
         }
       />
-      <Field label="Label">
+      <Field label={t("geom.label")}>
         <TextInput
           onChange={(event) =>
             updateSelected((current) =>

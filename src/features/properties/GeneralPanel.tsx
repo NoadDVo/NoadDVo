@@ -1,4 +1,5 @@
 import type { GeometryObject } from "../../core/geometry";
+import { useTranslation } from "../../lib/useTranslation";
 import {
   Field,
   Readout,
@@ -13,13 +14,15 @@ type GeneralPanelProps = {
 };
 
 export function GeneralPanel({ object, updateSelected }: GeneralPanelProps) {
+  const { t } = useTranslation();
+
   return (
-    <Section title="General">
+    <Section title={t("panel.general")}>
       <div className="grid grid-cols-2 gap-2">
-        <Readout label="Type" value={object.type} />
-        <Readout label="ID" value={object.id} />
+        <Readout label={t("prop.type")} value={object.type} />
+        <Readout label={t("prop.id")} value={object.id} />
       </div>
-      <Field label="Name">
+      <Field label={t("prop.name")}>
         <TextInput
           onChange={(event) =>
             updateSelected((current) => ({
@@ -34,7 +37,7 @@ export function GeneralPanel({ object, updateSelected }: GeneralPanelProps) {
       <div className="grid grid-cols-2 gap-2">
         <ToggleRow
           checked={object.visible}
-          label="Visible"
+          label={t("prop.visible")}
           onChange={(visible) =>
             updateSelected((current) => ({
               ...current,
@@ -45,7 +48,7 @@ export function GeneralPanel({ object, updateSelected }: GeneralPanelProps) {
         />
         <ToggleRow
           checked={object.locked}
-          label="Locked"
+          label={t("prop.locked")}
           onChange={(locked) =>
             updateSelected((current) => ({
               ...current,

@@ -25,6 +25,7 @@ import {
   pasteGeometryClipboard,
 } from "../../../core/clipboard";
 import { projectManager, type ProjectManagerState } from "../../../core/project";
+import { useTranslation } from "../../../lib/useTranslation";
 import { Button } from "../../../ui/primitives";
 import { AnchoredOverlay } from "../../../ui/overlay/OverlayPortal";
 
@@ -36,6 +37,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const { t } = useTranslation();
   
   const activeMenu = useUiStore((state) => state.activeTopBarMenu);
   const setActiveMenu = useUiStore((state) => state.setActiveTopBarMenu);
@@ -121,13 +123,13 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
         active={menuOpen}
         disabled={isDisabled}
       >
-        Project
+        {t("project.title")}
       </Button>
       <AnchoredOverlay anchorRef={buttonRef} open={menuOpen} width={320}>
         <div className="overflow-hidden rounded-[16px] border border-arctic-border/10 bg-arctic-background/95 p-1.5 shadow-[0_18px_50px_rgb(0_0_0/0.38)] backdrop-blur-panel">
           <ProjectOption
             icon={<FilePlus2 size={15} strokeWidth={2} />}
-            label="New Project"
+            label={t("project.newProject")}
             onClick={() => {
               projectManager.newProject();
               setMenuOpen(false);
@@ -135,21 +137,21 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           />
           <ProjectOption
             icon={<Upload size={15} strokeWidth={2} />}
-            label="Open Project"
+            label={t("project.openProject")}
             onClick={() => fileInputRef.current?.click()}
           />
           <ProjectOption
             icon={<FileImage size={15} strokeWidth={2} />}
-            label="Import Reference Image"
+            label={t("project.importImage")}
             onClick={() => imageInputRef.current?.click()}
           />
           <MenuDivider />
           <MenuHeading icon={<FolderClock size={14} strokeWidth={2} />}>
-            Recent Projects
+            {t("project.recentProjects")}
           </MenuHeading>
           {projectState.recentProjects.length === 0 ? (
             <div className="rounded-[12px] px-3 py-2 text-[11px] font-semibold text-arctic-muted">
-              No recent projects yet.
+              {t("project.noRecent")}
             </div>
           ) : (
             projectState.recentProjects.map((project) => (
@@ -179,7 +181,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           <MenuDivider />
           <ProjectOption
             icon={<Save size={15} strokeWidth={2} />}
-            label="Save"
+            label={t("project.save")}
             onClick={() => {
               projectManager.saveProject();
               setMenuOpen(false);
@@ -189,7 +191,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           <MenuDivider />
           <ProjectOption
             icon={<Clipboard size={15} strokeWidth={2} />}
-            label="Copy Selection"
+            label={t("project.copySelection")}
             onClick={() => {
               copySelectionToGeometryClipboard();
               setMenuOpen(false);
@@ -197,7 +199,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           />
           <ProjectOption
             icon={<Clipboard size={15} strokeWidth={2} />}
-            label="Paste"
+            label={t("project.paste")}
             onClick={() => {
               pasteGeometryClipboard();
               setMenuOpen(false);
@@ -205,7 +207,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           />
           <ProjectOption
             icon={<Copy size={15} strokeWidth={2} />}
-            label="Duplicate Selection"
+            label={t("project.duplicateSelection")}
             onClick={() => {
               duplicateSelection();
               setMenuOpen(false);
@@ -213,12 +215,12 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           />
           {!hasGeometryClipboard() && (
             <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-arctic-muted">
-              Paste uses the internal geometry clipboard.
+              {t("project.pasteClipboardNote")}
             </div>
           )}
           <MenuDivider />
           <MenuHeading icon={<FolderOpen size={14} strokeWidth={2} />}>
-            Load Example
+            {t("project.loadExample")}
           </MenuHeading>
           {(() => {
             const examplesGlob = import.meta.glob('/EXAMPLE/*.json', { eager: true });
@@ -228,7 +230,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
             });
 
             if (examplesList.length === 0) {
-              return <div className="px-3 pb-2 text-xs text-arctic-muted/60">No examples found</div>;
+              return <div className="px-3 pb-2 text-xs text-arctic-muted/60">{t("project.noExamples")}</div>;
             }
 
             return examplesList.map(ex => (
@@ -248,7 +250,7 @@ export function ProjectMenu({ projectState }: ProjectMenuProps) {
           })()}
           <ProjectOption
             icon={<Upload size={15} strokeWidth={2} />}
-            label="Import"
+            label={t("project.import")}
             onClick={() => fileInputRef.current?.click()}
           />
 

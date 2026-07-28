@@ -1,6 +1,7 @@
 import { useGeometryStore } from "../../../app/store/geometryStore";
 import { useUiStore } from "../../../app/store/uiStore";
 import { useViewportStore } from "../../../app/store/viewportStore";
+import { useTranslation } from "../../../lib/useTranslation";
 import clsx from "clsx";
 
 function formatCoordinate(value: number): string {
@@ -21,24 +22,26 @@ export function StatusBar() {
   const selectionCount = useGeometryStore(
     (state) => state.selectedObjectIds.length,
   );
+  const { t } = useTranslation();
+
   const effectiveSnapEnabled = snapEnabled && !snapTemporarilyDisabled;
   const modeLabel =
     keyboardModeHint === "pan"
-      ? "Pan"
+      ? t("statusbar.pan")
       : keyboardModeHint === "snap-off"
-        ? "Snap Off"
+        ? t("statusbar.snapOff")
         : keyboardModeHint === "constraint"
-          ? "Constraint"
-          : "Ready";
+          ? t("statusbar.constraint")
+          : t("statusbar.ready");
   const statusItems = [
-    ["Zoom", `${Math.round((viewport.scale / 48) * 100)}%`],
+    [t("statusbar.zoom"), `${Math.round((viewport.scale / 48) * 100)}%`],
     ["X", formatCoordinate(pointerWorld.x)],
     ["Y", formatCoordinate(pointerWorld.y)],
-    ["Selection", String(selectionCount)],
-    ["Snap", effectiveSnapEnabled ? `Grid ${gridSize}` : "Off"],
-    ["Mode", modeLabel],
-    ["TikZ", "Ready"],
-  ] as const;
+    [t("statusbar.selection"), String(selectionCount)],
+    [t("statusbar.snap"), effectiveSnapEnabled ? `Grid ${gridSize}` : t("statusbar.snapOff")],
+    [t("statusbar.mode"), modeLabel],
+    [t("statusbar.tikz"), t("statusbar.ready")],
+  ] as [string, string][];
 
   const appTheme = useUiStore((state) => state.appTheme);
 

@@ -44,6 +44,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
+import { useTranslation } from "../../lib/useTranslation";
 import { toolManager } from "../../core/tools/ToolManager";
 import type { GeometryToolId } from "../../core/geometry";
 import { IconButton } from "../../ui/primitives";
@@ -52,12 +53,14 @@ import { clsx } from "clsx";
 type ToolbarItem = {
   readonly id: GeometryToolId;
   readonly label: string;
+  readonly labelKey: string;
   readonly icon: LucideIcon;
 };
 
 type ToolbarGroup = {
   readonly id: string;
   readonly label: string;
+  readonly labelKey: string;
   readonly icon: LucideIcon;
   readonly items: readonly ToolbarItem[];
 };
@@ -65,89 +68,96 @@ type ToolbarGroup = {
 export const toolGroups = [
   {
     id: "action",
-    label: "Thao tác",
+    label: "Actions",
+    labelKey: "toolgroup.action",
     icon: MousePointer2,
     items: [
-      { id: "select", label: "Select", icon: MousePointer2 },
-      { id: "pan", label: "Pan", icon: Hand },
-      { id: "move", label: "Move", icon: Move },
-      { id: "lasso", label: "Lasso", icon: Lasso },
+      { id: "select", label: "Select", labelKey: "tool.select", icon: MousePointer2 },
+      { id: "pan", label: "Pan", labelKey: "tool.select", icon: Hand },
+      { id: "move", label: "Move", labelKey: "tool.select", icon: Move },
+      { id: "lasso", label: "Lasso", labelKey: "tool.select", icon: Lasso },
     ],
   },
   {
     id: "point",
-    label: "Điểm",
+    label: "Point",
+    labelKey: "toolgroup.point",
     icon: CircleDot,
     items: [
-      { id: "point", label: "Point", icon: Dot },
-      { id: "midpoint", label: "Midpoint", icon: GripHorizontal },
-      { id: "intersection", label: "Intersection", icon: Combine },
+      { id: "point", label: "Point", labelKey: "tool.point", icon: Dot },
+      { id: "midpoint", label: "Midpoint", labelKey: "tool.midpoint", icon: GripHorizontal },
+      { id: "intersection", label: "Intersection", labelKey: "tool.intersect", icon: Combine },
     ],
   },
   {
     id: "line",
-    label: "Đường thẳng",
+    label: "Line",
+    labelKey: "toolgroup.line",
     icon: Slash,
     items: [
-      { id: "line", label: "Line", icon: GitCommit },
-      { id: "segment", label: "Segment", icon: Minus },
-      { id: "ray", label: "Ray", icon: ArrowUpRight },
-      { id: "vector", label: "Vector", icon: MoveRight },
-      { id: "parallel", label: "Parallel Line", icon: Equal },
-      { id: "perpendicular", label: "Perpendicular Line", icon: Plus },
-      { id: "perpendicular-bisector", label: "Perpendicular Bisector", icon: Diameter },
-      { id: "angle-bisector", label: "Angle Bisector", icon: Scissors },
+      { id: "line", label: "Line", labelKey: "tool.line", icon: GitCommit },
+      { id: "segment", label: "Segment", labelKey: "tool.segment", icon: Minus },
+      { id: "ray", label: "Ray", labelKey: "tool.ray", icon: ArrowUpRight },
+      { id: "vector", label: "Vector", labelKey: "tool.line", icon: MoveRight },
+      { id: "parallel", label: "Parallel Line", labelKey: "tool.parallel", icon: Equal },
+      { id: "perpendicular", label: "Perpendicular Line", labelKey: "tool.perpendicular", icon: Plus },
+      { id: "perpendicular-bisector", label: "Perpendicular Bisector", labelKey: "tool.perpendicularBisector", icon: Diameter },
+      { id: "angle-bisector", label: "Angle Bisector", labelKey: "tool.angleBisector", icon: Scissors },
     ],
   },
   {
     id: "shape",
-    label: "Hình tròn & Đa giác",
+    label: "Circle & Polygon",
+    labelKey: "toolgroup.shape",
     icon: Circle,
     items: [
-      { id: "polygon", label: "Polygon", icon: Pentagon },
-      { id: "circle", label: "Circle", icon: Circle },
-      { id: "three-point-arc", label: "Arc", icon: Radius },
-      { id: "elliptical-arc", label: "Elliptical Arc", icon: Radius },
-      { id: "circumcircle", label: "Circumcircle", icon: CircleDashed },
-      { id: "incircle", label: "Incircle", icon: CircleDot },
+      { id: "polygon", label: "Polygon", labelKey: "tool.polygon", icon: Pentagon },
+      { id: "circle", label: "Circle", labelKey: "tool.circle", icon: Circle },
+      { id: "three-point-arc", label: "Arc", labelKey: "tool.arc", icon: Radius },
+      { id: "elliptical-arc", label: "Elliptical Arc", labelKey: "tool.arc", icon: Radius },
+      { id: "circumcircle", label: "Circumcircle", labelKey: "tool.circle", icon: CircleDashed },
+      { id: "incircle", label: "Incircle", labelKey: "tool.circle", icon: CircleDot },
     ],
   },
   {
     id: "conic",
-    label: "Đường conic",
+    label: "Conic",
+    labelKey: "toolgroup.conic",
     icon: Orbit,
     items: [
-      { id: "ellipse", label: "Ellipse", icon: Orbit },
-      { id: "hyperbola", label: "Hyperbola", icon: Wifi },
-      { id: "polynomial", label: "Polynomial", icon: Spline },
+      { id: "ellipse", label: "Ellipse", labelKey: "tool.circle", icon: Orbit },
+      { id: "hyperbola", label: "Hyperbola", labelKey: "tool.line", icon: Wifi },
+      { id: "polynomial", label: "Polynomial", labelKey: "tool.line", icon: Spline },
     ],
   },
   {
     id: "transform",
-    label: "Phép biến hình",
+    label: "Transform",
+    labelKey: "toolgroup.transform",
     icon: FlipHorizontal,
     items: [
-      { id: "reflect-line", label: "Reflect about Line", icon: FlipHorizontal },
-      { id: "reflect-point", label: "Reflect about Point", icon: Target },
-      { id: "rotate-point", label: "Rotate around Point", icon: RotateCcw },
-      { id: "dilate-point", label: "Dilate from Point", icon: Maximize },
+      { id: "reflect-line", label: "Reflect about Line", labelKey: "tool.line", icon: FlipHorizontal },
+      { id: "reflect-point", label: "Reflect about Point", labelKey: "tool.point", icon: Target },
+      { id: "rotate-point", label: "Rotate around Point", labelKey: "tool.point", icon: RotateCcw },
+      { id: "dilate-point", label: "Dilate from Point", labelKey: "tool.point", icon: Maximize },
     ],
   },
   {
     id: "measure",
-    label: "Đo lường & Tiện ích",
+    label: "Measure & Utilities",
+    labelKey: "toolgroup.measure",
     icon: Gauge,
     items: [
-      { id: "angle", label: "Angle", icon: DraftingCompass },
-      { id: "angle-given-size", label: "Construct Angle (Given Size)", icon: Compass },
-      { id: "point-by-distance", label: "Point By Distance", icon: Ruler },
-      { id: "distance", label: "Distance", icon: MoveDiagonal },
-      { id: "area", label: "Area", icon: Square },
-      { id: "text", label: "Text", icon: Type },
-      { id: "image", label: "Image", icon: Image },
-      { id: "slider", label: "Slider", icon: SlidersHorizontal },
-      { id: "trim", label: "Trim", icon: Eraser },
-      { id: "fill", label: "Fill", icon: PaintBucket },
+      { id: "angle", label: "Angle", labelKey: "tool.angle", icon: DraftingCompass },
+      { id: "angle-given-size", label: "Construct Angle (Given Size)", labelKey: "tool.angle", icon: Compass },
+      { id: "point-by-distance", label: "Point By Distance", labelKey: "tool.point", icon: Ruler },
+      { id: "distance", label: "Distance", labelKey: "tool.distance", icon: MoveDiagonal },
+      { id: "area", label: "Area", labelKey: "tool.area", icon: Square },
+      { id: "text", label: "Text", labelKey: "tool.text", icon: Type },
+      { id: "image", label: "Image", labelKey: "tool.text", icon: Image },
+      { id: "slider", label: "Slider", labelKey: "tool.slider", icon: SlidersHorizontal },
+      { id: "trim", label: "Trim", labelKey: "tool.delete", icon: Eraser },
+      { id: "fill", label: "Fill", labelKey: "tool.area", icon: PaintBucket },
     ],
   },
 ] satisfies readonly ToolbarGroup[];
@@ -160,6 +170,7 @@ export function LeftToolbar() {
   const activeTool = useGeometryStore((state) => state.activeTool);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -187,6 +198,7 @@ export function LeftToolbar() {
           const isGroupActive = activeGroupId === group.id;
           const hasActiveTool = group.items.some(item => item.id === activeTool);
           const GroupIcon = group.icon;
+          const groupLabel = t(group.labelKey as Parameters<typeof t>[0]);
 
           return (
             <div key={group.id} className="relative w-full">
@@ -204,7 +216,7 @@ export function LeftToolbar() {
                   appTheme === "theme2" && isGroupActive && !hasActiveTool && "bg-zinc-800/50 text-zinc-200"
                 )}
                 onClick={() => setActiveGroupId(isGroupActive ? null : group.id)}
-                aria-label={group.label}
+                aria-label={groupLabel}
               >
                 <GroupIcon size={24} strokeWidth={hasActiveTool ? 3 : 2.5} />
                 
@@ -217,12 +229,12 @@ export function LeftToolbar() {
                   appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] shadow-brutal" : "",
                   appTheme === "theme2" ? "rounded-lg border border-zinc-800/60 bg-[#18191E] shadow-2xl" : ""
                 )}>
-                  {group.items.map(({ id, label, icon: Icon }) => (
+                  {group.items.map(({ id, labelKey, icon: Icon }) => (
                     <IconButton
                       active={activeTool === id}
                       className="size-10 border-transparent"
                       key={id}
-                      label={label}
+                      label={t(labelKey as Parameters<typeof t>[0])}
                       onClick={() => {
                         toolManager.activateTool(id);
                         setActiveGroupId(null);

@@ -1,6 +1,7 @@
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useUiStore } from "../../app/store/uiStore";
 import type { GeometryObject, GeometryStyle } from "../../core/geometry";
+import { useTranslation } from "../../lib/useTranslation";
 import { Divider, Panel } from "../../ui/primitives";
 import { AdvancedPanel } from "./AdvancedPanel";
 import { AppearancePanel } from "./AppearancePanel";
@@ -39,11 +40,13 @@ export function RightPanel() {
     }));
   };
 
+  const { t } = useTranslation();
+
   return (
     <Panel
       className="h-full min-h-0 overflow-hidden max-lg:hidden"
-      eyebrow="Inspector"
-      title="Properties"
+      eyebrow={t("topbar.inspector")}
+      title={t("panel.properties")}
     >
       <div className="flex h-full min-h-0 flex-col overflow-y-auto px-4 py-3">
         {!selectedObject ? (
@@ -52,7 +55,7 @@ export function RightPanel() {
           <>
             {multipleSelected && (
               <div className="mb-3 rounded-[12px] border border-arctic-ice/20 bg-arctic-ice/10 px-3 py-2 text-[11px] font-semibold text-arctic-text">
-                Editing first of {selectedObjectIds.length} selected objects.
+                {t("inspector.editingFirst").replace("{count}", String(selectedObjectIds.length))}
               </div>
             )}
             <GeneralPanel object={selectedObject} updateSelected={updateSelected} />
@@ -84,16 +87,18 @@ export function RightPanel() {
 }
 
 function EmptyInspectorState() {
+  const { t } = useTranslation();
+
   return (
     <div className="rounded-[14px] border border-arctic-border/8 bg-arctic-surface/55 px-4 py-4">
       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-arctic-muted">
-        Selection
+        {t("inspector.selection")}
       </p>
       <p className="mt-2 text-sm font-semibold text-arctic-text">
-        Select an object to edit its properties.
+        {t("inspector.selectPrompt")}
       </p>
       <p className="mt-1 text-xs font-semibold text-arctic-muted">
-        Or choose a drawing tool from the toolbar.
+        {t("inspector.chooseToolPrompt")}
       </p>
     </div>
   );

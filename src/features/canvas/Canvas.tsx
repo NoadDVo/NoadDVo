@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { useUiStore } from "../../app/store/uiStore";
+import { useTranslation } from "../../lib/useTranslation";
 
 import { useGeometryStore } from "../../app/store/geometryStore";
 import { useViewportStore } from "../../app/store/viewportStore";
@@ -123,6 +124,7 @@ function EmptyWorkspacePrompt({
   
   const [isHidden, setIsHidden] = useState(false);
   const [mode, setMode] = useState<"default" | "examples">("default");
+  const { t } = useTranslation();
 
   if (isHidden) return null;
 
@@ -140,18 +142,18 @@ function EmptyWorkspacePrompt({
           appTheme === "theme1" ? "text-arctic-text bg-arctic-primary-hover inline-block px-2 py-0.5 border-[3px] border-arctic-border" : "",
           appTheme === "theme2" ? "text-zinc-500" : ""
         )}>
-          Empty Workspace
+          {t("landing.title")}
         </p>
         <p className={clsx(
           "mt-1",
           appTheme === "theme1" ? "text-base font-black uppercase tracking-[0.05em]" : "text-sm font-bold"
-        )}>Create your first object</p>
+        )}>{t("landing.subtitle")}</p>
         <div className="mt-4 flex items-center justify-center gap-3">
           <Button onClick={handleCreate} size="sm" variant="primary">
-            Create a point
+            {t("landing.createPoint")}
           </Button>
           <Button onClick={() => setMode("examples")} size="sm" variant="secondary">
-            Load Example
+            {t("landing.loadExample")}
           </Button>
         </div>
       </>
@@ -171,11 +173,11 @@ function EmptyWorkspacePrompt({
           appTheme === "theme1" ? "text-arctic-text bg-arctic-primary-hover inline-block px-2 py-0.5 border-[3px] border-arctic-border" : "",
           appTheme === "theme2" ? "text-zinc-500" : ""
         )}>
-          Select Example
+          {t("landing.selectExample")}
         </p>
         <div className="mt-4 flex flex-col items-center justify-center gap-2 max-h-48 overflow-y-auto w-full px-2">
           {examplesList.length === 0 ? (
-            <p className="text-sm text-gray-500 my-2">No examples found in /EXAMPLE</p>
+            <p className="text-sm text-gray-500 my-2">{t("landing.noExamples")}</p>
           ) : (
             examplesList.map(ex => (
               <Button 
@@ -199,7 +201,7 @@ function EmptyWorkspacePrompt({
         </div>
         <div className="mt-3">
           <Button onClick={() => setMode("default")} size="sm" variant="primary">
-            Back
+            {t("landing.back")}
           </Button>
         </div>
       </>

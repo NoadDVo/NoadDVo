@@ -14,6 +14,8 @@ import {
   objectTreeFilters,
   type ObjectTreeFilter,
 } from "./objectTreeUtils";
+import { useTranslation } from "../../lib/useTranslation";
+import type { TranslationKey } from "../../lib/i18n";
 
 export function GeometryTreePanel() {
   const objects = useGeometryStore((state) => state.objects);
@@ -27,6 +29,7 @@ export function GeometryTreePanel() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ObjectTreeFilter>("all");
   const [renamingId, setRenamingId] = useState<string | null>(null);
+  const { t } = useTranslation();
   const sections = useMemo(
     () => createObjectTreeSections(objects, filter, query),
     [filter, objects, query],
@@ -83,7 +86,7 @@ export function GeometryTreePanel() {
                 isDark ? "text-zinc-200 placeholder:text-zinc-500" : "text-arctic-text placeholder:text-arctic-muted"
               )}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search objects"
+              placeholder={t("tree.search")}
               value={query}
             />
           </label>
@@ -111,7 +114,7 @@ export function GeometryTreePanel() {
                     "text-[10px] font-black uppercase tracking-[0.18em]",
                     isDark ? "text-zinc-400" : "text-arctic-muted"
                   )}>
-                    {section.label}
+                    {t(section.labelKey as TranslationKey)}
                   </span>
                   <span className={clsx(
                     "font-mono text-[10px]",
@@ -162,6 +165,7 @@ function FilterBar({
 }) {
   const appTheme = useUiStore((state) => state.appTheme);
   const isDark = appTheme === "theme2";
+  const { t } = useTranslation();
 
   return (
     <div className={clsx(
@@ -193,7 +197,7 @@ function FilterBar({
             onClick={() => setFilter(item.id)}
             type="button"
           >
-            {item.label}
+            {t(item.labelKey as TranslationKey)}
             {count > 0 && (
               <span className={clsx(
                 "inline-flex min-w-[16px] items-center justify-center rounded-full px-1 text-[8px] font-black leading-[16px]",
@@ -216,12 +220,13 @@ function FilterBar({
 }
 
 function EmptyTreeState() {
+  const { t } = useTranslation();
   return (
     <div className="rounded-[14px] border border-arctic-border/8 bg-arctic-surface/55 px-4 py-4">
       <Hash size={18} strokeWidth={2} className="text-arctic-ice/80" />
-      <p className="mt-2 text-sm font-bold text-arctic-text">No geometry objects</p>
+      <p className="mt-2 text-sm font-bold text-arctic-text">{t("tree.noObjects")}</p>
       <p className="mt-1 text-xs font-semibold text-arctic-muted">
-        Create a point or load an example to populate the tree.
+        {t("tree.noObjectsDesc")}
       </p>
     </div>
   );
@@ -230,6 +235,7 @@ function EmptyTreeState() {
 function EmptyHiddenState() {
   const appTheme = useUiStore((state) => state.appTheme);
   const isDark = appTheme === "theme2";
+  const { t } = useTranslation();
 
   return (
     <div className={clsx(
@@ -240,12 +246,12 @@ function EmptyHiddenState() {
       <p className={clsx(
         "mt-2 text-sm font-bold",
         isDark ? "text-zinc-200" : "text-arctic-text"
-      )}>No hidden objects</p>
+      )}>{t("tree.noHidden")}</p>
       <p className={clsx(
         "mt-1 text-xs font-semibold",
         isDark ? "text-zinc-400" : "text-arctic-muted"
       )}>
-        All objects are currently visible. Hide objects using the eye icon in the object list.
+        {t("tree.noHiddenDesc")}
       </p>
     </div>
   );

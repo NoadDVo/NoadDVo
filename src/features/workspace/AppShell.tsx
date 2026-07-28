@@ -14,6 +14,7 @@ import { StatusBar, TopBar } from "./layout";
 import { HelpDialog } from "./layout/HelpDialog";
 import { resolveThemeMode, useUiStore } from "../../app/store/uiStore";
 import { useSliderAnimation } from "../objects/useSliderAnimation";
+import { useTranslation } from "../../lib/useTranslation";
 
 export function AppShell() {
   const theme = useUiStore((state) => state.theme);
@@ -21,6 +22,7 @@ export function AppShell() {
   const isRightPanelOpen = useUiStore((state) => state.isRightPanelOpen);
   const toggleLeftPanel = useUiStore((state) => state.toggleLeftPanel);
   const toggleRightPanel = useUiStore((state) => state.toggleRightPanel);
+  const { t } = useTranslation();
 
   const [collapsedPanels, setCollapsedPanels] = useState({
     tikz: false,
@@ -89,7 +91,7 @@ export function AppShell() {
             {isLeftPanelOpen && (
               <aside className="w-[280px] min-w-[280px] max-lg:hidden shrink-0">
                 <CollapsiblePanelFrame
-                  label="Collapse Object Tree"
+                  label={t("appshell.collapseObjectTree")}
                   onCollapse={toggleLeftPanel}
                   placement="left"
                 >
@@ -106,12 +108,12 @@ export function AppShell() {
                 {collapsedPanels.tikz ? (
                   <CollapsedPanelRail
                     direction="up"
-                    label="Generated TikZ"
+                    label={t("appshell.generatedTikz")}
                     onExpand={() => setPanelCollapsed("tikz", false)}
                   />
                 ) : (
                   <CollapsiblePanelFrame
-                    label="Collapse Generated TikZ"
+                    label={t("appshell.collapseTikz")}
                     onCollapse={() => setPanelCollapsed("tikz", true)}
                     placement="bottom"
                   >
@@ -125,7 +127,7 @@ export function AppShell() {
             {isRightPanelOpen && (
               <aside className="w-[280px] min-w-[280px] max-lg:hidden shrink-0">
                 <CollapsiblePanelFrame
-                  label="Collapse Inspector"
+                  label={t("appshell.collapseInspector")}
                   onCollapse={toggleRightPanel}
                   placement="right"
                 >
@@ -159,13 +161,14 @@ function WorkspaceRestoreControls({
   readonly collapsedPanels: CollapsedPanelState;
   readonly onRestore: (panel: keyof CollapsedPanelState) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       {collapsedPanels.tikz && (
         <div className="pointer-events-none absolute bottom-3 left-[104px] right-0 z-30 flex justify-center">
           <EdgeRestoreButton
             direction="bottom"
-            label="Show Generated TikZ"
+            label={t("appshell.showTikz")}
             onClick={() => onRestore("tikz")}
           />
         </div>
