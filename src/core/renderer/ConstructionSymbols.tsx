@@ -133,7 +133,7 @@ function ArcSymbol({ vertex, u, v, radius, color, tickCount = 0 }: { vertex: Poi
 export function ConstructionSymbols({ line, objects, viewport, stroke }: ConstructionSymbolsProps) {
   const size = 10; // fixed pixel size
 
-  if (line.lineKind === "perpendicular" && line.sourceLineId) {
+  if (line.showEqualityTicks && line.lineKind === "perpendicular" && line.sourceLineId) {
     const sourceLine = objects[line.sourceLineId];
     if (sourceLine && (sourceLine.type === "line" || sourceLine.type === "segment" || sourceLine.type === "ray")) {
       const intersections = intersectLinearObjects(line, sourceLine as any, objects);
@@ -162,7 +162,7 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
     }
   }
 
-  if (line.specialLineKind === "altitude") {
+  if (line.showEqualityTicks && line.specialLineKind === "altitude") {
     const pAId = (line as any).pointAId || (line as any).startPointId;
     const pBId = (line as any).pointBId || (line as any).endPointId;
     const ptA = objects[pAId];
@@ -241,7 +241,7 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
     }
   }
 
-  if (line.specialLineKind === "perpendicular-bisector-3step") {
+  if (line.showEqualityTicks && line.specialLineKind === "perpendicular-bisector-3step") {
     const midpointId = (line as any).pointAId || (line as any).startPointId;
     const dependentId = (line as any).pointBId || (line as any).endPointId;
     const midpointPoint = objects[midpointId];
@@ -273,7 +273,7 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
     }
   }
 
-  if (line.lineKind === "perpendicular-bisector" && line.sourceSegmentAId && line.sourceSegmentBId) {
+  if (line.showEqualityTicks && line.lineKind === "perpendicular-bisector" && line.sourceSegmentAId && line.sourceSegmentBId) {
     const pointA = objects[line.sourceSegmentAId];
     const pointB = objects[line.sourceSegmentBId];
     if (pointA && pointB && pointA.type === "point" && pointB.type === "point") {
@@ -304,7 +304,7 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
     }
   }
 
-  if (line.specialLineKind === "angle-bisector") {
+  if (line.showEqualityTicks && line.specialLineKind === "angle-bisector") {
     const dependentPointId = (line as any).pointBId || (line as any).endPointId;
     const vertexId = (line as any).pointAId || (line as any).startPointId;
     const vertex = objects[vertexId];
@@ -375,7 +375,7 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
     }
   }
 
-  if (line.lineKind === "angle-bisector-4step") {
+  if (line.showEqualityTicks && line.lineKind === "angle-bisector-4step") {
     // vertex = line.pointAId, dependent endpoint = line.pointBId
     const vertex = objects[line.pointAId];
     const endpointP = objects[line.pointBId];
@@ -404,7 +404,7 @@ export function ConstructionSymbols({ line, objects, viewport, stroke }: Constru
     }
   }
 
-  if (line.lineKind === "angle-bisector" && line.vertexPointId && line.anglePointAId && line.anglePointBId) {
+  if (line.showEqualityTicks && line.lineKind === "angle-bisector" && line.vertexPointId && line.anglePointAId && line.anglePointBId) {
     const vertex = objects[line.vertexPointId];
     const pointA = objects[line.anglePointAId];
     const pointB = objects[line.anglePointBId];

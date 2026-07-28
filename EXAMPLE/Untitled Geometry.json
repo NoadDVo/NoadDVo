@@ -1,0 +1,3458 @@
+{
+  "metadata": {
+    "format": "noaddvo.geometry.project",
+    "schemaVersion": 1
+  },
+  "objects": [
+    {
+      "createdAt": 1785089750686,
+      "dependencies": [],
+      "dependents": [
+        "polynomial-ms24epsy-1",
+        "segment-point-a-ms24civy-6-point-b-ms24cvjr-7-ms24fpie-4",
+        "segment-point-d-ms25c1sc-12-point-a-ms24civy-6-ms25g0vm-5",
+        "angle-ms25kwi1-3",
+        "angle-ms25nf2s-6",
+        "point-f-ms25t1fp-17",
+        "polynomial-ms2636j4-10",
+        "segment-point-g-ms25mqa5-16-point-a-ms24civy-6-ms264moi-11"
+      ],
+      "id": "point-a-ms24civy-6",
+      "locked": true,
+      "name": "A",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092091382,
+      "visible": true,
+      "x": -2,
+      "y": -4
+    },
+    {
+      "createdAt": 1785089767095,
+      "dependencies": [],
+      "dependents": [
+        "polynomial-ms24epsy-1",
+        "segment-point-a-ms24civy-6-point-b-ms24cvjr-7-ms24fpie-4",
+        "arc-point-d-ms25c1sc-12-point-b-ms24cvjr-7-point-e-ms25jr4g-14-ms25jr4g-1",
+        "segment-point-d-ms25c1sc-12-point-b-ms24cvjr-7-ms25jwch-8",
+        "angle-ms25k1sb-2",
+        "angle-ms25kwi1-3",
+        "point-j-ms25teac-20",
+        "polynomial-ms2643gt-13",
+        "segment-point-e-ms25jr4g-14-point-b-ms24cvjr-7-ms264sjk-14"
+      ],
+      "id": "point-b-ms24cvjr-7",
+      "locked": true,
+      "name": "B",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092088382,
+      "visible": true,
+      "x": 2,
+      "y": -4
+    },
+    {
+      "createdAt": 1785089821219,
+      "dependencies": [],
+      "dependents": [
+        "polynomial-ms24epsy-1"
+      ],
+      "id": "point-c-ms24e1b7-9",
+      "locked": false,
+      "name": "O",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": false,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092846734,
+      "visible": false,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "createdAt": 1785089852962,
+      "dependencies": [
+        "point-a-ms24civy-6",
+        "point-c-ms24e1b7-9",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [
+        "region-polynomial-ms24epsy-1-ms267fjw-4"
+      ],
+      "pointIds": [
+        "point-a-ms24civy-6",
+        "point-c-ms24e1b7-9",
+        "point-b-ms24cvjr-7"
+      ],
+      "id": "polynomial-ms24epsy-1",
+      "locked": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "polynomial",
+      "updatedAt": 1785092846735,
+      "visible": true
+    },
+    {
+      "createdAt": 1785089899238,
+      "dependencies": [
+        "point-a-ms24civy-6",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [
+        "point-c-ms25blag-11"
+      ],
+      "endPointId": "point-b-ms24cvjr-7",
+      "id": "segment-point-a-ms24civy-6-point-b-ms24cvjr-7-ms24fpie-4",
+      "locked": false,
+      "name": "AB",
+      "startPointId": "point-a-ms24civy-6",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092091383,
+      "visible": true
+    },
+    {
+      "createdAt": 1785091386760,
+      "dependencies": [
+        "segment-point-a-ms24civy-6-point-b-ms24cvjr-7-ms24fpie-4"
+      ],
+      "dependents": [],
+      "id": "point-c-ms25blag-11",
+      "locked": false,
+      "name": "C",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092605314,
+      "visible": false,
+      "x": 0,
+      "y": -4,
+      "construction": {
+        "type": "point-on-object",
+        "objectId": "segment-point-a-ms24civy-6-point-b-ms24cvjr-7-ms24fpie-4"
+      }
+    },
+    {
+      "createdAt": 1785091408140,
+      "dependencies": [],
+      "dependents": [
+        "segment-point-d-ms25c1sc-12-point-a-ms24civy-6-ms25g0vm-5",
+        "arc-point-d-ms25c1sc-12-point-b-ms24cvjr-7-point-e-ms25jr4g-14-ms25jr4g-1",
+        "segment-point-d-ms25c1sc-12-point-e-ms25jr4g-14-ms25juwi-7",
+        "segment-point-d-ms25c1sc-12-point-b-ms24cvjr-7-ms25jwch-8",
+        "angle-ms25k1sb-2",
+        "angle-ms25kwi1-3",
+        "arc-point-d-ms25c1sc-12-point-e-ms25jr4g-14-point-f-ms25liyw-15-ms25liyw-2",
+        "segment-point-f-ms25liyw-15-point-d-ms25c1sc-12-ms25los7-9",
+        "angle-ms25luhg-4",
+        "arc-point-d-ms25c1sc-12-point-f-ms25liyw-15-point-g-ms25mqa5-16-ms25mqa5-3",
+        "segment-point-g-ms25mqa5-16-point-d-ms25c1sc-12-ms25mv3p-10",
+        "angle-ms25n0s5-5",
+        "angle-ms25nf2s-6",
+        "line-point-f-ms25t1fp-17-point-d-ms25c1sc-12-ms25vd8f-1",
+        "line-point-g-ms25t533-18-point-d-ms25c1sc-12-ms25ywxx-2",
+        "line-point-h-ms25tair-19-point-d-ms25c1sc-12-ms25yzpo-3",
+        "line-point-j-ms25teac-20-point-d-ms25c1sc-12-ms25z28f-4"
+      ],
+      "id": "point-d-ms25c1sc-12",
+      "locked": true,
+      "name": "I",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092830585,
+      "visible": false,
+      "x": 0,
+      "y": -1.247236159
+    },
+    {
+      "createdAt": 1785091593586,
+      "dependencies": [
+        "point-d-ms25c1sc-12",
+        "point-a-ms24civy-6"
+      ],
+      "dependents": [],
+      "endPointId": "point-a-ms24civy-6",
+      "id": "segment-point-d-ms25c1sc-12-point-a-ms24civy-6-ms25g0vm-5",
+      "locked": false,
+      "name": "DA",
+      "startPointId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "centerPointId": "point-d-ms25c1sc-12",
+      "createdAt": 1785091767568,
+      "dependencies": [
+        "point-d-ms25c1sc-12",
+        "point-b-ms24cvjr-7",
+        "point-e-ms25jr4g-14"
+      ],
+      "dependents": [],
+      "direction": "counterclockwise",
+      "endPointId": "point-e-ms25jr4g-14",
+      "id": "arc-point-d-ms25c1sc-12-point-b-ms24cvjr-7-point-e-ms25jr4g-14-ms25jr4g-1",
+      "locked": false,
+      "name": "Arc BE",
+      "startPointId": "point-b-ms24cvjr-7",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "arc",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091767568,
+      "dependencies": [],
+      "dependents": [
+        "arc-point-d-ms25c1sc-12-point-b-ms24cvjr-7-point-e-ms25jr4g-14-ms25jr4g-1",
+        "segment-point-d-ms25c1sc-12-point-e-ms25jr4g-14-ms25juwi-7",
+        "angle-ms25k1sb-2",
+        "arc-point-d-ms25c1sc-12-point-e-ms25jr4g-14-point-f-ms25liyw-15-ms25liyw-2",
+        "angle-ms25luhg-4",
+        "point-h-ms25tair-19",
+        "point-j-ms25teac-20",
+        "polynomial-ms263l93-12",
+        "polynomial-ms2643gt-13",
+        "segment-point-f-ms25liyw-15-point-e-ms25jr4g-14-ms264qni-13",
+        "segment-point-e-ms25jr4g-14-point-b-ms24cvjr-7-ms264sjk-14"
+      ],
+      "id": "point-e-ms25jr4g-14",
+      "locked": true,
+      "name": "C",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092085391,
+      "visible": true,
+      "x": 3.308662345020258,
+      "y": -0.19547951992146106
+    },
+    {
+      "createdAt": 1785091772466,
+      "dependencies": [
+        "point-d-ms25c1sc-12",
+        "point-e-ms25jr4g-14"
+      ],
+      "dependents": [],
+      "endPointId": "point-e-ms25jr4g-14",
+      "id": "segment-point-d-ms25c1sc-12-point-e-ms25jr4g-14-ms25juwi-7",
+      "locked": false,
+      "name": "DE",
+      "startPointId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091774337,
+      "dependencies": [
+        "point-d-ms25c1sc-12",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [],
+      "endPointId": "point-b-ms24cvjr-7",
+      "id": "segment-point-d-ms25c1sc-12-point-b-ms24cvjr-7-ms25jwch-8",
+      "locked": false,
+      "name": "DB",
+      "startPointId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091781387,
+      "dependencies": [
+        "point-e-ms25jr4g-14",
+        "point-d-ms25c1sc-12",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [],
+      "id": "angle-ms25k1sb-2",
+      "label": "α",
+      "locked": false,
+      "name": "α",
+      "pointAId": "point-e-ms25jr4g-14",
+      "pointCId": "point-b-ms24cvjr-7",
+      "radius": 0.65,
+      "showLabel": true,
+      "showRightAngleMarker": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 0.92,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "angle",
+      "updatedAt": 1785092830586,
+      "vertexPointId": "point-d-ms25c1sc-12",
+      "visible": false
+    },
+    {
+      "createdAt": 1785091821193,
+      "dependencies": [
+        "point-a-ms24civy-6",
+        "point-d-ms25c1sc-12",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [],
+      "id": "angle-ms25kwi1-3",
+      "label": "β",
+      "locked": false,
+      "name": "β",
+      "pointAId": "point-a-ms24civy-6",
+      "pointCId": "point-b-ms24cvjr-7",
+      "radius": 0.65,
+      "showLabel": true,
+      "showRightAngleMarker": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 0.92,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "angle",
+      "updatedAt": 1785092830586,
+      "vertexPointId": "point-d-ms25c1sc-12",
+      "visible": false
+    },
+    {
+      "centerPointId": "point-d-ms25c1sc-12",
+      "createdAt": 1785091850312,
+      "dependencies": [
+        "point-d-ms25c1sc-12",
+        "point-e-ms25jr4g-14",
+        "point-f-ms25liyw-15"
+      ],
+      "dependents": [],
+      "direction": "counterclockwise",
+      "endPointId": "point-f-ms25liyw-15",
+      "id": "arc-point-d-ms25c1sc-12-point-e-ms25jr4g-14-point-f-ms25liyw-15-ms25liyw-2",
+      "locked": false,
+      "name": "Arc EF",
+      "startPointId": "point-e-ms25jr4g-14",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "arc",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091850312,
+      "dependencies": [],
+      "dependents": [
+        "arc-point-d-ms25c1sc-12-point-e-ms25jr4g-14-point-f-ms25liyw-15-ms25liyw-2",
+        "segment-point-f-ms25liyw-15-point-d-ms25c1sc-12-ms25los7-9",
+        "angle-ms25luhg-4",
+        "arc-point-d-ms25c1sc-12-point-f-ms25liyw-15-point-g-ms25mqa5-16-ms25mqa5-3",
+        "angle-ms25n0s5-5",
+        "point-g-ms25t533-18",
+        "point-h-ms25tair-19",
+        "polynomial-ms263fik-11",
+        "polynomial-ms263l93-12",
+        "segment-point-g-ms25mqa5-16-point-f-ms25liyw-15-ms264oy5-12",
+        "segment-point-f-ms25liyw-15-point-e-ms25jr4g-14-ms264qni-13"
+      ],
+      "id": "point-f-ms25liyw-15",
+      "locked": true,
+      "name": "D",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092082652,
+      "visible": true,
+      "x": 0.011432804928392541,
+      "y": 2.241630678892677
+    },
+    {
+      "createdAt": 1785091857847,
+      "dependencies": [
+        "point-f-ms25liyw-15",
+        "point-d-ms25c1sc-12"
+      ],
+      "dependents": [],
+      "endPointId": "point-d-ms25c1sc-12",
+      "id": "segment-point-f-ms25liyw-15-point-d-ms25c1sc-12-ms25los7-9",
+      "locked": false,
+      "name": "FD",
+      "startPointId": "point-f-ms25liyw-15",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091865236,
+      "dependencies": [
+        "point-e-ms25jr4g-14",
+        "point-d-ms25c1sc-12",
+        "point-f-ms25liyw-15"
+      ],
+      "dependents": [],
+      "id": "angle-ms25luhg-4",
+      "label": "γ",
+      "locked": false,
+      "name": "γ",
+      "pointAId": "point-e-ms25jr4g-14",
+      "pointCId": "point-f-ms25liyw-15",
+      "radius": 0.65,
+      "showLabel": true,
+      "showRightAngleMarker": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 0.92,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "angle",
+      "updatedAt": 1785092830586,
+      "vertexPointId": "point-d-ms25c1sc-12",
+      "visible": false
+    },
+    {
+      "centerPointId": "point-d-ms25c1sc-12",
+      "createdAt": 1785091906445,
+      "dependencies": [
+        "point-d-ms25c1sc-12",
+        "point-f-ms25liyw-15",
+        "point-g-ms25mqa5-16"
+      ],
+      "dependents": [],
+      "direction": "counterclockwise",
+      "endPointId": "point-g-ms25mqa5-16",
+      "id": "arc-point-d-ms25c1sc-12-point-f-ms25liyw-15-point-g-ms25mqa5-16-ms25mqa5-3",
+      "locked": false,
+      "name": "Arc FG",
+      "startPointId": "point-f-ms25liyw-15",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "arc",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091906445,
+      "dependencies": [],
+      "dependents": [
+        "arc-point-d-ms25c1sc-12-point-f-ms25liyw-15-point-g-ms25mqa5-16-ms25mqa5-3",
+        "segment-point-g-ms25mqa5-16-point-d-ms25c1sc-12-ms25mv3p-10",
+        "angle-ms25n0s5-5",
+        "angle-ms25nf2s-6",
+        "point-f-ms25t1fp-17",
+        "point-g-ms25t533-18",
+        "polynomial-ms2636j4-10",
+        "polynomial-ms263fik-11",
+        "segment-point-g-ms25mqa5-16-point-a-ms24civy-6-ms264moi-11",
+        "segment-point-g-ms25mqa5-16-point-f-ms25liyw-15-ms264oy5-12"
+      ],
+      "id": "point-g-ms25mqa5-16",
+      "locked": true,
+      "name": "E",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092078167,
+      "visible": true,
+      "x": -3.2344897470481913,
+      "y": -0.19926725989904345
+    },
+    {
+      "createdAt": 1785091912693,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-d-ms25c1sc-12"
+      ],
+      "dependents": [],
+      "endPointId": "point-d-ms25c1sc-12",
+      "id": "segment-point-g-ms25mqa5-16-point-d-ms25c1sc-12-ms25mv3p-10",
+      "locked": false,
+      "name": "GD",
+      "startPointId": "point-g-ms25mqa5-16",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785091920053,
+      "dependencies": [
+        "point-f-ms25liyw-15",
+        "point-d-ms25c1sc-12",
+        "point-g-ms25mqa5-16"
+      ],
+      "dependents": [],
+      "id": "angle-ms25n0s5-5",
+      "label": "θ",
+      "locked": false,
+      "name": "θ",
+      "pointAId": "point-f-ms25liyw-15",
+      "pointCId": "point-g-ms25mqa5-16",
+      "radius": 0.65,
+      "showLabel": true,
+      "showRightAngleMarker": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 0.92,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "angle",
+      "updatedAt": 1785092830586,
+      "vertexPointId": "point-d-ms25c1sc-12",
+      "visible": false
+    },
+    {
+      "createdAt": 1785091938580,
+      "dependencies": [
+        "point-a-ms24civy-6",
+        "point-d-ms25c1sc-12",
+        "point-g-ms25mqa5-16"
+      ],
+      "dependents": [],
+      "id": "angle-ms25nf2s-6",
+      "label": "θ1",
+      "locked": false,
+      "name": "θ1",
+      "pointAId": "point-a-ms24civy-6",
+      "pointCId": "point-g-ms25mqa5-16",
+      "radius": 0.65,
+      "showLabel": true,
+      "showRightAngleMarker": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 0.92,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "angle",
+      "updatedAt": 1785092830586,
+      "vertexPointId": "point-d-ms25c1sc-12",
+      "visible": false
+    },
+    {
+      "construction": {
+        "pointAId": "point-g-ms25mqa5-16",
+        "pointBId": "point-a-ms24civy-6",
+        "type": "midpoint"
+      },
+      "createdAt": 1785092200837,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-a-ms24civy-6"
+      ],
+      "dependents": [
+        "line-point-f-ms25t1fp-17-point-d-ms25c1sc-12-ms25vd8f-1",
+        "distance-ms25vvuy-2"
+      ],
+      "id": "point-f-ms25t1fp-17",
+      "locked": false,
+      "name": "F",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#747b84",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#f8fafc",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092602044,
+      "visible": false,
+      "x": -2.6172448735240956,
+      "y": -2.0996336299495217
+    },
+    {
+      "construction": {
+        "pointAId": "point-g-ms25mqa5-16",
+        "pointBId": "point-f-ms25liyw-15",
+        "type": "midpoint"
+      },
+      "createdAt": 1785092205567,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-f-ms25liyw-15"
+      ],
+      "dependents": [
+        "line-point-g-ms25t533-18-point-d-ms25c1sc-12-ms25ywxx-2",
+        "distance-ms260b0e-5"
+      ],
+      "id": "point-g-ms25t533-18",
+      "locked": false,
+      "name": "G",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#747b84",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#f8fafc",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092618834,
+      "visible": false,
+      "x": -1.6115284710598994,
+      "y": 1.0211817094968167
+    },
+    {
+      "construction": {
+        "pointAId": "point-f-ms25liyw-15",
+        "pointBId": "point-e-ms25jr4g-14",
+        "type": "midpoint"
+      },
+      "createdAt": 1785092212611,
+      "dependencies": [
+        "point-f-ms25liyw-15",
+        "point-e-ms25jr4g-14"
+      ],
+      "dependents": [
+        "line-point-h-ms25tair-19-point-d-ms25c1sc-12-ms25yzpo-3",
+        "distance-ms2605sb-4"
+      ],
+      "id": "point-h-ms25tair-19",
+      "locked": false,
+      "name": "H",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#747b84",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#f8fafc",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092612164,
+      "visible": false,
+      "x": 1.6600475749743253,
+      "y": 1.023075579485608
+    },
+    {
+      "construction": {
+        "pointAId": "point-e-ms25jr4g-14",
+        "pointBId": "point-b-ms24cvjr-7",
+        "type": "midpoint"
+      },
+      "createdAt": 1785092217492,
+      "dependencies": [
+        "point-e-ms25jr4g-14",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [
+        "line-point-j-ms25teac-20-point-d-ms25c1sc-12-ms25z28f-4",
+        "distance-ms25zz94-3"
+      ],
+      "id": "point-j-ms25teac-20",
+      "locked": false,
+      "name": "J",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#747b84",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#f8fafc",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092609723,
+      "visible": false,
+      "x": 2.654331172510129,
+      "y": -2.0977397599607306
+    },
+    {
+      "createdAt": 1785092309439,
+      "dependencies": [
+        "point-f-ms25t1fp-17",
+        "point-d-ms25c1sc-12"
+      ],
+      "dependents": [
+        "point-k-ms25vihh-21"
+      ],
+      "id": "line-point-f-ms25t1fp-17-point-d-ms25c1sc-12-ms25vd8f-1",
+      "locked": false,
+      "name": "FI",
+      "pointAId": "point-f-ms25t1fp-17",
+      "pointBId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "line",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092316245,
+      "dependencies": [
+        "line-point-f-ms25t1fp-17-point-d-ms25c1sc-12-ms25vd8f-1"
+      ],
+      "dependents": [
+        "distance-ms25vvuy-2",
+        "polynomial-ms2636j4-10"
+      ],
+      "id": "point-k-ms25vihh-21",
+      "locked": false,
+      "name": "K",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092838451,
+      "visible": false,
+      "x": 1.1871778324826834,
+      "y": -0.8605901129183446,
+      "construction": {
+        "type": "point-on-object",
+        "objectId": "line-point-f-ms25t1fp-17-point-d-ms25c1sc-12-ms25vd8f-1"
+      }
+    },
+    {
+      "createdAt": 1785092333578,
+      "dependencies": [
+        "point-f-ms25t1fp-17",
+        "point-k-ms25vihh-21"
+      ],
+      "dependents": [],
+      "distanceKind": "two-points",
+      "id": "distance-ms25vvuy-2",
+      "labelPosition": "above",
+      "locked": false,
+      "pointAId": "point-f-ms25t1fp-17",
+      "pointBId": "point-k-ms25vihh-21",
+      "precision": 2,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 13,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "distance",
+      "updatedAt": 1785092838452,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092474948,
+      "dependencies": [
+        "point-g-ms25t533-18",
+        "point-d-ms25c1sc-12"
+      ],
+      "dependents": [
+        "point-l-ms25zlw8-22"
+      ],
+      "id": "line-point-g-ms25t533-18-point-d-ms25c1sc-12-ms25ywxx-2",
+      "locked": false,
+      "name": "GI",
+      "pointAId": "point-g-ms25t533-18",
+      "pointBId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "line",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092478540,
+      "dependencies": [
+        "point-h-ms25tair-19",
+        "point-d-ms25c1sc-12"
+      ],
+      "dependents": [
+        "point-m-ms25znt6-23"
+      ],
+      "id": "line-point-h-ms25tair-19-point-d-ms25c1sc-12-ms25yzpo-3",
+      "locked": false,
+      "name": "HI",
+      "pointAId": "point-h-ms25tair-19",
+      "pointBId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "line",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092481807,
+      "dependencies": [
+        "point-j-ms25teac-20",
+        "point-d-ms25c1sc-12"
+      ],
+      "dependents": [
+        "point-n-ms25zq3v-24"
+      ],
+      "id": "line-point-j-ms25teac-20-point-d-ms25c1sc-12-ms25z28f-4",
+      "locked": false,
+      "name": "JI",
+      "pointAId": "point-j-ms25teac-20",
+      "pointBId": "point-d-ms25c1sc-12",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1.85,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "line",
+      "updatedAt": 1785092830586,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092507288,
+      "dependencies": [
+        "line-point-g-ms25t533-18-point-d-ms25c1sc-12-ms25ywxx-2"
+      ],
+      "dependents": [
+        "distance-ms260b0e-5",
+        "polynomial-ms263fik-11"
+      ],
+      "id": "point-l-ms25zlw8-22",
+      "locked": false,
+      "name": "L",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092837560,
+      "visible": false,
+      "x": 0.7044941693001348,
+      "y": -2.238895438119772,
+      "construction": {
+        "type": "point-on-object",
+        "objectId": "line-point-g-ms25t533-18-point-d-ms25c1sc-12-ms25ywxx-2"
+      }
+    },
+    {
+      "createdAt": 1785092509770,
+      "dependencies": [
+        "line-point-h-ms25tair-19-point-d-ms25c1sc-12-ms25yzpo-3"
+      ],
+      "dependents": [
+        "distance-ms2605sb-4",
+        "polynomial-ms263l93-12"
+      ],
+      "id": "point-m-ms25znt6-23",
+      "locked": false,
+      "name": "M",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092835504,
+      "visible": false,
+      "x": -0.699317650352022,
+      "y": -2.2036358998622014,
+      "construction": {
+        "type": "point-on-object",
+        "objectId": "line-point-h-ms25tair-19-point-d-ms25c1sc-12-ms25yzpo-3"
+      }
+    },
+    {
+      "createdAt": 1785092512747,
+      "dependencies": [
+        "line-point-j-ms25teac-20-point-d-ms25c1sc-12-ms25z28f-4"
+      ],
+      "dependents": [
+        "distance-ms25zz94-3",
+        "polynomial-ms2643gt-13"
+      ],
+      "id": "point-n-ms25zq3v-24",
+      "locked": false,
+      "name": "N",
+      "pointKind": "derived",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785092833265,
+      "visible": false,
+      "x": -1.1579148639859485,
+      "y": -0.8762158539132407,
+      "construction": {
+        "type": "point-on-object",
+        "objectId": "line-point-j-ms25teac-20-point-d-ms25c1sc-12-ms25z28f-4"
+      }
+    },
+    {
+      "createdAt": 1785092524600,
+      "dependencies": [
+        "point-n-ms25zq3v-24",
+        "point-j-ms25teac-20"
+      ],
+      "dependents": [],
+      "distanceKind": "two-points",
+      "id": "distance-ms25zz94-3",
+      "labelPosition": "above",
+      "locked": false,
+      "pointAId": "point-n-ms25zq3v-24",
+      "pointBId": "point-j-ms25teac-20",
+      "precision": 2,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 13,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "distance",
+      "updatedAt": 1785092833266,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092533067,
+      "dependencies": [
+        "point-m-ms25znt6-23",
+        "point-h-ms25tair-19"
+      ],
+      "dependents": [],
+      "distanceKind": "two-points",
+      "id": "distance-ms2605sb-4",
+      "labelPosition": "above",
+      "locked": false,
+      "pointAId": "point-m-ms25znt6-23",
+      "pointBId": "point-h-ms25tair-19",
+      "precision": 2,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 13,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "distance",
+      "updatedAt": 1785092835504,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092539838,
+      "dependencies": [
+        "point-g-ms25t533-18",
+        "point-l-ms25zlw8-22"
+      ],
+      "dependents": [],
+      "distanceKind": "two-points",
+      "id": "distance-ms260b0e-5",
+      "labelPosition": "above",
+      "locked": false,
+      "pointAId": "point-g-ms25t533-18",
+      "pointBId": "point-l-ms25zlw8-22",
+      "precision": 2,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 13,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "distance",
+      "updatedAt": 1785092837560,
+      "visible": false
+    },
+    {
+      "createdAt": 1785092674000,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-k-ms25vihh-21",
+        "point-a-ms24civy-6"
+      ],
+      "dependents": [
+        "region-polynomial-ms24epsy-1-ms267fjw-4"
+      ],
+      "pointIds": [
+        "point-g-ms25mqa5-16",
+        "point-k-ms25vihh-21",
+        "point-a-ms24civy-6"
+      ],
+      "id": "polynomial-ms2636j4-10",
+      "locked": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "polynomial",
+      "updatedAt": 1785092838452,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092685644,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-l-ms25zlw8-22",
+        "point-f-ms25liyw-15"
+      ],
+      "dependents": [
+        "region-polynomial-ms24epsy-1-ms267fjw-4"
+      ],
+      "pointIds": [
+        "point-g-ms25mqa5-16",
+        "point-l-ms25zlw8-22",
+        "point-f-ms25liyw-15"
+      ],
+      "id": "polynomial-ms263fik-11",
+      "locked": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "polynomial",
+      "updatedAt": 1785092837560,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092693079,
+      "dependencies": [
+        "point-f-ms25liyw-15",
+        "point-m-ms25znt6-23",
+        "point-e-ms25jr4g-14"
+      ],
+      "dependents": [
+        "region-polynomial-ms24epsy-1-ms267fjw-4"
+      ],
+      "pointIds": [
+        "point-f-ms25liyw-15",
+        "point-m-ms25znt6-23",
+        "point-e-ms25jr4g-14"
+      ],
+      "id": "polynomial-ms263l93-12",
+      "locked": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "polynomial",
+      "updatedAt": 1785092835504,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092716685,
+      "dependencies": [
+        "point-e-ms25jr4g-14",
+        "point-n-ms25zq3v-24",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [
+        "region-polynomial-ms24epsy-1-ms267fjw-4"
+      ],
+      "pointIds": [
+        "point-e-ms25jr4g-14",
+        "point-n-ms25zq3v-24",
+        "point-b-ms24cvjr-7"
+      ],
+      "id": "polynomial-ms2643gt-13",
+      "locked": false,
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "polynomial",
+      "updatedAt": 1785092833266,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092741586,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-a-ms24civy-6"
+      ],
+      "dependents": [],
+      "endPointId": "point-a-ms24civy-6",
+      "id": "segment-point-g-ms25mqa5-16-point-a-ms24civy-6-ms264moi-11",
+      "locked": false,
+      "name": "EA",
+      "startPointId": "point-g-ms25mqa5-16",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092741586,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092744525,
+      "dependencies": [
+        "point-g-ms25mqa5-16",
+        "point-f-ms25liyw-15"
+      ],
+      "dependents": [],
+      "endPointId": "point-f-ms25liyw-15",
+      "id": "segment-point-g-ms25mqa5-16-point-f-ms25liyw-15-ms264oy5-12",
+      "locked": false,
+      "name": "ED",
+      "startPointId": "point-g-ms25mqa5-16",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092744525,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092746734,
+      "dependencies": [
+        "point-f-ms25liyw-15",
+        "point-e-ms25jr4g-14"
+      ],
+      "dependents": [],
+      "endPointId": "point-e-ms25jr4g-14",
+      "id": "segment-point-f-ms25liyw-15-point-e-ms25jr4g-14-ms264qni-13",
+      "locked": false,
+      "name": "DC",
+      "startPointId": "point-f-ms25liyw-15",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092746734,
+      "visible": true
+    },
+    {
+      "createdAt": 1785092749184,
+      "dependencies": [
+        "point-e-ms25jr4g-14",
+        "point-b-ms24cvjr-7"
+      ],
+      "dependents": [],
+      "endPointId": "point-b-ms24cvjr-7",
+      "id": "segment-point-e-ms25jr4g-14-point-b-ms24cvjr-7-ms264sjk-14",
+      "locked": false,
+      "name": "CB",
+      "startPointId": "point-e-ms25jr4g-14",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "transparent",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "segment",
+      "updatedAt": 1785092749184,
+      "visible": true
+    },
+    {
+      "boundaryPointIds": [],
+      "createdAt": 1785092872316,
+      "dependencies": [
+        "polynomial-ms24epsy-1",
+        "polynomial-ms2643gt-13",
+        "polynomial-ms2636j4-10",
+        "polynomial-ms263fik-11",
+        "polynomial-ms263l93-12"
+      ],
+      "dependents": [],
+      "id": "region-polynomial-ms24epsy-1-ms267fjw-4",
+      "locked": false,
+      "loops": [
+        {
+          "closed": true,
+          "edges": [
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999977,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:52",
+              "startParameter": 0.4434763644251605
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999964,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:53",
+              "startParameter": -2.3152466878226635e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999963,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:54",
+              "startParameter": -3.6300307594876895e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999986,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:55",
+              "startParameter": -3.70216390996298e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999937,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:56",
+              "startParameter": -1.3782687265681163e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:57",
+              "startParameter": -6.27889628322715e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:58",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999961,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:59",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:60",
+              "startParameter": -4.0961780739230595e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999974,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:61",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:62",
+              "startParameter": -2.562053133750366e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999972,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:63",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:64",
+              "startParameter": -2.613242101458235e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999999999994,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:65",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999967,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:66",
+              "startParameter": -5.976840935973904e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.17164384758363932,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:67",
+              "startParameter": -3.4049590903931223e-15
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -6.09179491157936e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:71",
+              "startParameter": 0.3189670085436154
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -3.830781913363812e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:70",
+              "startParameter": 0.9999999938693149
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.0233451136741688e-8,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:69",
+              "startParameter": 0.9999999964611433
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:68",
+              "startParameter": 0.9999999898391274
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:67",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:66",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.238959501418194e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:65",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:64",
+              "startParameter": 0.9999999930205431
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:63",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:62",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:61",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.7663564546608886e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:60",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:59",
+              "startParameter": 0.9999999972350828
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:58",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:57",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.510493017691606e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:56",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:55",
+              "startParameter": 0.9999999924843589
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.287854549936809e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:54",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -9.986825004703016e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:53",
+              "startParameter": 0.9999999928235361
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.067011249386603e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:52",
+              "startParameter": 0.9999999901487827
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0.5047603790595726,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:51",
+              "startParameter": 0.999999992968825
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999964746472,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:52",
+              "startParameter": 0.9854349277050676
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999987792901,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:53",
+              "startParameter": -3.55905431997531e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999916313453,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:54",
+              "startParameter": -1.2167326351058566e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999940451212,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:55",
+              "startParameter": -8.401095118368943e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:56",
+              "startParameter": -6.044440878541556e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999940236954,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:57",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999860950667,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:58",
+              "startParameter": -6.040794218134673e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999999474108,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:59",
+              "startParameter": -1.4238366701395266e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999997215168,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:60",
+              "startParameter": -4.1736433383920067e-10
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:61",
+              "startParameter": -2.6763831004049558e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:62",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999953611877,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:63",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999907410532,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:64",
+              "startParameter": -4.515699175783368e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:65",
+              "startParameter": -9.494261345838557e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:66",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:67",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.7484130277400313,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:68",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999937,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:131",
+              "startParameter": 0.1321994902612416
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999926,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:132",
+              "startParameter": -6.087654131308939e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999928,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:133",
+              "startParameter": -7.307234101124223e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999909,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:134",
+              "startParameter": -7.18640437369265e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999999999991,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:135",
+              "startParameter": -8.907106881026652e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999999999986,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:136",
+              "startParameter": -8.72125635642441e-15
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999999999989,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:137",
+              "startParameter": -1.3664283380001948e-14
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999865,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:138",
+              "startParameter": -1.0899389641443982e-14
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999999999843,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:139",
+              "startParameter": -1.320938045544172e-14
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:140",
+              "startParameter": -1.546911564495415e-14
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:141",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:142",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:143",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:144",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:145",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:146",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.4993150314533657,
+              "objectId": "polynomial-ms24epsy-1",
+              "sourcePrimitiveId": "polynomial-ms24epsy-1:pseg:147",
+              "startParameter": 0
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -9.943688455413585e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:147",
+              "startParameter": 0.9857368878978461
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -6.79871011218938e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:146",
+              "startParameter": 0.9999999899304408
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:145",
+              "startParameter": 0.9999999931761936
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -5.748528327577498e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:144",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -8.223881659918902e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:143",
+              "startParameter": 0.9999999942517049
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:142",
+              "startParameter": 0.9999999916832542
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:141",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -6.23157277740484e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:140",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.0686581956926344e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:139",
+              "startParameter": 0.9999999935837868
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -9.911668334258883e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:138",
+              "startParameter": 0.9999999977895321
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.824651516750732e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:137",
+              "startParameter": 0.9999999899330246
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -5.139266442828726e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:136",
+              "startParameter": 0.9999999981580666
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:135",
+              "startParameter": 0.9999999945964072
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:134",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -4.491352294599555e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:133",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -3.4136610320012623e-10,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:132",
+              "startParameter": 0.9999999954924953
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -8.676321529450968e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:131",
+              "startParameter": 0.9999999995421252
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -4.6183989629467174e-10,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:130",
+              "startParameter": 0.9999999911066061
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -4.506697064352079e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:129",
+              "startParameter": 0.999999999293654
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0.7612202579730721,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:128",
+              "startParameter": 0.9999999952592005
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:132",
+              "startParameter": 0.833731154100454
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999868138582,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:133",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999888850617,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:134",
+              "startParameter": -1.2975057948795393e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:135",
+              "startParameter": -1.0927885207674617e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999969074507,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:136",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999857705417,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:137",
+              "startParameter": -2.9034759832197173e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999889157323,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:138",
+              "startParameter": -1.3972428985216877e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:139",
+              "startParameter": -1.0951969575154657e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999986791531,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:140",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:141",
+              "startParameter": -1.3779319446619376e-9
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999894898997,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:142",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:143",
+              "startParameter": -1.0317532103810955e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.999999999880061,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:144",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.9999999892072376,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:145",
+              "startParameter": -2.396064446131164e-10
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:146",
+              "startParameter": -1.0606802367583467e-8
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 1,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:147",
+              "startParameter": 0
+            },
+            {
+              "direction": "forward",
+              "edgeKind": "polynomial",
+              "endParameter": 0.029907410295461227,
+              "objectId": "polynomial-ms2636j4-10",
+              "sourcePrimitiveId": "polynomial-ms2636j4-10:pseg:148",
+              "startParameter": 0
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:147",
+              "startParameter": 0.2386173333763958
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:146",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -6.228036577889597e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:145",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.477170248897892e-11,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:144",
+              "startParameter": 0.9999999936321549
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:143",
+              "startParameter": 0.9999999998698307
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:142",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:141",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:140",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:139",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:138",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:137",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.450805156422719e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:136",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -3.4421391822466014e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:135",
+              "startParameter": 0.9999999975224565
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:134",
+              "startParameter": 0.9999999962956932
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:133",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.46383293848051e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:132",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:131",
+              "startParameter": 0.9999999973865344
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.592922315086502e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:130",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.0916889859148715e-8,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:129",
+              "startParameter": 0.999999998619444
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:128",
+              "startParameter": 0.9999999886683765
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0.747290166647904,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:127",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:67",
+              "startParameter": 0.7390778298167185
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.0817541484341523e-8,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:66",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -5.755758159959262e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:65",
+              "startParameter": 0.9999999892325067
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:64",
+              "startParameter": 0.9999999944515116
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:63",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.698762076175665e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:62",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.0010146183743235e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:61",
+              "startParameter": 0.9999999923395924
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.3779737681383714e-8,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:60",
+              "startParameter": 0.999999998033067
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -7.94630998599465e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:59",
+              "startParameter": 0.9999999864423765
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:58",
+              "startParameter": 0.9999999922114083
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.3622936267209484e-8,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:57",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:56",
+              "startParameter": 0.9999999865684579
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -9.260704857402243e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:55",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:54",
+              "startParameter": 0.9999999909477402
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -5.323016291661546e-9,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:53",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0.8765879978809398,
+              "objectId": "polynomial-ms263fik-11",
+              "sourcePrimitiveId": "polynomial-ms263fik-11:pseg:52",
+              "startParameter": 0.9999999948286354
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.6930014129171169e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:148",
+              "startParameter": 0.6251600138459105
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:147",
+              "startParameter": 0.9999999982693206
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:146",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:145",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:144",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -6.402371811929487e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:143",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.0378862332978304e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:142",
+              "startParameter": 0.9999999934188617
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:141",
+              "startParameter": 0.9999999980535859
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:140",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:139",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -5.690391623748493e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:138",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -3.0455778921248566e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:137",
+              "startParameter": 0.9999999942044941
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:136",
+              "startParameter": 0.9999999966726609
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.1573599952674047e-8,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:135",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -4.6773984599255e-9,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:134",
+              "startParameter": 0.9999999881394336
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.0163303283490708e-8,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:133",
+              "startParameter": 0.9999999952792482
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0.06876263818607443,
+              "objectId": "polynomial-ms2643gt-13",
+              "sourcePrimitiveId": "polynomial-ms2643gt-13:pseg:132",
+              "startParameter": 0.9999999794897838
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -4.040487670639633e-10,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:72",
+              "startParameter": 0.08054465215743871
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:71",
+              "startParameter": 0.9999999994294028
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:70",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:69",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:68",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:67",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.442570260122233e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:66",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:65",
+              "startParameter": 0.9999999985349493
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.0113325680522711e-8,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:64",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:63",
+              "startParameter": 0.9999999899390962
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.3288789586251758e-8,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:62",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.155984230531084e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:61",
+              "startParameter": 0.9999999868135344
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.1161628442235017e-8,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:60",
+              "startParameter": 0.9999999979152492
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -1.0543524197778349e-8,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:59",
+              "startParameter": 0.9999999889481033
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -3.9824619790944375e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:58",
+              "startParameter": 0.9999999897336064
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:57",
+              "startParameter": 0.9999999960830999
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:56",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:55",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -2.1887791724235604e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:54",
+              "startParameter": 1
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": -8.224377529007313e-9,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:53",
+              "startParameter": 0.9999999978727162
+            },
+            {
+              "direction": "reverse",
+              "edgeKind": "polynomial",
+              "endParameter": 0.6875173922700889,
+              "objectId": "polynomial-ms263l93-12",
+              "sourcePrimitiveId": "polynomial-ms263l93-12:pseg:52",
+              "startParameter": 0.9999999919190112
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "boundaryArea": 3.18338983918901,
+        "boundaryEdgeCount": 183,
+        "boundaryType": "face-6"
+      },
+      "name": "Filled Boundary Region",
+      "regionKind": "boundary",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 1,
+        "strokeOpacity": 0,
+        "fill": "#7ddcff",
+        "fillOpacity": 0.22,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "above-right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "region",
+      "updatedAt": 1785092872316,
+      "visible": true
+    },
+    {
+      "createdAt": 1785093171671,
+      "dependencies": [],
+      "dependents": [],
+      "id": "point-p-ms26dujb-25",
+      "locked": false,
+      "name": "P_1",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 4.5,
+        "labelVisible": true,
+        "labelPosition": "above",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785093414866,
+      "visible": true,
+      "x": -1.3518612255811702,
+      "y": -3.091773183180992
+    },
+    {
+      "createdAt": 1785093174686,
+      "dependencies": [],
+      "dependents": [],
+      "id": "point-q-ms26dwv2-26",
+      "locked": false,
+      "name": "P_2",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "left",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785093479870,
+      "visible": true,
+      "x": 1.3052720287479829,
+      "y": -3.102798967442903
+    },
+    {
+      "createdAt": 1785093176364,
+      "dependencies": [],
+      "dependents": [],
+      "id": "point-r-ms26dy5o-27",
+      "locked": false,
+      "name": "P_3",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "below",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785093533791,
+      "visible": true,
+      "x": 2.5842236361438515,
+      "y": -0.4125893697379098
+    },
+    {
+      "createdAt": 1785093179191,
+      "dependencies": [],
+      "dependents": [],
+      "id": "point-s-ms26e0c7-28",
+      "locked": false,
+      "name": "P_4",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "below",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785093584276,
+      "visible": true,
+      "x": 0.02464186546893624,
+      "y": 1.3404800089635622
+    },
+    {
+      "createdAt": 1785093181074,
+      "dependencies": [],
+      "dependents": [],
+      "id": "point-t-ms26e1si-29",
+      "locked": false,
+      "name": "P_5",
+      "pointKind": "free",
+      "style": {
+        "stroke": "#0b0f14",
+        "strokeWidth": 2,
+        "strokeOpacity": 1,
+        "fill": "#0b0f14",
+        "fillOpacity": 0,
+        "dash": "solid",
+        "pointSize": 5,
+        "labelVisible": true,
+        "labelPosition": "right",
+        "labelSize": 12,
+        "pattern": {
+          "type": "none",
+          "density": 0.5,
+          "size": 10
+        }
+      },
+      "type": "point",
+      "updatedAt": 1785093578976,
+      "visible": true,
+      "x": -2.2809128423761256,
+      "y": -0.5067423192224809
+    }
+  ],
+  "project": {
+    "app": "NoadDVo Geometry Studio",
+    "exportedAt": "2026-07-26T19:37:11.376Z",
+    "name": "NoadDVo Geometry Studio"
+  },
+  "selection": [
+    "point-r-ms26dy5o-27"
+  ],
+  "settings": {
+    "gridSize": 1,
+    "showAxes": true,
+    "showGrid": true,
+    "snapEnabled": true
+  },
+  "version": 1,
+  "viewport": {
+    "scale": 38.10394756896797,
+    "offsetX": -39.976245119958946,
+    "offsetY": -148.97325357939712,
+    "width": 1094,
+    "height": 461.96875
+  }
+}

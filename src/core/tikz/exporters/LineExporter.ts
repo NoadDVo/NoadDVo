@@ -136,38 +136,41 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
           );
 
           // Right angle mark using world coordinates (same method as old perpendicular tool)
-          const uDir = normalize(vectorFromPoints(pA, pB));
-          const vDir = normalize(vectorFromPoints({ x: midPt.x, y: midPt.y }, { x: depPt.x, y: depPt.y }));
-          const sqSize = 0.2;
-          const mid = { x: midPt.x, y: midPt.y };
-          const sq1 = { x: mid.x + uDir.x * sqSize, y: mid.y + uDir.y * sqSize };
-          const sq2 = { x: sq1.x + vDir.x * sqSize, y: sq1.y + vDir.y * sqSize };
-          const sq3 = { x: mid.x + vDir.x * sqSize, y: mid.y + vDir.y * sqSize };
-          context.scene.sections.shapes.push(
-            `\\draw[line width=0.5pt] ${formatPoint(sq1, cp)} -- ${formatPoint(sq2, cp)} -- ${formatPoint(sq3, cp)};`
-          );
+          if (object.showEqualityTicks) {
+            const uDir = normalize(vectorFromPoints(pA, pB));
 
-          // Tick marks on each half of AB using world coordinates
-          const index = getLineKindIndex(object, context);
-          const tickCount = Math.min(index, 3);
-          const tickLen = 0.1;
-          const tickDir = { x: -uDir.y, y: uDir.x };
-          const mid1 = midpoint(pA, { x: midPt.x, y: midPt.y });
-          const mid2 = midpoint({ x: midPt.x, y: midPt.y }, pB);
-          const drawTickAt = (center: { x: number; y: number }, count: number) => {
-            const gap = 0.06;
-            for (let i = 0; i < count; i++) {
-              const offset = (i - (count - 1) / 2) * gap;
-              const c = { x: center.x + uDir.x * offset, y: center.y + uDir.y * offset };
-              const t1 = { x: c.x + tickDir.x * tickLen, y: c.y + tickDir.y * tickLen };
-              const t2 = { x: c.x - tickDir.x * tickLen, y: c.y - tickDir.y * tickLen };
-              context.scene.sections.shapes.push(
-                `\\draw[line width=0.6pt] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
-              );
-            }
-          };
-          drawTickAt(mid1, tickCount);
-          drawTickAt(mid2, tickCount);
+            const vDir = normalize(vectorFromPoints({ x: midPt.x, y: midPt.y }, { x: depPt.x, y: depPt.y }));
+            const sqSize = 0.2;
+            const mid = { x: midPt.x, y: midPt.y };
+            const sq1 = { x: mid.x + uDir.x * sqSize, y: mid.y + uDir.y * sqSize };
+            const sq2 = { x: sq1.x + vDir.x * sqSize, y: sq1.y + vDir.y * sqSize };
+            const sq3 = { x: mid.x + vDir.x * sqSize, y: mid.y + vDir.y * sqSize };
+            context.scene.sections.shapes.push(
+              `\\draw[line width=0.5pt] ${formatPoint(sq1, cp)} -- ${formatPoint(sq2, cp)} -- ${formatPoint(sq3, cp)};`
+            );
+
+            // Tick marks on each half of AB using world coordinates
+            const index = getLineKindIndex(object, context);
+            const tickCount = Math.min(index, 3);
+            const tickLen = 0.1;
+            const tickDir = { x: -uDir.y, y: uDir.x };
+            const mid1 = midpoint(pA, { x: midPt.x, y: midPt.y });
+            const mid2 = midpoint({ x: midPt.x, y: midPt.y }, pB);
+            const drawTickAt = (center: { x: number; y: number }, count: number) => {
+              const gap = 0.06;
+              for (let i = 0; i < count; i++) {
+                const offset = (i - (count - 1) / 2) * gap;
+                const c = { x: center.x + uDir.x * offset, y: center.y + uDir.y * offset };
+                const t1 = { x: c.x + tickDir.x * tickLen, y: c.y + tickDir.y * tickLen };
+                const t2 = { x: c.x - tickDir.x * tickLen, y: c.y - tickDir.y * tickLen };
+                context.scene.sections.shapes.push(
+                  `\\draw[line width=0.6pt] ${formatPoint(t1, cp)} -- ${formatPoint(t2, cp)};`
+                );
+              }
+            };
+            drawTickAt(mid1, tickCount);
+            drawTickAt(mid2, tickCount);
+          }
           return;
         }
       }
@@ -182,7 +185,7 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
           const footWorld = intersections[0] as Point2D;
           const sourcePointA = getPoint((sourceLine as any).pointAId || (sourceLine as any).startPointId, context);
           const sourcePointB = getPoint((sourceLine as any).pointBId || (sourceLine as any).endPointId || (sourceLine as any).throughPointId, context);
-          if (sourcePointA && sourcePointB && pointA && pointB) {
+          if (object.showEqualityTicks && sourcePointA && sourcePointB && pointA && pointB) {
             const u = normalize(vectorFromPoints(sourcePointA, sourcePointB));
             const v = normalize(vectorFromPoints(pointA, pointB));
             const index = getLineKindIndex(object, context);
@@ -199,7 +202,7 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
     } else if (object.lineKind === "perpendicular-bisector" && object.sourceSegmentAId && object.sourceSegmentBId) {
       const pA = getPoint(object.sourceSegmentAId, context);
       const pB = getPoint(object.sourceSegmentBId, context);
-      if (pA && pB && pointA && pointB) {
+      if (object.showEqualityTicks && pA && pB && pointA && pointB) {
         const mid = midpoint(pA, pB);
         const u = normalize(vectorFromPoints(pA, pB));
         const v = normalize(vectorFromPoints(pointA, pointB));
@@ -241,7 +244,7 @@ export const LineExporter: TikzObjectExporter<LineObject> = {
       const v = getPoint(object.vertexPointId, context);
       const pA = getPoint(object.anglePointAId, context);
       const pB = getPoint(object.anglePointBId, context);
-      if (v && pA && pB) {
+      if (object.showEqualityTicks && v && pA && pB) {
         const u = normalize(vectorFromPoints(v, pA));
         const w = normalize(vectorFromPoints(v, pB));
         const angleU = Math.atan2(u.y, u.x) * 180 / Math.PI;

@@ -72,6 +72,25 @@ export function GeometryPanel({
       <Section title="Geometry">
         <Readout label="Point A" value={object.pointAId} />
         <Readout label="Point B" value={object.pointBId} />
+        {(object.lineKind === "perpendicular" ||
+          object.lineKind === "perpendicular-bisector" ||
+          object.lineKind === "angle-bisector" ||
+          object.lineKind === "angle-bisector-4step" ||
+          object.specialLineKind === "perpendicular-bisector-3step" ||
+          object.specialLineKind === "angle-bisector" ||
+          object.specialLineKind === "altitude") && (
+          <ToggleRow
+            checked={object.showEqualityTicks ?? false}
+            label="Show Equality Ticks"
+            onChange={(checked) =>
+              updateSelected((current) =>
+                current.type === "line"
+                  ? { ...current, showEqualityTicks: checked }
+                  : current
+              )
+            }
+          />
+        )}
       </Section>
     );
   }
@@ -99,6 +118,21 @@ export function GeometryPanel({
       <Section title="Geometry">
         <Readout label="Start" value={object.startPointId} />
         <Readout label="End" value={object.endPointId} />
+        {(object.specialLineKind === "perpendicular-bisector-3step" ||
+          object.specialLineKind === "angle-bisector" ||
+          object.specialLineKind === "altitude") && (
+          <ToggleRow
+            checked={object.showEqualityTicks ?? false}
+            label="Show Equality Ticks"
+            onChange={(checked) =>
+              updateSelected((current) =>
+                current.type === "segment"
+                  ? { ...current, showEqualityTicks: checked }
+                  : current
+              )
+            }
+          />
+        )}
       </Section>
     );
   }

@@ -175,6 +175,7 @@ export type BaseGeometryObject = {
   readonly dependents: readonly string[];
   readonly createdAt: number;
   readonly updatedAt: number;
+  readonly showEqualityTicks?: boolean;
 };
 
 export type ConstructionDefinition =
@@ -322,7 +323,6 @@ export type PointObject = BaseGeometryObject & {
   readonly y: number;
   readonly pointKind: "free" | "derived";
   readonly construction?: ConstructionDefinition;
-  readonly showEqualityTicks?: boolean;
 };
 
 export type SegmentObject = BaseGeometryObject & {

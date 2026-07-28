@@ -66,21 +66,43 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
             L
           </text>
         )}
-        {object.style.labelVisible && object.name && (
-          <text
-            fill="#0b0f14"
-            fontFamily="Inter, ui-sans-serif, system-ui"
-            fontSize={object.style.labelSize ?? 12}
-            fontWeight={700}
-            paintOrder="stroke"
-            stroke="#f2f7fa"
-            strokeWidth={3}
-            x={point.x + radius + 8}
-            y={point.y - radius - 6}
-          >
-            {object.name}
-          </text>
-        )}
+        {object.style.labelVisible && object.name && (() => {
+          const offset = 12 + radius;
+          let dx = 0;
+          let dy = 0;
+          let anchor = "middle";
+          let baseline = "middle";
+
+          switch (object.style.labelPosition) {
+            case "above": dx = 0; dy = -offset; baseline = "bottom"; break;
+            case "below": dx = 0; dy = offset; baseline = "hanging"; break;
+            case "left": dx = -offset; dy = 0; anchor = "end"; break;
+            case "right": dx = offset; dy = 0; anchor = "start"; break;
+            case "above-left": dx = -offset * 0.7; dy = -offset * 0.7; anchor = "end"; baseline = "bottom"; break;
+            case "above-right": dx = offset * 0.7; dy = -offset * 0.7; anchor = "start"; baseline = "bottom"; break;
+            case "below-left": dx = -offset * 0.7; dy = offset * 0.7; anchor = "end"; baseline = "hanging"; break;
+            case "below-right": dx = offset * 0.7; dy = offset * 0.7; anchor = "start"; baseline = "hanging"; break;
+            default: dx = offset * 0.7; dy = -offset * 0.7; anchor = "start"; baseline = "bottom"; break; // default above-right
+          }
+
+          return (
+            <text
+              fill="#0b0f14"
+              fontFamily="Inter, ui-sans-serif, system-ui"
+              fontSize={object.style.labelSize ?? 12}
+              fontWeight={700}
+              paintOrder="stroke"
+              stroke="#f2f7fa"
+              strokeWidth={3}
+              textAnchor={anchor as any}
+              alignmentBaseline={baseline as any}
+              x={point.x + dx}
+              y={point.y + dy}
+            >
+              {object.name}
+            </text>
+          );
+        })()}
         {object.showEqualityTicks && object.construction?.type === "midpoint" && (() => {
           const pointA = context.objects[object.construction.pointAId];
           const pointB = context.objects[object.construction.pointBId];

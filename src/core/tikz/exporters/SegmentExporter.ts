@@ -70,7 +70,7 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
           }
         }
 
-        if (pB_id && pC_id) {
+        if (object.showEqualityTicks && pB_id && pC_id) {
           const nameVertex = getTikzPointReference(vertexId, context);
           const nameFoot = getTikzPointReference(depPt.id, context);
           let nameB = getTikzPointReference(pB_id, context);
@@ -157,45 +157,47 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
           const end1 = angleA + d1;
           const end2 = end1 + d2;
 
-          const r1 = 0.40;
-          const r2 = 0.55;
-          const index = getLineKindIndex(object);
-          const tickCount = Math.min(index, 3);
+          if (object.showEqualityTicks) {
+            const r1 = 0.40;
+            const r2 = 0.55;
+            const index = getLineKindIndex(object);
+            const tickCount = Math.min(index, 3);
 
-          const radA = angleA * Math.PI / 180;
-          const x_start1 = pVertex.x + r1 * Math.cos(radA);
-          const y_start1 = pVertex.y + r1 * Math.sin(radA);
+            const radA = angleA * Math.PI / 180;
+            const x_start1 = pVertex.x + r1 * Math.cos(radA);
+            const y_start1 = pVertex.y + r1 * Math.sin(radA);
 
-          const radEnd1 = end1 * Math.PI / 180;
-          const x_start2 = pVertex.x + r2 * Math.cos(radEnd1);
-          const y_start2 = pVertex.y + r2 * Math.sin(radEnd1);
+            const radEnd1 = end1 * Math.PI / 180;
+            const x_start2 = pVertex.x + r2 * Math.cos(radEnd1);
+            const y_start2 = pVertex.y + r2 * Math.sin(radEnd1);
 
-          context.scene.sections.shapes.push(
-            `\\draw[line width=0.6pt, draw=black] (${x_start1.toFixed(2)}, ${y_start1.toFixed(2)}) arc [start angle=${angleA.toFixed(2)}, end angle=${end1.toFixed(2)}, radius=${r1}cm];`
-          );
-          context.scene.sections.shapes.push(
-            `\\draw[line width=0.6pt, draw=black] (${x_start2.toFixed(2)}, ${y_start2.toFixed(2)}) arc [start angle=${end1.toFixed(2)}, end angle=${end2.toFixed(2)}, radius=${r2}cm];`
-          );
+            context.scene.sections.shapes.push(
+              `\\draw[line width=0.6pt, draw=black] (${x_start1.toFixed(2)}, ${y_start1.toFixed(2)}) arc [start angle=${angleA.toFixed(2)}, end angle=${end1.toFixed(2)}, radius=${r1}cm];`
+            );
+            context.scene.sections.shapes.push(
+              `\\draw[line width=0.6pt, draw=black] (${x_start2.toFixed(2)}, ${y_start2.toFixed(2)}) arc [start angle=${end1.toFixed(2)}, end angle=${end2.toFixed(2)}, radius=${r2}cm];`
+            );
 
-          const drawArcTicks = (midAng: number, radius: number) => {
-            const tickLen = 0.08;
-            const gap = 0.06;
-            const angleGap = (gap / radius) * (180 / Math.PI);
-            for (let i = 0; i < tickCount; i++) {
-              const a = midAng + (i - (tickCount - 1) / 2) * angleGap;
-              const radA = a * Math.PI / 180;
-              const tx1 = pVertex.x + (radius - tickLen) * Math.cos(radA);
-              const ty1 = pVertex.y + (radius - tickLen) * Math.sin(radA);
-              const tx2 = pVertex.x + (radius + tickLen) * Math.cos(radA);
-              const ty2 = pVertex.y + (radius + tickLen) * Math.sin(radA);
-              context.scene.sections.shapes.push(
-                `\\draw[line width=0.6pt] (${tx1.toFixed(2)}, ${ty1.toFixed(2)}) -- (${tx2.toFixed(2)}, ${ty2.toFixed(2)});`
-              );
-            }
-          };
+            const drawArcTicks = (midAng: number, radius: number) => {
+              const tickLen = 0.08;
+              const gap = 0.06;
+              const angleGap = (gap / radius) * (180 / Math.PI);
+              for (let i = 0; i < tickCount; i++) {
+                const a = midAng + (i - (tickCount - 1) / 2) * angleGap;
+                const radA = a * Math.PI / 180;
+                const tx1 = pVertex.x + (radius - tickLen) * Math.cos(radA);
+                const ty1 = pVertex.y + (radius - tickLen) * Math.sin(radA);
+                const tx2 = pVertex.x + (radius + tickLen) * Math.cos(radA);
+                const ty2 = pVertex.y + (radius + tickLen) * Math.sin(radA);
+                context.scene.sections.shapes.push(
+                  `\\draw[line width=0.6pt] (${tx1.toFixed(2)}, ${ty1.toFixed(2)}) -- (${tx2.toFixed(2)}, ${ty2.toFixed(2)});`
+                );
+              }
+            };
 
-          drawArcTicks(angleA + d1 / 2, r1);
-          drawArcTicks(end1 + d2 / 2, r2);
+            drawArcTicks(angleA + d1 / 2, r1);
+            drawArcTicks(end1 + d2 / 2, r2);
+          }
         }
       }
     } else if (object.specialLineKind === "perpendicular-bisector-3step") {
@@ -217,28 +219,30 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
           const vDepLen = Math.sqrt(vDep.x * vDep.x + vDep.y * vDep.y);
           const v = { x: vDep.x / vDepLen, y: vDep.y / vDepLen };
 
-          const sqSize = 0.2;
-          const sq1 = { x: midPt.x + u.x * sqSize, y: midPt.y + u.y * sqSize };
-          const sq2 = { x: sq1.x + v.x * sqSize, y: sq1.y + v.y * sqSize };
-          const sq3 = { x: midPt.x + v.x * sqSize, y: midPt.y + v.y * sqSize };
+          if (object.showEqualityTicks) {
+            const sqSize = 0.2;
+            const sq1 = { x: midPt.x + u.x * sqSize, y: midPt.y + u.y * sqSize };
+            const sq2 = { x: sq1.x + v.x * sqSize, y: sq1.y + v.y * sqSize };
+            const sq3 = { x: midPt.x + v.x * sqSize, y: midPt.y + v.y * sqSize };
 
-          context.scene.sections.shapes.push(
-            `\\draw[line width=0.5pt, draw=black] (${sq1.x.toFixed(2)}, ${sq1.y.toFixed(2)}) -- (${sq2.x.toFixed(2)}, ${sq2.y.toFixed(2)}) -- (${sq3.x.toFixed(2)}, ${sq3.y.toFixed(2)});`
-          );
+            context.scene.sections.shapes.push(
+              `\\draw[line width=0.5pt, draw=black] (${sq1.x.toFixed(2)}, ${sq1.y.toFixed(2)}) -- (${sq2.x.toFixed(2)}, ${sq2.y.toFixed(2)}) -- (${sq3.x.toFixed(2)}, ${sq3.y.toFixed(2)});`
+            );
 
-          const index = getLineKindIndex(object);
-          const tickCount = Math.min(index, 3);
-          const drawTickAt = (p1: string, p2: string) => {
-            const gap = 0.06;
-            for (let i = 0; i < tickCount; i++) {
-              const offset = (i - (tickCount - 1) / 2) * gap;
-              context.scene.sections.shapes.push(
-                `\\draw[line width=0.6pt] ($($($(${p1})!0.5!(${p2})$)!${offset}cm!(${p2})$)!0.1cm!90:(${p2})$) -- ($($($(${p1})!0.5!(${p2})$)!${offset}cm!(${p2})$)!0.1cm!-90:(${p2})$);`
-              );
-            }
-          };
-          drawTickAt(nameA, nameMid);
-          drawTickAt(nameMid, nameB);
+            const index = getLineKindIndex(object);
+            const tickCount = Math.min(index, 3);
+            const drawTickAt = (p1: string, p2: string) => {
+              const gap = 0.06;
+              for (let i = 0; i < tickCount; i++) {
+                const offset = (i - (tickCount - 1) / 2) * gap;
+                context.scene.sections.shapes.push(
+                  `\\draw[line width=0.6pt] ($($($(${p1})!0.5!(${p2})$)!${offset}cm!(${p2})$)!0.1cm!90:(${p2})$) -- ($($($(${p1})!0.5!(${p2})$)!${offset}cm!(${p2})$)!0.1cm!-90:(${p2})$);`
+                );
+              }
+            };
+            drawTickAt(nameA, nameMid);
+            drawTickAt(nameMid, nameB);
+          }
         }
       }
     }
