@@ -185,7 +185,7 @@ export class PerpendicularLineTool extends BaseTool {
         fill: "transparent",
         fillOpacity: 0.1,
         labelVisible: true,
-        stroke: "#747b84",
+        stroke: "#0b0f14",
         strokeOpacity: 0.72,
         strokeWidth: 1.4,
       },

@@ -110,7 +110,7 @@ export function createConstructionLine(
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
       dash: "solid",
-      stroke: "#747b84",
+      stroke: "#0b0f14",
       strokeOpacity: 0.72,
       strokeWidth: 1.4,
     },
@@ -140,7 +140,7 @@ export function createConstructionCircle(
     radiusPointId: radiusPoint.id,
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      stroke: "#747b84",
+      stroke: "#0b0f14",
       strokeOpacity: 0.86,
       strokeWidth: 1.6,
     },
@@ -171,7 +171,7 @@ export function createThreePointConstructionCircle(
     pointCId: pointC.id,
     style: {
       ...DEFAULT_GEOMETRY_STYLE,
-      stroke: "#747b84",
+      stroke: "#0b0f14",
       strokeOpacity: 0.86,
       strokeWidth: 1.6,
     },
