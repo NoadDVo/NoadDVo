@@ -12,6 +12,7 @@ import { HelpGroup } from "./HelpGroup";
 import { ProjectMenu } from "./ProjectMenu";
 import { ProjectDialogs } from "./ProjectDialogs";
 import { ThemeGroup } from "./ThemeGroup";
+import { SettingsGroup } from "./SettingsGroup";
 import { UndoRedoGroup } from "./UndoRedoGroup";
 import { PanelLeft, PanelRight } from "lucide-react";
 
@@ -94,6 +95,7 @@ export function TopBar() {
           <ProjectMenu projectState={projectState} />
           <ExportMenu />
           <ThemeGroup />
+          <SettingsGroup />
           <HelpGroup />
         </div>
       </header>

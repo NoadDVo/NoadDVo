@@ -109,7 +109,7 @@ export const useUiStore = create<UIState>((set) => ({
     set({ activeSidebar });
   },
   setOpenDialog: (openDialog) => {
-    set({ openDialog });
+    set({ openDialog, activeTopBarMenu: null });
   },
 
   setCommandPaletteOpen: (commandPaletteOpen) => {
