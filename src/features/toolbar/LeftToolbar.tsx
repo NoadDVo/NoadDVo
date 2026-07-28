@@ -198,7 +198,7 @@ export function LeftToolbar() {
           const isGroupActive = activeGroupId === group.id;
           const hasActiveTool = group.items.some(item => item.id === activeTool);
           const GroupIcon = group.icon;
-          const groupLabel = t(group.labelKey as Parameters<typeof t>[0]);
+          const groupLabel = group.label;
 
           return (
             <div key={group.id} className="relative w-full">
@@ -229,12 +229,12 @@ export function LeftToolbar() {
                   appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] shadow-brutal" : "",
                   appTheme === "theme2" ? "rounded-lg border border-zinc-800/60 bg-[#18191E] shadow-2xl" : ""
                 )}>
-                  {group.items.map(({ id, labelKey, icon: Icon }) => (
+                  {group.items.map(({ id, label, icon: Icon }) => (
                     <IconButton
                       active={activeTool === id}
                       className="size-10 border-transparent"
                       key={id}
-                      label={t(labelKey as Parameters<typeof t>[0])}
+                      label={label}
                       onClick={() => {
                         toolManager.activateTool(id);
                         setActiveGroupId(null);
