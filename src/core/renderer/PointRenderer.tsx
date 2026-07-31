@@ -17,7 +17,7 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
           ? "#747b84"
           : "#0b0f14"
         : object.style.fill;
-    const fillOpacity = object.style.fill === "transparent" ? 1 : object.style.fillOpacity;
+    const fillOpacity = object.style.strokeOpacity;
 
     return (
       <g data-object-id={object.id} data-object-type={object.type}>
