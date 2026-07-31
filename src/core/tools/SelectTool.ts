@@ -65,17 +65,37 @@ export class SelectTool extends BaseTool {
     if (this.internalClickCount > 1) {
       const currentObject = context.objects[hit.objectId];
       if (currentObject) {
-        let nextDash = "solid" as "solid" | "dashed" | "dotted";
-        if (currentObject.style.dash === "solid") nextDash = "dashed";
-        else if (currentObject.style.dash === "dashed") nextDash = "dotted";
+        if (currentObject.type === "point") {
+          const styles: import("../geometry/types").PointStyleType[] = [
+            "filled",
+            "hollow",
+            "cross",
+            "plus",
+            "square",
+          ];
+          const currentStyle = currentObject.style.pointStyle ?? "filled";
+          const nextStyle = styles[(styles.indexOf(currentStyle) + 1) % styles.length];
 
-        context.updateObject(hit.objectId, {
-          ...currentObject,
-          style: {
-            ...currentObject.style,
-            dash: nextDash,
-          },
-        });
+          context.updateObject(hit.objectId, {
+            ...currentObject,
+            style: {
+              ...currentObject.style,
+              pointStyle: nextStyle,
+            },
+          } as import("../geometry").GeometryObject);
+        } else {
+          let nextDash = "solid" as "solid" | "dashed" | "dotted";
+          if (currentObject.style.dash === "solid") nextDash = "dashed";
+          else if (currentObject.style.dash === "dashed") nextDash = "dotted";
+
+          context.updateObject(hit.objectId, {
+            ...currentObject,
+            style: {
+              ...currentObject.style,
+              dash: nextDash,
+            },
+          } as import("../geometry").GeometryObject);
+        }
       }
     }
   }
