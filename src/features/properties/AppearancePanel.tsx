@@ -121,11 +121,11 @@ export function AppearancePanel({
       {object.type === "point" && (
         <Field label={t("prop.pointSize")}>
           <TextInput
-            min={1}
+            min={0}
             onChange={(event) =>
               updateStyle({
                 pointSize: Math.max(
-                  1,
+                  0,
                   parseNumber(event.target.value, object.style.pointSize),
                 ),
               })
