@@ -44,16 +44,61 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
             strokeWidth={2}
           />
         )}
-        <circle
-          cx={point.x}
-          cy={point.y}
-          fill={fill}
-          fillOpacity={fillOpacity}
-          r={radius}
-          stroke={isDerived ? "#747b84" : object.style.stroke}
-          strokeOpacity={object.style.strokeOpacity}
-          strokeWidth={object.style.strokeWidth}
-        />
+        {(() => {
+          const style = object.style.pointStyle ?? "filled";
+          const finalFill = style === "hollow" ? "#ffffff" : fill;
+          const finalStroke = isDerived ? "#747b84" : object.style.stroke;
+          const finalStrokeWidth = object.style.strokeWidth;
+          const finalStrokeOpacity = object.style.strokeOpacity;
+
+          if (style === "cross") {
+            const size = radius * 0.8;
+            return (
+              <g stroke={finalStroke} strokeWidth={finalStrokeWidth} strokeOpacity={finalStrokeOpacity} strokeLinecap="round">
+                <line x1={point.x - size} y1={point.y - size} x2={point.x + size} y2={point.y + size} />
+                <line x1={point.x - size} y1={point.y + size} x2={point.x + size} y2={point.y - size} />
+              </g>
+            );
+          }
+          if (style === "plus") {
+            const size = radius;
+            return (
+              <g stroke={finalStroke} strokeWidth={finalStrokeWidth} strokeOpacity={finalStrokeOpacity} strokeLinecap="round">
+                <line x1={point.x - size} y1={point.y} x2={point.x + size} y2={point.y} />
+                <line x1={point.x} y1={point.y - size} x2={point.x} y2={point.y + size} />
+              </g>
+            );
+          }
+          if (style === "square") {
+            const size = radius * 1.6;
+            return (
+              <rect
+                x={point.x - size / 2}
+                y={point.y - size / 2}
+                width={size}
+                height={size}
+                fill={finalFill}
+                fillOpacity={fillOpacity}
+                stroke={finalStroke}
+                strokeOpacity={finalStrokeOpacity}
+                strokeWidth={finalStrokeWidth}
+              />
+            );
+          }
+          // Default to filled or hollow circle
+          return (
+            <circle
+              cx={point.x}
+              cy={point.y}
+              fill={finalFill}
+              fillOpacity={fillOpacity}
+              r={radius}
+              stroke={finalStroke}
+              strokeOpacity={finalStrokeOpacity}
+              strokeWidth={finalStrokeWidth}
+            />
+          );
+        })()}
         {object.locked && (
           <text
             fill="#0b0f14"

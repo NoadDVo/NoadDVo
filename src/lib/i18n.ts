@@ -101,6 +101,12 @@ type TranslationKey =
   | "prop.fillOpacity"
   | "prop.dash"
   | "prop.pointSize"
+  | "prop.pointStyle"
+  | "prop.pointStyle.filled"
+  | "prop.pointStyle.hollow"
+  | "prop.pointStyle.cross"
+  | "prop.pointStyle.plus"
+  | "prop.pointStyle.square"
   | "prop.showEqualityTicks"
   | "prop.showLabel"
   | "prop.labelText"
@@ -371,8 +377,14 @@ const en: Translations = {
   "prop.strokeOpacity": "Opacity",
   "prop.fill": "Fill",
   "prop.fillOpacity": "Fill Opacity",
-  "prop.dash": "Dash",
+  "prop.dash": "Dash Style",
   "prop.pointSize": "Point Size",
+  "prop.pointStyle": "Point Style",
+  "prop.pointStyle.filled": "Filled",
+  "prop.pointStyle.hollow": "Hollow",
+  "prop.pointStyle.cross": "Cross",
+  "prop.pointStyle.plus": "Plus",
+  "prop.pointStyle.square": "Square",
   "prop.showEqualityTicks": "Show Equality Ticks",
   "prop.showLabel": "Show Label",
   "prop.labelText": "Label Text",

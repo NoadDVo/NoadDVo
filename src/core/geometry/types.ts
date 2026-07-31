@@ -134,6 +134,8 @@ export type PatternFillConfig = {
   readonly color?: string;
 };
 
+export type PointStyleType = "filled" | "hollow" | "cross" | "plus" | "square";
+
 export type GeometryStyle = {
   readonly stroke: string;
   readonly strokeWidth: number;
@@ -142,6 +144,7 @@ export type GeometryStyle = {
   readonly fillOpacity: number;
   readonly dash: DashStyle;
   readonly pointSize: number;
+  readonly pointStyle?: PointStyleType;
   readonly labelVisible: boolean;
   readonly labelPosition: LabelPosition;
   readonly labelSize: number;
@@ -156,6 +159,7 @@ export const DEFAULT_GEOMETRY_STYLE: GeometryStyle = {
   fillOpacity: 0,
   dash: "solid",
   pointSize: 5,
+  pointStyle: "filled",
   labelVisible: true,
   labelPosition: "above-right",
   labelSize: 12,

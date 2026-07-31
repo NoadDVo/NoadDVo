@@ -116,7 +116,28 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
 
       if (radiusNum > 0) {
         const radiusStr = Number.isInteger(radiusNum) ? `${radiusNum}pt` : `${radiusNum.toFixed(2).replace(/\.?0+$/, '')}pt`;
-        context.scene.sections.points.push(`\\fill${options} (${name}) circle (${radiusStr});`);
+        const styleName = object.style.pointStyle ?? "filled";
+        
+        if (styleName === "hollow") {
+          const hollowOptions = formatStyleOptions({ draw: style.draw, fill: "white", lineWidth: style.lineWidth, strokeOpacity: object.style.strokeOpacity });
+          context.scene.sections.points.push(`\\filldraw${hollowOptions} (${name}) circle (${radiusStr});`);
+        } else if (styleName === "cross") {
+          const crossSize = radiusNum * 0.8;
+          const crossStr = Number.isInteger(crossSize) ? `${crossSize}pt` : `${crossSize.toFixed(2).replace(/\.?0+$/, '')}pt`;
+          const crossOptions = formatStyleOptions({ draw: style.draw, lineWidth: style.lineWidth, strokeOpacity: object.style.strokeOpacity });
+          context.scene.sections.points.push(`\\draw${crossOptions} ([xshift=-${crossStr},yshift=-${crossStr}]${name}) -- ([xshift=${crossStr},yshift=${crossStr}]${name}) ([xshift=-${crossStr},yshift=${crossStr}]${name}) -- ([xshift=${crossStr},yshift=-${crossStr}]${name});`);
+        } else if (styleName === "plus") {
+          const plusOptions = formatStyleOptions({ draw: style.draw, lineWidth: style.lineWidth, strokeOpacity: object.style.strokeOpacity });
+          context.scene.sections.points.push(`\\draw${plusOptions} ([xshift=-${radiusStr},yshift=0]${name}) -- ([xshift=${radiusStr},yshift=0]${name}) ([xshift=0,yshift=-${radiusStr}]${name}) -- ([xshift=0,yshift=${radiusStr}]${name});`);
+        } else if (styleName === "square") {
+          const sqSize = radiusNum * 0.8;
+          const sqStr = Number.isInteger(sqSize) ? `${sqSize}pt` : `${sqSize.toFixed(2).replace(/\.?0+$/, '')}pt`;
+          const sqOptions = formatStyleOptions({ draw: style.draw, fill: style.draw, lineWidth: style.lineWidth, strokeOpacity: object.style.strokeOpacity, fillOpacity: object.style.strokeOpacity });
+          context.scene.sections.points.push(`\\filldraw${sqOptions} ([xshift=-${sqStr},yshift=-${sqStr}]${name}) rectangle ([xshift=${sqStr},yshift=${sqStr}]${name});`);
+        } else {
+          // filled
+          context.scene.sections.points.push(`\\fill${options} (${name}) circle (${radiusStr});`);
+        }
       }
     }
 

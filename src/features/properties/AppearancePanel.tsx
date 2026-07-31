@@ -119,22 +119,36 @@ export function AppearancePanel({
         </SelectInput>
       </Field>
       {object.type === "point" && (
-        <Field label={t("prop.pointSize")}>
-          <TextInput
-            min={0}
-            onChange={(event) =>
-              updateStyle({
-                pointSize: Math.max(
-                  0,
-                  parseNumber(event.target.value, object.style.pointSize),
-                ),
-              })
-            }
-            step={0.5}
-            type="number"
-            value={object.style.pointSize}
-          />
-        </Field>
+        <>
+          <Field label={t("prop.pointSize")}>
+            <TextInput
+              min={0}
+              onChange={(event) =>
+                updateStyle({
+                  pointSize: Math.max(
+                    0,
+                    parseNumber(event.target.value, object.style.pointSize),
+                  ),
+                })
+              }
+              step={0.5}
+              type="number"
+              value={object.style.pointSize}
+            />
+          </Field>
+          <Field label={t("prop.pointStyle") ?? "Point Style"}>
+            <SelectInput
+              onChange={(event) => updateStyle({ pointStyle: event.target.value as any })}
+              value={object.style.pointStyle ?? "filled"}
+            >
+              {["filled", "hollow", "cross", "plus", "square"].map((style) => (
+                <option key={style} value={style}>
+                  {t(`prop.pointStyle.${style}` as any) ?? style}
+                </option>
+              ))}
+            </SelectInput>
+          </Field>
+        </>
       )}
       {object.type === "vector" && (
         <VectorArrowControls object={object} updateSelected={updateSelected} />
