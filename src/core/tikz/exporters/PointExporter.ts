@@ -110,9 +110,14 @@ export const PointExporter: TikzObjectExporter<PointObject> = {
         fill: style.draw,
         fillOpacity: object.style.strokeOpacity,
       });
-      const radius = context.options.mode === "olympiad" ? "1.2pt" : "1.5pt";
+      const defaultRadius = context.options.mode === "olympiad" ? 1.2 : 1.5;
+      const pointSizeFactor = (object.style.pointSize ?? 5) / 5;
+      const radiusNum = defaultRadius * pointSizeFactor;
 
-      context.scene.sections.points.push(`\\fill${options} (${name}) circle (${radius});`);
+      if (radiusNum > 0) {
+        const radiusStr = Number.isInteger(radiusNum) ? `${radiusNum}pt` : `${radiusNum.toFixed(2).replace(/\.?0+$/, '')}pt`;
+        context.scene.sections.points.push(`\\fill${options} (${name}) circle (${radiusStr});`);
+      }
     }
 
     if (context.options.exportLabels && object.style.labelVisible && object.name) {
