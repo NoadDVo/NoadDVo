@@ -14,7 +14,7 @@ export const PointRenderer: GeometryRenderer<import("../geometry").PointObject> 
     const fill =
       object.style.fill === "transparent"
         ? isDerived
-          ? "#f8fafc"
+          ? "#747b84"
           : "#0b0f14"
         : object.style.fill;
     const fillOpacity = object.style.fill === "transparent" ? 1 : object.style.fillOpacity;
