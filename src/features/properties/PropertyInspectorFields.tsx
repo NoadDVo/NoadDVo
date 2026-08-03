@@ -80,10 +80,23 @@ export function Field({
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   const appTheme = useUiStore((state) => state.appTheme);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   return (
     <input
+      ref={inputRef}
       {...props}
+      onChange={(e) => {
+        if (props.type === "number" && inputRef.current) {
+          const val = inputRef.current.value;
+          // Loại bỏ số 0 ở đầu nếu ngay sau nó là 1 chữ số khác (ví dụ: "002" -> "2", "-002" -> "-2", "00.5" -> "0.5")
+          const fixed = val.replace(/^(-?)0+(?=\d)/, "$1");
+          if (fixed !== val) {
+            inputRef.current.value = fixed;
+          }
+        }
+        if (props.onChange) props.onChange(e);
+      }}
       className={clsx(
         "h-8 w-full px-2 font-mono text-[11px] outline-none transition-colors disabled:opacity-50",
         appTheme === "theme1" ? "rounded-none border-[3px] border-black bg-[#F4EFE6] text-black focus:bg-[#F4D04C]" : "",
