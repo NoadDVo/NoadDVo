@@ -67,7 +67,7 @@ function createPolygon(vertices: readonly PointObject[]): PolygonObject {
       ...DEFAULT_GEOMETRY_STYLE,
       fill: "transparent",
       fillOpacity: 0,
-      stroke: "#0b0f14",
+      stroke: "#ffffff",
       strokeOpacity: 1,
       strokeWidth: 2,
     },
