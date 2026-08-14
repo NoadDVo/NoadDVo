@@ -972,25 +972,36 @@ function boundaryEdgeForPiece(
 
 export function buildDirectedEdges(pieces: readonly BoundaryPiece[]): readonly DirectedPiece[] {
   return pieces.flatMap((piece) => {
+    const forwardSamples = piece.samples;
+    const forwardAngle = forwardSamples.length > 1
+      ? Math.atan2(forwardSamples[1]!.y - forwardSamples[0]!.y, forwardSamples[1]!.x - forwardSamples[0]!.x)
+      : Math.atan2(piece.end.y - piece.start.y, piece.end.x - piece.start.x);
+    
     const forward = {
-      angle: Math.atan2(piece.end.y - piece.start.y, piece.end.x - piece.start.x),
+      angle: forwardAngle,
       baseId: piece.id,
       dependencies: piece.dependencies,
       edge: boundaryEdgeForPiece(piece, "forward"),
       from: nodeKey(piece.start),
       id: `${piece.id}:forward`,
-      samples: piece.samples,
+      samples: forwardSamples,
       style: piece.style,
       to: nodeKey(piece.end),
     };
+    
+    const reverseSamplesArray = reverseSamples(piece.samples);
+    const reverseAngle = reverseSamplesArray.length > 1
+      ? Math.atan2(reverseSamplesArray[1]!.y - reverseSamplesArray[0]!.y, reverseSamplesArray[1]!.x - reverseSamplesArray[0]!.x)
+      : Math.atan2(piece.start.y - piece.end.y, piece.start.x - piece.end.x);
+
     const reverse = {
-      angle: Math.atan2(piece.start.y - piece.end.y, piece.start.x - piece.end.x),
+      angle: reverseAngle,
       baseId: piece.id,
       dependencies: piece.dependencies,
       edge: boundaryEdgeForPiece(piece, "reverse"),
       from: nodeKey(piece.end),
       id: `${piece.id}:reverse`,
-      samples: reverseSamples(piece.samples),
+      samples: reverseSamplesArray,
       style: piece.style,
       to: nodeKey(piece.start),
     };
