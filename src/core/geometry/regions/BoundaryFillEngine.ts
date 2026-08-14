@@ -306,12 +306,14 @@ function angleOnArc(
 ): boolean {
   if (direction === "counterclockwise") {
     const span = (end - start + 360) % 360 || 360;
-    const delta = (angle - start + 360) % 360;
-    return delta <= span + 1e-4;
+    let delta = (angle - start + 360) % 360;
+    if (delta > 359.9) delta -= 360;
+    return delta <= span + 1e-4 && delta >= -1e-4;
   } else {
     const span = (start - end + 360) % 360 || 360;
-    const delta = (start - angle + 360) % 360;
-    return delta <= span + 1e-4;
+    let delta = (start - angle + 360) % 360;
+    if (delta > 359.9) delta -= 360;
+    return delta <= span + 1e-4 && delta >= -1e-4;
   }
 }
 

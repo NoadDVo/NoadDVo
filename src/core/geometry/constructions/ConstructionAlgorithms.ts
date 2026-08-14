@@ -287,24 +287,22 @@ function normalizeAngle(degrees: number): number {
   return v < 0 ? v + 360 : v;
 }
 
-function isAngleOnArc(
-  angleDeg: number,
-  startDeg: number,
-  endDeg: number,
-  direction: "clockwise" | "counterclockwise",
+export function isAngleOnArc(
+  angle: number,
+  startAngle: number,
+  endAngle: number,
+  direction: "clockwise" | "counterclockwise" = "counterclockwise",
 ): boolean {
-  const a = normalizeAngle(angleDeg);
-  const s = normalizeAngle(startDeg);
-  const e = normalizeAngle(endDeg);
-
   if (direction === "counterclockwise") {
-    const span = (e - s + 360) % 360 || 360;
-    const delta = (a - s + 360) % 360;
-    return delta <= span + 1e-4;
+    const span = (endAngle - startAngle + 360) % 360 || 360;
+    let delta = (angle - startAngle + 360) % 360;
+    if (delta > 359.9) delta -= 360;
+    return delta <= span + 1e-4 && delta >= -1e-4;
   } else {
-    const span = (s - e + 360) % 360 || 360;
-    const delta = (s - a + 360) % 360;
-    return delta <= span + 1e-4;
+    const span = (startAngle - endAngle + 360) % 360 || 360;
+    let delta = (startAngle - angle + 360) % 360;
+    if (delta > 359.9) delta -= 360;
+    return delta <= span + 1e-4 && delta >= -1e-4;
   }
 }
 
