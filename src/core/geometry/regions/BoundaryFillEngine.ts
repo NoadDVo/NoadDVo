@@ -249,8 +249,20 @@ function nodeKey(point: Point2D): string {
   return `${Math.round(point.x * NODE_PRECISION) / NODE_PRECISION},${Math.round(point.y * NODE_PRECISION) / NODE_PRECISION}`;
 }
 
-function uniqueByPoint(points: readonly SplitPoint[]): SplitPoint[] {
-  const sorted = [...points].sort((first, second) => first.parameter - second.parameter);
+function uniqueByPoint(points: readonly SplitPoint[], primitive?: BoundaryPrimitive): SplitPoint[] {
+  const getSortValue = (p: SplitPoint) => {
+    if (!primitive) return p.parameter;
+    if (primitive.kind !== "circular" || primitive.edgeKind !== "arc" || !primitive.domain) return p.parameter;
+    const dir = primitive.direction ?? "counterclockwise";
+    const start = primitive.domain.min;
+    if (dir === "counterclockwise") {
+      return (p.parameter - start + 360) % 360;
+    } else {
+      return (start - p.parameter + 360) % 360;
+    }
+  };
+
+  const sorted = [...points].sort((first, second) => getSortValue(first) - getSortValue(second));
   const unique: SplitPoint[] = [];
 
   for (const point of sorted) {
@@ -292,12 +304,15 @@ function angleOnArc(
   end: number,
   direction: "clockwise" | "counterclockwise",
 ): boolean {
-  const total = Math.abs(angularDelta(start, end, direction));
-  const partial = direction === "clockwise"
-    ? Math.abs(angularDelta(start, angle, "clockwise"))
-    : Math.abs(angularDelta(start, angle, "counterclockwise"));
-
-  return partial <= total + 1e-5;
+  if (direction === "counterclockwise") {
+    const span = (end - start + 360) % 360 || 360;
+    const delta = (angle - start + 360) % 360;
+    return delta <= span + 1e-4;
+  } else {
+    const span = (start - end + 360) % 360 || 360;
+    const delta = (start - angle + 360) % 360;
+    return delta <= span + 1e-4;
+  }
 }
 
 function pointAtLinear(primitive: BoundaryPrimitive, parameter: number): Point2D {
@@ -802,7 +817,10 @@ function computeIntersectionsWithBudget(
   }
 
   return new Map(
-    [...splitMap.entries()].map(([id, points]) => [id, uniqueByPoint(points)]),
+    [...splitMap.entries()].map(([id, points]) => {
+      const primitive = primitives.find(p => p.id === id);
+      return [id, uniqueByPoint(points, primitive)];
+    }),
   );
 }
 
@@ -863,7 +881,7 @@ export function splitPrimitivesAtIntersections(
   const pieces: BoundaryPiece[] = [];
 
   for (const primitive of primitives) {
-    const points = uniqueByPoint(intersections.get(primitive.id) ?? []);
+    const points = uniqueByPoint(intersections.get(primitive.id) ?? [], primitive);
 
     if (primitive.kind === "linear") {
       if (points.length < 2) {
