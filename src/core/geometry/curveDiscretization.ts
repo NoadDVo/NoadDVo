@@ -1,9 +1,10 @@
 import { getEllipseGeometry, type EllipseGeometry } from "./conicGeometry";
 import { getHyperbolaGeometry, type HyperbolaGeometry } from "./conicGeometry";
 import { evaluateLagrange } from "./polynomialGeometry";
-import { getPointObject } from "./derivedGeometry";
+import { getPointObject, getEllipticalArcGeometry, type EllipticalArcGeometry } from "./derivedGeometry";
 import type {
   EllipseObject,
+  EllipticalArcObject,
   GeometryObjectRecord,
   HyperbolaObject,
   Point2D,
@@ -186,4 +187,55 @@ export function discretizePolynomialObject(
 
   if (pts.length < 2) return null;
   return discretizePolynomial(pts, steps);
+}
+
+// ─── Elliptical Arc Discretization ──────────────────────────────────────────
+
+const ELLIPTICAL_ARC_STEPS_PER_REVOLUTION = 72;
+
+/**
+ * Discretize an elliptical arc into a polyline of linear segments.
+ */
+export function discretizeEllipticalArc(
+  geom: EllipticalArcGeometry,
+  stepsPerRevolution: number = ELLIPTICAL_ARC_STEPS_PER_REVOLUTION,
+): PolylineSegment[] {
+  const { center, rx, ry, phi, thetaEnd } = geom;
+  const cosPhi = Math.cos(phi);
+  const sinPhi = Math.sin(phi);
+  const segments: PolylineSegment[] = [];
+
+  const totalSteps = Math.max(8, Math.ceil(stepsPerRevolution * Math.abs(thetaEnd) / (2 * Math.PI)));
+
+  function ellipsePoint(t: number): Point2D {
+    const ex = rx * Math.cos(t);
+    const ey = ry * Math.sin(t);
+    return {
+      x: center.x + ex * cosPhi - ey * sinPhi,
+      y: center.y + ex * sinPhi + ey * cosPhi,
+    };
+  }
+
+  let prev = ellipsePoint(0);
+  for (let i = 1; i <= totalSteps; i++) {
+    const t = (thetaEnd * i) / totalSteps;
+    const curr = ellipsePoint(t);
+    segments.push({ start: prev, end: curr });
+    prev = curr;
+  }
+
+  return segments;
+}
+
+/**
+ * Discretize an EllipticalArcObject from the scene.
+ */
+export function discretizeEllipticalArcObject(
+  object: EllipticalArcObject,
+  objects: GeometryObjectRecord,
+  stepsPerRevolution?: number,
+): PolylineSegment[] | null {
+  const geom = getEllipticalArcGeometry(object, objects);
+  if (!geom) return null;
+  return discretizeEllipticalArc(geom, stepsPerRevolution);
 }

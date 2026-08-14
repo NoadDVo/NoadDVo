@@ -484,6 +484,7 @@ export type BoundaryEdgeKind =
   | "ray"
   | "circle"
   | "arc"
+  | "elliptical-arc"
   | "polygon-edge"
   | "ellipse"
   | "hyperbola"

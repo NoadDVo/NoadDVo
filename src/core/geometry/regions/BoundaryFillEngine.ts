@@ -12,12 +12,14 @@ import {
 } from "../derivedGeometry";
 import {
   discretizeEllipseObject,
+  discretizeEllipticalArcObject,
   discretizeHyperbolaObject,
   discretizePolynomialObject,
 } from "../curveDiscretization";
 import type {
   BoundaryEdge,
   EllipseObject,
+  EllipticalArcObject,
   GeometryObject,
   GeometryObjectRecord,
   GeometryStyle,
@@ -209,6 +211,8 @@ function objectSignature(object: GeometryObject): string {
       return `${base}:${object.focusAId}:${object.focusBId}:${object.pointOnHyperbolaId}`;
     case "polynomial":
       return `${base}:${object.pointIds.join(",")}`;
+    case "elliptical-arc":
+      return `${base}:${object.centerPointId}:${object.startPointId}:${object.endPointId}:${object.ry}:${object.direction}`;
     default:
       return base;
   }
@@ -551,6 +555,26 @@ export function collectBoundaryPrimitives(objects: GeometryObjectRecord): readon
           edgeKind: "ellipse",
           end: seg.end,
           id: `${object.id}:eseg:${index}`,
+          object,
+          start: seg.start,
+        });
+        if (primitive) primitives.push(primitive);
+      }
+      continue;
+    }
+
+    if (object.type === "elliptical-arc") {
+      const segments = discretizeEllipticalArcObject(object as EllipticalArcObject, objects);
+      if (!segments || segments.length === 0) continue;
+
+      for (let index = 0; index < segments.length; index++) {
+        const seg = segments[index];
+        if (!seg) continue;
+        const primitive = createLinearPrimitive({
+          dependencies: [object.id, ...object.dependencies],
+          edgeKind: "elliptical-arc",
+          end: seg.end,
+          id: `${object.id}:easeg:${index}`,
           object,
           start: seg.start,
         });

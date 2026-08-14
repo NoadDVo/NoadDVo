@@ -11,8 +11,11 @@ import {
   vectorFromPoints,
 } from "../math";
 import type {
+  ArcObject,
   CircleObject,
   ConstructionDefinition,
+  EllipseObject,
+  EllipticalArcObject,
   GeometryObject,
   GeometryObjectRecord,
   LineObject,
@@ -21,6 +24,13 @@ import type {
   RayObject,
   SegmentObject,
 } from "../types";
+import { getArcGeometry } from "../derivedGeometry";
+import { getEllipseGeometry } from "../conicGeometry";
+import {
+  discretizeEllipseObject,
+  discretizeEllipticalArcObject,
+  type PolylineSegment,
+} from "../curveDiscretization";
 
 type LinearObject = LineObject | SegmentObject | RayObject;
 
@@ -270,29 +280,396 @@ export function intersectCircles(
   ].sort((aPoint, bPoint) => aPoint.x - bPoint.x || aPoint.y - bPoint.y);
 }
 
+// ─── Arc angle checking helpers ──────────────────────────────────────────────
+
+function normalizeAngle(degrees: number): number {
+  const v = degrees % 360;
+  return v < 0 ? v + 360 : v;
+}
+
+function isAngleOnArc(
+  angleDeg: number,
+  startDeg: number,
+  endDeg: number,
+  direction: "clockwise" | "counterclockwise",
+): boolean {
+  const a = normalizeAngle(angleDeg);
+  const s = normalizeAngle(startDeg);
+  const e = normalizeAngle(endDeg);
+
+  if (direction === "counterclockwise") {
+    const span = (e - s + 360) % 360 || 360;
+    const delta = (a - s + 360) % 360;
+    return delta <= span + 1e-4;
+  } else {
+    const span = (s - e + 360) % 360 || 360;
+    const delta = (s - a + 360) % 360;
+    return delta <= span + 1e-4;
+  }
+}
+
+function pointAngleDeg(center: Point2D, point: Point2D): number {
+  return normalizeAngle((Math.atan2(point.y - center.y, point.x - center.x) * 180) / Math.PI);
+}
+
+// ─── Arc ↔ Linear intersection ──────────────────────────────────────────────
+
+function intersectLineArc(
+  linear: GeometryObject,
+  arc: ArcObject,
+  objects: GeometryObjectRecord,
+): readonly Point2D[] {
+  const arcGeom = getArcGeometry(arc, objects);
+  if (!arcGeom) return [];
+
+  // Build a temporary circle object to reuse intersectLineCircle
+  const tempCircle: CircleObject = {
+    id: arc.id + ":temp-circle",
+    type: "circle",
+    circleKind: "center-radius",
+    centerPointId: arc.centerPointId,
+    radius: arcGeom.radius,
+    dependencies: [],
+    dependents: [],
+    name: "",
+    style: arc.style,
+    visible: true,
+    locked: false,
+    createdAt: 0,
+    updatedAt: 0,
+  };
+
+  const circlePoints = intersectLineCircle(linear as LineObject, tempCircle, objects);
+
+  // Filter to points that lie on the arc's angular domain
+  return circlePoints.filter((pt) => {
+    const angle = pointAngleDeg(arcGeom.center, pt);
+    return isAngleOnArc(angle, arcGeom.startAngleDegrees, arcGeom.endAngleDegrees, arc.direction);
+  });
+}
+
+// ─── Arc ↔ Circle intersection ──────────────────────────────────────────────
+
+function intersectArcCircle(
+  arc: ArcObject,
+  circle: CircleObject,
+  objects: GeometryObjectRecord,
+): readonly Point2D[] {
+  const arcGeom = getArcGeometry(arc, objects);
+  if (!arcGeom) return [];
+
+  const tempCircle: CircleObject = {
+    id: arc.id + ":temp-circle",
+    type: "circle",
+    circleKind: "center-radius",
+    centerPointId: arc.centerPointId,
+    radius: arcGeom.radius,
+    dependencies: [],
+    dependents: [],
+    name: "",
+    style: arc.style,
+    visible: true,
+    locked: false,
+    createdAt: 0,
+    updatedAt: 0,
+  };
+
+  const circlePoints = intersectCircles(tempCircle, circle, objects);
+
+  return circlePoints.filter((pt) => {
+    const angle = pointAngleDeg(arcGeom.center, pt);
+    return isAngleOnArc(angle, arcGeom.startAngleDegrees, arcGeom.endAngleDegrees, arc.direction);
+  });
+}
+
+// ─── Arc ↔ Arc intersection ─────────────────────────────────────────────────
+
+function intersectArcArc(
+  firstArc: ArcObject,
+  secondArc: ArcObject,
+  objects: GeometryObjectRecord,
+): readonly Point2D[] {
+  const firstGeom = getArcGeometry(firstArc, objects);
+  const secondGeom = getArcGeometry(secondArc, objects);
+  if (!firstGeom || !secondGeom) return [];
+
+  const tempCircle1: CircleObject = {
+    id: firstArc.id + ":temp-circle",
+    type: "circle",
+    circleKind: "center-radius",
+    centerPointId: firstArc.centerPointId,
+    radius: firstGeom.radius,
+    dependencies: [],
+    dependents: [],
+    name: "",
+    style: firstArc.style,
+    visible: true,
+    locked: false,
+    createdAt: 0,
+    updatedAt: 0,
+  };
+
+  const tempCircle2: CircleObject = {
+    id: secondArc.id + ":temp-circle",
+    type: "circle",
+    circleKind: "center-radius",
+    centerPointId: secondArc.centerPointId,
+    radius: secondGeom.radius,
+    dependencies: [],
+    dependents: [],
+    name: "",
+    style: secondArc.style,
+    visible: true,
+    locked: false,
+    createdAt: 0,
+    updatedAt: 0,
+  };
+
+  const circlePoints = intersectCircles(tempCircle1, tempCircle2, objects);
+
+  return circlePoints.filter((pt) => {
+    const angle1 = pointAngleDeg(firstGeom.center, pt);
+    const angle2 = pointAngleDeg(secondGeom.center, pt);
+    return (
+      isAngleOnArc(angle1, firstGeom.startAngleDegrees, firstGeom.endAngleDegrees, firstArc.direction) &&
+      isAngleOnArc(angle2, secondGeom.startAngleDegrees, secondGeom.endAngleDegrees, secondArc.direction)
+    );
+  });
+}
+
+// ─── Linear ↔ Ellipse intersection ─────────────────────────────────────────
+
+function intersectLineEllipse(
+  linear: GeometryObject,
+  ellipse: EllipseObject,
+  objects: GeometryObjectRecord,
+): readonly Point2D[] {
+  const linePoints = getLinearPoints(linear as LinearObject, objects);
+  const geom = getEllipseGeometry(ellipse, objects);
+  if (!linePoints || !geom) return [];
+
+  const { center, rx, ry, angleDegrees } = geom;
+  const theta = (angleDegrees * Math.PI) / 180;
+  const cosT = Math.cos(theta);
+  const sinT = Math.sin(theta);
+
+  // Transform line endpoints into ellipse-local coordinates (unrotated, centered at origin)
+  function toLocal(p: Point2D): Point2D {
+    const dx = p.x - center.x;
+    const dy = p.y - center.y;
+    return {
+      x: dx * cosT + dy * sinT,
+      y: -dx * sinT + dy * cosT,
+    };
+  }
+
+  function toWorld(p: Point2D): Point2D {
+    return {
+      x: center.x + p.x * cosT - p.y * sinT,
+      y: center.y + p.x * sinT + p.y * cosT,
+    };
+  }
+
+  const lp0 = toLocal(linePoints[0]);
+  const lp1 = toLocal(linePoints[1]);
+  const dx = lp1.x - lp0.x;
+  const dy = lp1.y - lp0.y;
+
+  // Parametric line: P(t) = lp0 + t*(lp1-lp0)
+  // Ellipse equation: (x/rx)^2 + (y/ry)^2 = 1
+  // Substituting: A*t^2 + B*t + C = 0
+  const A = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+  const B = 2 * ((lp0.x * dx) / (rx * rx) + (lp0.y * dy) / (ry * ry));
+  const C = (lp0.x * lp0.x) / (rx * rx) + (lp0.y * lp0.y) / (ry * ry) - 1;
+
+  const discriminant = B * B - 4 * A * C;
+  if (A <= EPSILON || discriminant < -EPSILON) return [];
+
+  const results: Point2D[] = [];
+  const sqrt = Math.sqrt(Math.max(0, discriminant));
+  const t1 = (-B - sqrt) / (2 * A);
+  const t2 = (-B + sqrt) / (2 * A);
+
+  for (const t of [t1, t2]) {
+    // Check domain constraints for segment/ray
+    if (linear.type === "segment" && (t < -EPSILON || t > 1 + EPSILON)) continue;
+    if (linear.type === "ray" && t < -EPSILON) continue;
+
+    const localPt = { x: lp0.x + t * dx, y: lp0.y + t * dy };
+    results.push(toWorld(localPt));
+  }
+
+  // Deduplicate very close points
+  return results.filter((pt, i, arr) =>
+    arr.findIndex((other) => distance(other, pt) <= EPSILON) === i,
+  );
+}
+
+// ─── Generic discretization-based intersection ──────────────────────────────
+
+function discretizeObject(
+  object: GeometryObject,
+  objects: GeometryObjectRecord,
+): PolylineSegment[] | null {
+  if (object.type === "ellipse") {
+    return discretizeEllipseObject(object as EllipseObject, objects);
+  }
+  if (object.type === "elliptical-arc") {
+    return discretizeEllipticalArcObject(object as EllipticalArcObject, objects);
+  }
+  if (object.type === "arc") {
+    // Discretize arc into segments for generic fallback
+    const arcGeom = getArcGeometry(object as ArcObject, objects);
+    if (!arcGeom) return null;
+    const steps = 36;
+    const startRad = (arcGeom.startAngleDegrees * Math.PI) / 180;
+    const endRad = (arcGeom.endAngleDegrees * Math.PI) / 180;
+    const dir = (object as ArcObject).direction;
+    let delta = dir === "counterclockwise"
+      ? ((endRad - startRad + 2 * Math.PI) % (2 * Math.PI) || 2 * Math.PI)
+      : -((startRad - endRad + 2 * Math.PI) % (2 * Math.PI) || 2 * Math.PI);
+    const segs: PolylineSegment[] = [];
+    let prev = {
+      x: arcGeom.center.x + arcGeom.radius * Math.cos(startRad),
+      y: arcGeom.center.y + arcGeom.radius * Math.sin(startRad),
+    };
+    for (let i = 1; i <= steps; i++) {
+      const angle = startRad + (delta * i) / steps;
+      const curr = {
+        x: arcGeom.center.x + arcGeom.radius * Math.cos(angle),
+        y: arcGeom.center.y + arcGeom.radius * Math.sin(angle),
+      };
+      segs.push({ start: prev, end: curr });
+      prev = curr;
+    }
+    return segs;
+  }
+  if (object.type === "circle") {
+    const circGeom = getCircleGeometry(object as CircleObject, objects);
+    if (!circGeom) return null;
+    const steps = 72;
+    const segs: PolylineSegment[] = [];
+    let prev = {
+      x: circGeom.center.x + circGeom.radius,
+      y: circGeom.center.y,
+    };
+    for (let i = 1; i <= steps; i++) {
+      const angle = (2 * Math.PI * i) / steps;
+      const curr = {
+        x: circGeom.center.x + circGeom.radius * Math.cos(angle),
+        y: circGeom.center.y + circGeom.radius * Math.sin(angle),
+      };
+      segs.push({ start: prev, end: curr });
+      prev = curr;
+    }
+    return segs;
+  }
+  // For linear objects, create a single segment
+  const linPts = getLinearPoints(object as LinearObject, objects);
+  if (!linPts) return null;
+  return [{ start: linPts[0], end: linPts[1] }];
+}
+
+function segmentSegmentIntersection(
+  a1: Point2D, a2: Point2D,
+  b1: Point2D, b2: Point2D,
+): Point2D | null {
+  const result = lineLineIntersection(a1, a2, b1, b2);
+  if (!result) return null;
+  if (result.t < -EPSILON || result.t > 1 + EPSILON) return null;
+  if (result.u < -EPSILON || result.u > 1 + EPSILON) return null;
+  return result.point;
+}
+
+function intersectByDiscretization(
+  first: GeometryObject,
+  second: GeometryObject,
+  objects: GeometryObjectRecord,
+): readonly Point2D[] {
+  const segsA = discretizeObject(first, objects);
+  const segsB = discretizeObject(second, objects);
+  if (!segsA || !segsB) return [];
+
+  const results: Point2D[] = [];
+
+  for (const sa of segsA) {
+    for (const sb of segsB) {
+      const pt = segmentSegmentIntersection(sa.start, sa.end, sb.start, sb.end);
+      if (pt) {
+        // Deduplicate: skip if too close to existing result
+        if (!results.some((existing) => distance(existing, pt) < 0.01)) {
+          results.push(pt);
+        }
+      }
+    }
+  }
+
+  return results.sort((a, b) => a.x - b.x || a.y - b.y);
+}
+
+// ─── Main dispatch ──────────────────────────────────────────────────────────
+
 export function getIntersectionPoints(
   first: GeometryObject,
   second: GeometryObject,
   objects: GeometryObjectRecord,
 ): readonly Point2D[] {
   const linearTypes = ["line", "segment", "ray"];
+  const circularTypes = ["circle", "arc"];
+  const conicTypes = ["ellipse", "elliptical-arc"];
 
+  // Linear ↔ Linear
   if (linearTypes.includes(first.type) && linearTypes.includes(second.type)) {
     return intersectLinearObjects(first as LinearObject, second as LinearObject, objects);
   }
 
+  // Linear ↔ Circle
   if (linearTypes.includes(first.type) && second.type === "circle") {
-    // Currently intersectLineCircle only correctly implements for infinite lines. Let's cast it for now, 
-    // it works mostly, although it might give points outside segments. The user did not complain about circle-segment intersection.
     return intersectLineCircle(first as LineObject, second as CircleObject, objects);
   }
-
   if (first.type === "circle" && linearTypes.includes(second.type)) {
     return intersectLineCircle(second as LineObject, first as CircleObject, objects);
   }
 
+  // Circle ↔ Circle
   if (first.type === "circle" && second.type === "circle") {
-    return intersectCircles(first, second, objects);
+    return intersectCircles(first as CircleObject, second as CircleObject, objects);
+  }
+
+  // Linear ↔ Arc
+  if (linearTypes.includes(first.type) && second.type === "arc") {
+    return intersectLineArc(first, second as ArcObject, objects);
+  }
+  if (first.type === "arc" && linearTypes.includes(second.type)) {
+    return intersectLineArc(second, first as ArcObject, objects);
+  }
+
+  // Arc ↔ Circle
+  if (first.type === "arc" && second.type === "circle") {
+    return intersectArcCircle(first as ArcObject, second as CircleObject, objects);
+  }
+  if (first.type === "circle" && second.type === "arc") {
+    return intersectArcCircle(second as ArcObject, first as CircleObject, objects);
+  }
+
+  // Arc ↔ Arc
+  if (first.type === "arc" && second.type === "arc") {
+    return intersectArcArc(first as ArcObject, second as ArcObject, objects);
+  }
+
+  // Linear ↔ Ellipse (analytical)
+  if (linearTypes.includes(first.type) && second.type === "ellipse") {
+    return intersectLineEllipse(first, second as EllipseObject, objects);
+  }
+  if (first.type === "ellipse" && linearTypes.includes(second.type)) {
+    return intersectLineEllipse(second, first as EllipseObject, objects);
+  }
+
+  // All remaining combinations involving conics, arcs, circles, ellipses, elliptical-arcs:
+  // Use discretization-based generic intersection
+  const supportedTypes = [...linearTypes, ...circularTypes, ...conicTypes];
+  if (supportedTypes.includes(first.type) && supportedTypes.includes(second.type)) {
+    return intersectByDiscretization(first, second, objects);
   }
 
   return [];
