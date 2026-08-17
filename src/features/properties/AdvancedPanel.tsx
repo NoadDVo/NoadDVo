@@ -11,12 +11,11 @@ import {
 
 type AdvancedPanelProps = {
   readonly object: GeometryObject;
-  readonly objects: Record<string, GeometryObject>;
   readonly updateSelected: (updater: (object: GeometryObject) => GeometryObject) => void;
   readonly updateStyle: (patch: Partial<GeometryStyle>) => void;
 };
 
-export function AdvancedPanel({ object, objects, updateSelected, updateStyle }: AdvancedPanelProps) {
+export function AdvancedPanel({ object, updateSelected, updateStyle }: AdvancedPanelProps) {
   const { t } = useTranslation();
 
   return (

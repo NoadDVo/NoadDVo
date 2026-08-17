@@ -6,8 +6,6 @@ import { IconButton, Button } from "../../ui/primitives";
 import { exportManager } from "../../core/export";
 import { projectManager } from "../../core/project";
 
-const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-
 export function ExportPreviewDialog() {
   const open = useUiStore((state) => state.openDialog === "exportPreview");
   const close = useUiStore((state) => state.setOpenDialog);
@@ -170,7 +168,7 @@ export function ExportPreviewDialog() {
         <header className="flex items-center justify-between border-b border-arctic-border/8 px-4 py-3">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-arctic-muted">
-              {t("export.preview")}
+              {t("export.preview" as any) || "Preview"}
             </p>
             <h2 className="text-sm font-black uppercase tracking-[0.12em] text-arctic-text">
               {exportFormat.toUpperCase()} {t("export.title")}

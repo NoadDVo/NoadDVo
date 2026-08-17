@@ -2,7 +2,6 @@ import type { GeometryObject } from "../../core/geometry";
 import { useTranslation } from "../../lib/useTranslation";
 import {
   Field,
-  Readout,
   Section,
   TextInput,
   ToggleRow,

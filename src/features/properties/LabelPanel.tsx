@@ -3,21 +3,17 @@ import { useTranslation } from "../../lib/useTranslation";
 import {
   Field,
   labelPositions,
-  parseNumber,
   Section,
   SelectInput,
-  TextInput,
   ToggleRow,
-  ExpandableDetails,
 } from "./PropertyInspectorFields";
 
 type LabelPanelProps = {
   readonly object: GeometryObject;
-  readonly updateSelected: (updater: (object: GeometryObject) => GeometryObject) => void;
   readonly updateStyle: (patch: Partial<GeometryStyle>) => void;
 };
 
-export function LabelPanel({ object, updateSelected, updateStyle }: LabelPanelProps) {
+export function LabelPanel({ object, updateStyle }: LabelPanelProps) {
   const { t } = useTranslation();
 
   return (

@@ -102,13 +102,11 @@ export function RightPanel() {
             <Divider className="my-2.5" />
             <LabelPanel
               object={selectedObject}
-              updateSelected={updateSelected}
               updateStyle={updateStyle}
             />
             <Divider className="my-2.5" />
             <AdvancedPanel 
               object={selectedObject} 
-              objects={objects}
               updateSelected={updateSelected} 
               updateStyle={updateStyle} 
             />

@@ -184,17 +184,13 @@ function LineGeometryPanel({
   );
 }
 
-function RayGeometryPanel({
-  object,
-}: {
+function RayGeometryPanel(_props: {
   readonly object: Extract<GeometryObject, { readonly type: "ray" }>;
 }) {
   return null;
 }
 
-function VectorGeometryPanel({
-  object,
-}: {
+function VectorGeometryPanel(_props: {
   readonly object: Extract<GeometryObject, { readonly type: "vector" }>;
 }) {
   return null;
