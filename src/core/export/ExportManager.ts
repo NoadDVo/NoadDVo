@@ -60,8 +60,75 @@ export class ExportManager {
     downloadText(content, filename, "json");
   }
 
-  exportSvg(svgElement: SVGSVGElement): void {
-    downloadText(exportSvgElement(svgElement), defaultFilename("svg"), "svg");
+  exportSvg(svgElement: SVGSVGElement, filename: string = defaultFilename("svg")): void {
+    downloadText(exportSvgElement(svgElement), filename, "svg");
+  }
+
+  private async getCanvasBlob(svgElement: SVGSVGElement, scale: number = 4): Promise<Blob | null> {
+    const attrW = parseFloat(svgElement.getAttribute("width") || "0");
+    const attrH = parseFloat(svgElement.getAttribute("height") || "0");
+    const baseW = attrW || svgElement.viewBox.baseVal.width || svgElement.clientWidth || 800;
+    const baseH = attrH || svgElement.viewBox.baseVal.height || svgElement.clientHeight || 600;
+
+    const width = baseW * scale;
+    const height = baseH * scale;
+
+    svgElement.setAttribute("width", String(width));
+    svgElement.setAttribute("height", String(height));
+    const svgString = exportSvgElement(svgElement, "#ffffff");
+
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const img = new Image();
+      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+      const DOMURL = window.URL || window.webkitURL || window;
+      const url = DOMURL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          DOMURL.revokeObjectURL(url);
+          canvas.toBlob((blob) => resolve(blob), "image/png");
+        } else {
+          resolve(null);
+        }
+      };
+      img.onerror = () => {
+        resolve(null);
+      };
+      img.src = url;
+    });
+  }
+
+  async exportPng(svgElement: SVGSVGElement, filename: string = defaultFilename("png")): Promise<void> {
+    const blob = await this.getCanvasBlob(svgElement);
+    if (blob) {
+      const DOMURL = window.URL || window.webkitURL || window;
+      const downloadUrl = DOMURL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = downloadUrl;
+      anchor.download = filename;
+      anchor.click();
+      DOMURL.revokeObjectURL(downloadUrl);
+    }
+  }
+
+  async copyPng(svgElement: SVGSVGElement): Promise<boolean> {
+    const blob = await this.getCanvasBlob(svgElement);
+    if (blob) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        return true;
+      } catch (e) {
+        console.error("Failed to copy image to clipboard", e);
+        return false;
+      }
+    }
+    return false;
   }
 }
 

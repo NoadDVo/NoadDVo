@@ -10,6 +10,7 @@ import { RightPanel } from "../properties";
 import { SettingsDialog } from "../settings";
 import { TikzPanel } from "../tikz-panel";
 import { LeftToolbar } from "../toolbar";
+import { ExportPreviewDialog } from "../export";
 import { StatusBar, TopBar } from "./layout";
 import { HelpDialog } from "./layout/HelpDialog";
 import { resolveThemeMode, useUiStore } from "../../app/store/uiStore";
@@ -144,6 +145,7 @@ export function AppShell() {
         <StatusBar />
         <SettingsDialog />
         <HelpDialog />
+        <ExportPreviewDialog />
         <CommandPalette />
       </div>
     </main>

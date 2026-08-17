@@ -19,7 +19,11 @@ export const EllipseExporter: TikzObjectExporter<EllipseObject> = {
     const path = `[rotate around={${angleDegrees}:(${center.x.toFixed(4)},${center.y.toFixed(4)})}] (${center.x.toFixed(4)},${center.y.toFixed(4)}) ellipse (${rx.toFixed(4)} and ${ry.toFixed(4)})`;
 
     if (object.style.fill !== "transparent" && object.style.fillOpacity > 0) {
-      context.scene.sections.shapes.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+      const fillStyle = { ...object.style, stroke: "transparent", strokeWidth: 0, strokeOpacity: 0 };
+      const fillOptions = formatStyleOptions(
+        styleToTikzParts(fillStyle, context.options, colorFor)
+      );
+      context.scene.sections.shapes.push(`\\fill${fillOptions} ${path};`);
     }
 
     if (hasPattern) {

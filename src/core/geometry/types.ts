@@ -43,7 +43,8 @@ export type GeometryObjectType =
   | "slider"
   | "locus"
   | "sector"
-  | "elliptical-arc";
+  | "elliptical-arc"
+  | "compound-region";
 
 export type GeometryToolId =
   | "select"
@@ -390,6 +391,59 @@ export type CircleObject =
       readonly pointCId: string;
     });
 
+export type BoundarySegment =
+  | {
+      readonly type: "line";
+      readonly startPointId: string;
+      readonly endPointId: string;
+      /** Inline world coordinates when point IDs reference trimmed intersection points not in scene */
+      readonly startCoord?: Point2D;
+      readonly endCoord?: Point2D;
+    }
+  | {
+      readonly type: "circle-arc";
+      readonly centerPointId: string;
+      readonly startPointId: string;
+      readonly endPointId: string;
+      readonly direction: "clockwise" | "counterclockwise";
+      /** Explicit radius in world units (optional, computed from points if omitted) */
+      readonly radius?: number;
+      readonly startCoord?: Point2D;
+      readonly endCoord?: Point2D;
+      readonly centerCoord?: Point2D;
+    }
+  | {
+      readonly type: "ellipse-arc";
+      readonly centerPointId: string;
+      readonly startPointId: string;
+      readonly endPointId: string;
+      readonly direction: "clockwise" | "counterclockwise";
+      /** Semi-major axis (along direction from center to start point) */
+      readonly radiusX: number;
+      /** Semi-minor axis */
+      readonly radiusY: number;
+      /** Rotation of the major axis in radians (CCW from +X) */
+      readonly rotation: number;
+      readonly startCoord?: Point2D;
+      readonly endCoord?: Point2D;
+      readonly centerCoord?: Point2D;
+    }
+  | {
+      readonly type: "curve";
+      readonly startPointId: string;
+      readonly endPointId: string;
+      readonly curveType: "quadratic-bezier" | "cubic-bezier" | "spline";
+      readonly controlPoints: readonly string[];
+      readonly startCoord?: Point2D;
+      readonly endCoord?: Point2D;
+    };
+
+export type CompoundRegionObject = BaseGeometryObject & {
+  readonly type: "compound-region";
+  readonly segments: readonly BoundarySegment[];
+  readonly closed: true;
+};
+
 export type PolygonObject = BaseGeometryObject & {
   readonly type: "polygon";
   readonly pointIds: readonly string[];
@@ -499,6 +553,8 @@ export type BoundaryEdge = {
   readonly endPointId?: string;
   readonly startParameter?: number;
   readonly endParameter?: number;
+  readonly inlineStartCoord?: Point2D;
+  readonly inlineEndCoord?: Point2D;
 };
 
 export type BoundaryLoop = {
@@ -540,6 +596,7 @@ export type GeometryObject =
   | ArcObject
   | EllipticalArcObject
   | PolygonObject
+  | CompoundRegionObject
   | AngleObject
   | TextObject
   | ImageObject

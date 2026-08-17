@@ -3,6 +3,7 @@ import { polygonArea } from "./math";
 import {
   getCircleGeometry,
   getArcGeometry,
+  getEllipticalArcGeometry,
   isPointInPolygon,
   getPointObject,
   getPolygonPoints,
@@ -10,6 +11,7 @@ import {
 import { collectBoundaryPrimitives } from "./regions/BoundaryFillEngine";
 import type {
   BoundaryEdge,
+  CompoundRegionObject,
   GeometryObject,
   GeometryObjectRecord,
   Point2D,
@@ -117,6 +119,7 @@ function arcCommand(
   startDegrees: number,
   endDegrees: number,
   direction: "forward" | "reverse",
+  physicalDirection: "clockwise" | "counterclockwise" = "counterclockwise",
 ): string {
   const start = polar(center, radius, startDegrees);
   const end = polar(center, radius, endDegrees);
@@ -125,7 +128,10 @@ function arcCommand(
     : (endDegrees - startDegrees + 360) % 360;
   const delta = rawDelta === 0 ? 360 : rawDelta;
   const largeArc = delta > 180 ? 1 : 0;
-  const sweep = direction === "reverse" ? 0 : 1;
+  // If the physical arc is clockwise, "forward" traversal is clockwise (sweep = 1).
+  // If the physical arc is counter-clockwise, "forward" traversal is counter-clockwise (sweep = 0).
+  const isPhysicalCw = physicalDirection === "clockwise";
+  const sweep = direction === "reverse" ? (isPhysicalCw ? 0 : 1) : (isPhysicalCw ? 1 : 0);
 
   return `${moveTo(start)} A ${format(radius)} ${format(radius)} 0 ${largeArc} ${sweep} ${format(end.x)} ${format(end.y)}`;
 }
@@ -183,6 +189,7 @@ function edgePath(edge: BoundaryEdge, objects: GeometryObjectRecord, first: bool
         edge.startParameter,
         edge.endParameter,
         edge.direction,
+        "counterclockwise",
       );
 
       return first ? path : path.replace(/^M\s+[-0-9.]+\s+[-0-9.]+\s+/, "");
@@ -203,10 +210,44 @@ function edgePath(edge: BoundaryEdge, objects: GeometryObjectRecord, first: bool
         startAngle,
         endAngle,
         edge.direction,
+        object.direction,
       );
 
       return first ? path : path.replace(/^M\s+[-0-9.]+\s+[-0-9.]+\s+/, "");
     }
+  }
+
+  if (edge.edgeKind === "elliptical-arc" && object?.type === "elliptical-arc") {
+    const geom = getEllipticalArcGeometry(object, objects);
+
+    if (!geom) {
+      return null;
+    }
+
+    const { rx, ry, phi, thetaEnd, startPoint, endPoint } = geom;
+    const thetaStart = 0; // start point is always at parametric angle 0 by definition (phi is axis rotation)
+
+    const isReverse = edge.direction === "reverse";
+    const fromPt = isReverse ? endPoint : startPoint;
+    const toPt = isReverse ? startPoint : endPoint;
+    const arcDirection = isReverse
+      ? (object.direction === "clockwise" ? "counterclockwise" : "clockwise")
+      : object.direction;
+
+    // Delta in parametric angle space
+    let delta = isReverse ? (thetaStart - thetaEnd) : (thetaEnd - thetaStart);
+    if (arcDirection === "counterclockwise") {
+      if (delta <= 0) delta += 2 * Math.PI;
+    } else {
+      if (delta >= 0) delta -= 2 * Math.PI;
+    }
+    const largeArc = Math.abs(delta) > Math.PI ? 1 : 0;
+    // SVG: sweep=1 means clockwise in screen coords (Y-down)
+    const sweep = arcDirection === "clockwise" ? 1 : 0;
+    const rotationDeg = (phi * 180) / Math.PI;
+
+    const startCmd = first ? `M ${format(fromPt.x)} ${format(fromPt.y)} ` : "";
+    return `${startCmd}A ${format(rx)} ${format(ry)} ${format(rotationDeg)} ${largeArc} ${sweep} ${format(toPt.x)} ${format(toPt.y)}`;
   }
 
   return null;
@@ -310,3 +351,118 @@ export function regionContainsPoint(
 
   return false;
 }
+
+export function compoundRegionContainsPoint(
+  object: CompoundRegionObject,
+  point: Point2D,
+  objects: GeometryObjectRecord,
+): boolean {
+  const { segments } = object;
+  if (!segments || segments.length === 0) return false;
+
+  // Approximate the boundary as a polygon for hit testing
+  const polygonPoints: Point2D[] = [];
+
+  function addPoint(pt: Point2D) {
+    if (polygonPoints.length === 0) {
+      polygonPoints.push(pt);
+      return;
+    }
+    const last = polygonPoints[polygonPoints.length - 1]!;
+    if (Math.hypot(last.x - pt.x, last.y - pt.y) > 1e-6) {
+      polygonPoints.push(pt);
+    }
+  }
+
+  for (const segment of segments) {
+    const startPt =
+      segment.startPointId && segment.startPointId !== "__trimmed__"
+        ? getPointObject(objects, segment.startPointId)
+        : segment.startCoord;
+    const endPt =
+      segment.endPointId && segment.endPointId !== "__trimmed__"
+        ? getPointObject(objects, segment.endPointId)
+        : segment.endCoord;
+
+    if (!startPt || !endPt) continue;
+    addPoint(startPt);
+
+    if (segment.type === "circle-arc" || segment.type === "ellipse-arc") {
+      const centerCoord = "centerCoord" in segment ? segment.centerCoord : undefined;
+      const centerPt =
+        segment.centerPointId && segment.centerPointId !== "__trimmed__"
+          ? getPointObject(objects, segment.centerPointId)
+          : centerCoord;
+
+      if (centerPt) {
+        const dxStart = startPt.x - centerPt.x;
+        const dyStart = startPt.y - centerPt.y;
+        const dxEnd = endPt.x - centerPt.x;
+        const dyEnd = endPt.y - centerPt.y;
+
+        let startAngle = Math.atan2(dyStart, dxStart);
+        let endAngle = Math.atan2(dyEnd, dxEnd);
+        if (startAngle < 0) startAngle += 2 * Math.PI;
+        if (endAngle < 0) endAngle += 2 * Math.PI;
+
+        const sweepFlag = segment.direction === "clockwise" ? 1 : 0;
+        let deltaAngle = endAngle - startAngle;
+        if (sweepFlag === 1 && deltaAngle <= 0) deltaAngle += 2 * Math.PI;
+        if (sweepFlag === 0 && deltaAngle >= 0) deltaAngle -= 2 * Math.PI;
+
+        // Number of segments based on angular delta (approx 5 degrees per step)
+        const steps = Math.max(2, Math.ceil((Math.abs(deltaAngle) * 180) / Math.PI / 5));
+
+        if (segment.type === "circle-arc") {
+          const r = segment.radius ?? Math.hypot(dxStart, dyStart);
+          for (let j = 1; j < steps; j++) {
+            const angle = startAngle + (deltaAngle * j) / steps;
+            addPoint({
+              x: centerPt.x + r * Math.cos(angle),
+              y: centerPt.y + r * Math.sin(angle),
+            });
+          }
+        } else {
+          // ellipse-arc
+          const rx = segment.radiusX > 0 ? segment.radiusX : Math.hypot(dxStart, dyStart);
+          const ry = segment.radiusY;
+          const rotation = segment.rotation || Math.atan2(dyStart, dxStart);
+          const cosRot = Math.cos(rotation);
+          const sinRot = Math.sin(rotation);
+
+          // For ellipse, we need to map the angles back to parameter t
+          // A rough approximation is directly interpolating the geometric angle
+          for (let j = 1; j < steps; j++) {
+            const angle = startAngle + (deltaAngle * j) / steps;
+            // Map geometric angle to parametric angle
+            // tan(angle - rotation) = (ry * sin(t)) / (rx * cos(t)) = (ry/rx) * tan(t)
+            // t = atan2(rx * sin(angle - rot), ry * cos(angle - rot))
+            const relAngle = angle - rotation;
+            const t = Math.atan2(rx * Math.sin(relAngle), ry * Math.cos(relAngle));
+            
+            const ex = rx * Math.cos(t);
+            const ey = ry * Math.sin(t);
+            addPoint({
+              x: centerPt.x + ex * cosRot - ey * sinRot,
+              y: centerPt.y + ex * sinRot + ey * cosRot,
+            });
+          }
+        }
+      }
+    } else if (segment.type === "curve") {
+      // Very rough polyline approximation for curves if control points exist
+      // In HitTest, we just need the polygon interior
+      const cps = segment.controlPoints
+        .map((id: string) => getPointObject(objects, id))
+        .filter((p: any): p is NonNullable<typeof p> => Boolean(p));
+      for (const cp of cps) {
+        addPoint(cp);
+      }
+    }
+
+    addPoint(endPt);
+  }
+
+  return isPointInPolygon(point, polygonPoints);
+}
+

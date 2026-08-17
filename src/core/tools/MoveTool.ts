@@ -3,9 +3,11 @@ import { createElement, type ReactNode } from "react";
 import type { ImageObject, Point2D, PointObject, SliderObject } from "../geometry";
 import { hitTest } from "../selection/HitTest";
 import { getClosestPointOnObject } from "../selection/closestPoint";
+// Import removed
 import { BaseTool } from "./BaseTool";
 import type { ToolContext, ToolPointerEvent } from "./ToolContext";
 import { worldToScreen } from "../geometry/viewport";
+
 
 type MovingPoint = {
   readonly id: string;
@@ -24,6 +26,8 @@ type MovingSlider = {
   readonly isKnob: boolean;
 };
 
+// DraggingEdge removed
+
 export class MoveTool extends BaseTool {
   private dragStart = null as Point2D | null;
   private hasDragged = false;
@@ -33,6 +37,8 @@ export class MoveTool extends BaseTool {
   
   private dragReferencePointId: string | null = null;
   private snapTargetId: string | null = null;
+
+// removed duplicate
 
   constructor() {
     super({
@@ -55,7 +61,11 @@ export class MoveTool extends BaseTool {
       context.viewport,
     );
 
-    if (!hit || (hit.object.type !== "point" && hit.object.type !== "image" && hit.object.type !== "slider")) {
+    if (!hit) {
+      return;
+    }
+
+    if (hit.object.type !== "point" && hit.object.type !== "image" && hit.object.type !== "slider") {
       return;
     }
 
@@ -241,24 +251,27 @@ export class MoveTool extends BaseTool {
   }
 
   renderPreview(context: ToolContext): ReactNode {
+    const elements: ReactNode[] = [];
+
     if (!this.hasDragged || !this.snapTargetId) {
-      return null;
+      return elements.length > 0 ? createElement("g", null, ...elements) : null;
     }
 
     const snapTarget = context.objects[this.snapTargetId];
-    if (!snapTarget || snapTarget.type !== "point") {
-      return null;
+    if (snapTarget && snapTarget.type === "point") {
+      const screen = worldToScreen(snapTarget as Point2D, context.viewport);
+      elements.push(createElement("circle", {
+        key: "snap-target",
+        cx: screen.x,
+        cy: screen.y,
+        fill: "#EF4444",
+        r: 6,
+        stroke: "#B91C1C",
+        strokeWidth: 1.5,
+      }));
     }
 
-    const screen = worldToScreen(snapTarget as Point2D, context.viewport);
-    return createElement("circle", {
-      cx: screen.x,
-      cy: screen.y,
-      fill: "#EF4444",
-      r: 6,
-      stroke: "#B91C1C",
-      strokeWidth: 1.5,
-    });
+    return elements.length > 0 ? createElement("g", null, ...elements) : null;
   }
 
   pointerUp(_event: ToolPointerEvent, context: ToolContext): void {
@@ -266,6 +279,7 @@ export class MoveTool extends BaseTool {
   }
 
   cancel(context: ToolContext): void {
+// draggingEdge check removed
     this.stopDrag(context, true);
   }
 

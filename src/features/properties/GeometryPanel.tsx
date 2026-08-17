@@ -157,29 +157,29 @@ function LineGeometryPanel({
   readonly updateSelected: GeometryPanelProps["updateSelected"];
 }) {
   const { t } = useTranslation();
-  return (
-    <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.pointA")} value={object.pointAId} />
-      <Readout label={t("geom.pointB")} value={object.pointBId} />
-      {(object.lineKind === "perpendicular" ||
+  const showEqualityTicks = (object.lineKind === "perpendicular" ||
         object.lineKind === "perpendicular-bisector" ||
         object.lineKind === "angle-bisector" ||
         object.lineKind === "angle-bisector-4step" ||
         object.specialLineKind === "perpendicular-bisector-3step" ||
         object.specialLineKind === "angle-bisector" ||
-        object.specialLineKind === "altitude") && (
-        <ToggleRow
-          checked={object.showEqualityTicks ?? false}
-          label={t("geom.showEqualityTicks")}
-          onChange={(checked) =>
-            updateSelected((current) =>
-              current.type === "line"
-                ? { ...current, showEqualityTicks: checked }
-                : current
-            )
-          }
-        />
-      )}
+        object.specialLineKind === "altitude");
+        
+  if (!showEqualityTicks) return null;
+  
+  return (
+    <Section title={t("geom.geometry")}>
+      <ToggleRow
+        checked={object.showEqualityTicks ?? false}
+        label={t("geom.showEqualityTicks")}
+        onChange={(checked) =>
+          updateSelected((current) =>
+            current.type === "line"
+              ? { ...current, showEqualityTicks: checked }
+              : current
+          )
+        }
+      />
     </Section>
   );
 }
@@ -189,13 +189,7 @@ function RayGeometryPanel({
 }: {
   readonly object: Extract<GeometryObject, { readonly type: "ray" }>;
 }) {
-  const { t } = useTranslation();
-  return (
-    <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.start")} value={object.startPointId} />
-      <Readout label={t("geom.through")} value={object.throughPointId} />
-    </Section>
-  );
+  return null;
 }
 
 function VectorGeometryPanel({
@@ -203,13 +197,7 @@ function VectorGeometryPanel({
 }: {
   readonly object: Extract<GeometryObject, { readonly type: "vector" }>;
 }) {
-  const { t } = useTranslation();
-  return (
-    <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.start")} value={object.startPointId} />
-      <Readout label={t("geom.end")} value={object.endPointId} />
-    </Section>
-  );
+  return null;
 }
 
 function SegmentGeometryPanel({
@@ -220,25 +208,25 @@ function SegmentGeometryPanel({
   readonly updateSelected: GeometryPanelProps["updateSelected"];
 }) {
   const { t } = useTranslation();
+  const showEqualityTicks = (object.specialLineKind === "perpendicular-bisector-3step" ||
+        object.specialLineKind === "angle-bisector" ||
+        object.specialLineKind === "altitude");
+        
+  if (!showEqualityTicks) return null;
+  
   return (
     <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.start")} value={object.startPointId} />
-      <Readout label={t("geom.end")} value={object.endPointId} />
-      {(object.specialLineKind === "perpendicular-bisector-3step" ||
-        object.specialLineKind === "angle-bisector" ||
-        object.specialLineKind === "altitude") && (
-        <ToggleRow
-          checked={object.showEqualityTicks ?? false}
-          label={t("geom.showEqualityTicks")}
-          onChange={(checked) =>
-            updateSelected((current) =>
-              current.type === "segment"
-                ? { ...current, showEqualityTicks: checked }
-                : current
-            )
-          }
-        />
-      )}
+      <ToggleRow
+        checked={object.showEqualityTicks ?? false}
+        label={t("geom.showEqualityTicks")}
+        onChange={(checked) =>
+          updateSelected((current) =>
+            current.type === "segment"
+              ? { ...current, showEqualityTicks: checked }
+              : current
+          )
+        }
+      />
     </Section>
   );
 }
@@ -254,10 +242,6 @@ function ArcGeometryPanel({
   const arc = getArcGeometry(object, objects);
   return (
     <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.center")} value={object.centerPointId} />
-      <Readout label={t("geom.start")} value={object.startPointId} />
-      <Readout label={t("geom.end")} value={object.endPointId} />
-      <Readout label={t("geom.direction")} value={object.direction} />
       <Readout label={t("geom.radius")} value={arc ? formatNumber(arc.radius) : t("geom.unavailable")} />
     </Section>
   );
@@ -276,10 +260,6 @@ function EllipticalArcGeometryPanel({
   const ellipticalArc = getEllipticalArcGeometry(object, objects);
   return (
     <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.center")} value={object.centerPointId} />
-      <Readout label={t("geom.start")} value={object.startPointId} />
-      <Readout label={t("geom.end")} value={object.endPointId} />
-      <Readout label={t("geom.direction")} value={object.direction} />
       <Readout label={t("geom.xRadius")} value={ellipticalArc ? formatNumber(ellipticalArc.rx) : t("geom.unavailable")} />
       <Field label={t("geom.yRadius")}>
         <TextInput
@@ -314,7 +294,6 @@ function RegionGeometryPanel({
   const area = getRegionArea(object, objects);
   return (
     <Section title={t("geom.geometry")}>
-      <Readout label={t("geom.boundaryPoints")} value={String(object.boundaryPointIds.length)} />
       <Readout label={t("geom.area")} value={area === null ? t("geom.unavailable") : formatNumber(area)} />
     </Section>
   );

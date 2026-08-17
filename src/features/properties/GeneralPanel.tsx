@@ -18,10 +18,6 @@ export function GeneralPanel({ object, updateSelected }: GeneralPanelProps) {
 
   return (
     <Section title={t("panel.general")}>
-      <div className="grid grid-cols-2 gap-2">
-        <Readout label={t("prop.type")} value={object.type} />
-        <Readout label={t("prop.id")} value={object.id} />
-      </div>
       <Field label={t("prop.name")}>
         <TextInput
           onChange={(event) =>

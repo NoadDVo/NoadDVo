@@ -78,6 +78,7 @@ export function Canvas() {
       }}
     >
       <svg
+        id="geometry-canvas"
         aria-label="Geometry canvas"
         className="absolute inset-0 size-full touch-none select-none"
         ref={svgRef}

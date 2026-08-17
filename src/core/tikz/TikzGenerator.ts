@@ -17,6 +17,7 @@ import { EllipseExporter } from "./exporters/EllipseExporter";
 import { HyperbolaExporter } from "./exporters/HyperbolaExporter";
 import { PolynomialExporter } from "./exporters/PolynomialExporter";
 import { SliderExporter } from "./exporters/SliderExporter";
+import { CompoundRegionExporter } from "./exporters/CompoundRegionExporter";
 import { formatTikzDocument } from "./TikzFormatter";
 import { getTikzOptions, type TikzOptions } from "./TikzOptions";
 import { TikzColorRegistry } from "./TikzColorRegistry";
@@ -95,6 +96,11 @@ const exporters: Partial<Record<GeometryObject["type"], ExportHandler>> = {
   text: (object, context) => {
     if (object.type === "text") {
       TextExporter.exportObject(object, context);
+    }
+  },
+  "compound-region": (object, context) => {
+    if (object.type === "compound-region") {
+      CompoundRegionExporter.exportObject(object, context);
     }
   },
   ellipse: (object, context) => {

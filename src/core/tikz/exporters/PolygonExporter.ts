@@ -33,8 +33,12 @@ export const PolygonExporter: TikzObjectExporter<PolygonObject> = {
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
 
     if (hasPattern) {
-      if (hasVisibleFill(object)) {
-        context.scene.sections.fills.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+      if (object.style.fill !== "transparent" && object.style.fillOpacity > 0) {
+        const fillStyle = { ...object.style, stroke: "transparent", strokeWidth: 0, strokeOpacity: 0 };
+        const fillOptions = formatStyleOptions(
+          styleToTikzParts(fillStyle, context.options, colorFor)
+        );
+        context.scene.sections.fills.push(`\\fill${fillOptions} ${path};`);
       }
 
       const points = object.pointIds
@@ -71,7 +75,7 @@ export const PolygonExporter: TikzObjectExporter<PolygonObject> = {
         context.scene.sections.shapes.push(`\\draw${strokeOptions} ${path};`);
       }
     } else {
-      const fillVisible = context.options.preserveStyle && hasVisibleFill(object);
+      const fillVisible = hasVisibleFill(object);
       const strokeVisible = hasVisibleStroke(object);
       const options = formatStyleOptions({
         ...style,

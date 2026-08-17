@@ -8,6 +8,7 @@ import {
   SelectInput,
   TextInput,
   ToggleRow,
+  ExpandableDetails,
 } from "./PropertyInspectorFields";
 
 type LabelPanelProps = {
@@ -26,23 +27,6 @@ export function LabelPanel({ object, updateSelected, updateStyle }: LabelPanelPr
         label={t("prop.showLabel")}
         onChange={(labelVisible) => updateStyle({ labelVisible })}
       />
-      <Field label={t("prop.labelText")}>
-        <TextInput
-          onChange={(event) =>
-            updateSelected((current) => ({
-              ...current,
-              ...(current.type === "angle" ? { label: event.target.value } : {}),
-              name: event.target.value,
-              updatedAt: Date.now(),
-            }))
-          }
-          value={
-            object.type === "angle"
-              ? object.label ?? object.name ?? ""
-              : object.name ?? ""
-          }
-        />
-      </Field>
       <Field label={t("prop.labelPosition")}>
         <SelectInput
           onChange={(event) =>
@@ -56,22 +40,6 @@ export function LabelPanel({ object, updateSelected, updateStyle }: LabelPanelPr
             </option>
           ))}
         </SelectInput>
-      </Field>
-      <Field label={t("prop.labelSize")}>
-        <TextInput
-          min={8}
-          onChange={(event) =>
-            updateStyle({
-              labelSize: Math.max(
-                8,
-                parseNumber(event.target.value, object.style.labelSize ?? 12),
-              ),
-            })
-          }
-          step={1}
-          type="number"
-          value={object.style.labelSize ?? 12}
-        />
       </Field>
     </Section>
   );

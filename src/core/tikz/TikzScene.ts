@@ -22,6 +22,7 @@ const objectOrder: Record<GeometryObject["type"], number> = {
   slider: 123,
   distance: 124,
   area: 125,
+  "compound-region": 130,
 };
 
 export function buildTikzScene(

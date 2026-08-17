@@ -257,7 +257,7 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
 
       const colorFor = (color: string) => context.colorRegistry.getColorName(color);
       const style = styleToTikzParts(object.style, context.options, colorFor);
-      const fillVisible = context.options.preserveStyle && hasVisibleFill(object);
+      const fillVisible = hasVisibleFill(object);
       const strokeVisible = hasVisibleStroke(object);
       const options = formatStyleOptions({
         ...style,
@@ -270,8 +270,12 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
 
       const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
       if (hasPattern) {
-        if (fillVisible) {
-          context.scene.sections.fills.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+        if (hasVisibleFill(object)) {
+          const fillStyle = { ...object.style, stroke: "transparent", strokeWidth: 0, strokeOpacity: 0 };
+          const fillOptions = formatStyleOptions(
+            styleToTikzParts(fillStyle, context.options, colorFor)
+          );
+          context.scene.sections.fills.push(`\\fill${fillOptions} ${path};`);
         }
 
         const points = object.boundaryPointIds
@@ -345,8 +349,12 @@ export const RegionExporter: TikzObjectExporter<RegionObject> = {
     });
     const hasPattern = object.style.pattern && object.style.pattern.type !== "none";
     if (hasPattern) {
-      if (fillVisible) {
-        context.scene.sections.fills.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+      if (hasVisibleFill(object)) {
+        const fillStyle = { ...object.style, stroke: "transparent", strokeWidth: 0, strokeOpacity: 0 };
+        const fillOptions = formatStyleOptions(
+          styleToTikzParts(fillStyle, context.options, colorFor)
+        );
+        context.scene.sections.fills.push(`\\fill${fillOptions} ${path};`);
       }
 
       const points = object.boundaryPointIds

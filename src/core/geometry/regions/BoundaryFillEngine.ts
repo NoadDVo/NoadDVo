@@ -29,7 +29,6 @@ import type {
 } from "../types";
 
 const GEOMETRY_EPSILON = 1e-6;
-const NODE_PRECISION = 1e6;
 const MAX_LOOP_EDGES = 1000;
 
 export type BoundaryFillLimits = {
@@ -245,20 +244,19 @@ export function getBoundaryFillCacheStats(): {
   };
 }
 
-function nodeKey(point: Point2D): string {
-  return `${Math.round(point.x * NODE_PRECISION) / NODE_PRECISION},${Math.round(point.y * NODE_PRECISION) / NODE_PRECISION}`;
-}
-
 function uniqueByPoint(points: readonly SplitPoint[], primitive?: BoundaryPrimitive): SplitPoint[] {
   const getSortValue = (p: SplitPoint) => {
     if (!primitive) return p.parameter;
     if (primitive.kind !== "circular" || primitive.edgeKind !== "arc" || !primitive.domain) return p.parameter;
-    const dir = primitive.direction ?? "counterclockwise";
-    const start = primitive.domain.min;
-    if (dir === "counterclockwise") {
-      return (p.parameter - start + 360) % 360;
+    const startAngle = primitive.domain.min;
+    const direction = primitive.direction ?? "counterclockwise";
+    
+    // Calculate proper angular distance from startAngle to p.parameter along the arc
+    // normalizeAngle ensures values are 0-360, so diff + 360 is always > 0
+    if (direction === "counterclockwise") {
+      return (p.parameter - startAngle + 360) % 360;
     } else {
-      return (start - p.parameter + 360) % 360;
+      return (startAngle - p.parameter + 360) % 360;
     }
   };
 
@@ -959,6 +957,8 @@ function boundaryEdgeForPiece(
         objectId: piece.objectId,
         sourcePrimitiveId,
         startParameter: piece.startParameter,
+        ...(piece.samples[0] ? { inlineStartCoord: piece.samples[0] } : {}),
+        ...(piece.samples[piece.samples.length - 1] ? { inlineEndCoord: piece.samples[piece.samples.length - 1] } : {}),
       }
     : {
         direction: "reverse",
@@ -967,10 +967,24 @@ function boundaryEdgeForPiece(
         objectId: piece.objectId,
         sourcePrimitiveId,
         startParameter: piece.endParameter,
+        ...(piece.samples[piece.samples.length - 1] ? { inlineStartCoord: piece.samples[piece.samples.length - 1] } : {}),
+        ...(piece.samples[0] ? { inlineEndCoord: piece.samples[0] } : {}),
       };
 }
 
+const NODE_MERGE_TOLERANCE = 1e-3;
+
 export function buildDirectedEdges(pieces: readonly BoundaryPiece[]): readonly DirectedPiece[] {
+  const mergedNodes: Point2D[] = [];
+  const getNodeKey = (point: Point2D) => {
+    const existing = mergedNodes.find((n) => distance(n, point) < NODE_MERGE_TOLERANCE);
+    if (existing) {
+      return `${existing.x},${existing.y}`;
+    }
+    mergedNodes.push(point);
+    return `${point.x},${point.y}`;
+  };
+
   return pieces.flatMap((piece) => {
     const forwardSamples = piece.samples;
     const forwardAngle = forwardSamples.length > 1
@@ -982,11 +996,11 @@ export function buildDirectedEdges(pieces: readonly BoundaryPiece[]): readonly D
       baseId: piece.id,
       dependencies: piece.dependencies,
       edge: boundaryEdgeForPiece(piece, "forward"),
-      from: nodeKey(piece.start),
+      from: getNodeKey(piece.start),
       id: `${piece.id}:forward`,
       samples: forwardSamples,
       style: piece.style,
-      to: nodeKey(piece.end),
+      to: getNodeKey(piece.end),
     };
     
     const reverseSamplesArray = reverseSamples(piece.samples);
@@ -999,11 +1013,11 @@ export function buildDirectedEdges(pieces: readonly BoundaryPiece[]): readonly D
       baseId: piece.id,
       dependencies: piece.dependencies,
       edge: boundaryEdgeForPiece(piece, "reverse"),
-      from: nodeKey(piece.end),
+      from: getNodeKey(piece.end),
       id: `${piece.id}:reverse`,
       samples: reverseSamplesArray,
       style: piece.style,
-      to: nodeKey(piece.start),
+      to: getNodeKey(piece.start),
     };
 
     return [forward, reverse];

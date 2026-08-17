@@ -12,7 +12,9 @@ import {
   type Point2D,
   type PolygonObject,
   type RegionObject,
+  type CompoundRegionObject,
 } from "../geometry";
+import { getArcGeometry, getCircleGeometry, getEllipticalArcGeometry } from "../geometry/derivedGeometry";
 import {
   getSelectableBoundaryFaces,
   type BoundaryFillFace,
@@ -163,52 +165,283 @@ function sameBoundaryLoop(
 export function findExistingBoundaryRegion(
   edges: readonly BoundaryEdge[],
   objects: GeometryObjectRecord,
-): RegionObject | null {
-  return (
-    Object.values(objects).find(
-      (object): object is RegionObject =>
-        object.type === "region" &&
-        object.regionKind === "boundary" &&
-        Boolean(object.loops?.some((loop) => sameBoundaryLoop(loop.edges, edges))),
-    ) ?? null
+): RegionObject | CompoundRegionObject | null {
+  // Check legacy RegionObject (boundary kind)
+  const legacyRegion = Object.values(objects).find(
+    (object): object is RegionObject =>
+      object.type === "region" &&
+      object.regionKind === "boundary" &&
+      Boolean(object.loops?.some((loop) => sameBoundaryLoop(loop.edges, edges))),
   );
+  if (legacyRegion) return legacyRegion;
+
+  // Check new CompoundRegionObject — match by segment objectIds + directions
+  const compoundRegion = Object.values(objects).find(
+    (object): object is CompoundRegionObject => {
+      if (object.type !== "compound-region") return false;
+      const segs = object.segments;
+      if (segs.length !== edges.length) return false;
+      // A CompoundRegionObject doesn't store loopEdges directly, so we compare
+      // by the source edge objectIds in order (best-effort dedup)
+      return edges.every((edge, i) => {
+        const seg = segs[i];
+        if (!seg) return false;
+        // For circle-arc/ellipse-arc, the objectId is embedded in centerPointId relationship;
+        // We can't compare perfectly, so we do a light check on startPointId/endPointId.
+        if (edge.startPointId && edge.endPointId) {
+          return seg.startPointId === edge.startPointId && seg.endPointId === edge.endPointId;
+        }
+        return false;
+      });
+    },
+  );
+
+  return compoundRegion ?? null;
 }
 
-function createRegionFromBoundary(candidate: BoundaryCandidate): RegionObject {
+function resolveEdgeEndpoints(
+  edge: BoundaryEdge,
+  objects: GeometryObjectRecord,
+): { startPointId: string; endPointId: string; startCoord?: Point2D; endCoord?: Point2D } {
+  // If BoundaryEdge already has explicit pointIds, use them directly
+  if (edge.startPointId && edge.endPointId) {
+    return { startPointId: edge.startPointId, endPointId: edge.endPointId };
+  }
+
+  const SENTINEL = "__trimmed__";
+
+  if (edge.inlineStartCoord && edge.inlineEndCoord) {
+    return {
+      startPointId: SENTINEL,
+      endPointId: SENTINEL,
+      startCoord: edge.inlineStartCoord,
+      endCoord: edge.inlineEndCoord,
+    };
+  }
+
+  // Trimmed edge: must compute coordinates from the primitive's parametric form.
+  const obj = objects[edge.objectId];
+  let startCoord: Point2D | undefined;
+  let endCoord: Point2D | undefined;
+
+  if (obj?.type === "segment" || obj?.type === "vector") {
+    const startPt = obj.startPointId ? (objects[obj.startPointId] as { x?: number; y?: number } | undefined) : undefined;
+    const endPt = obj.endPointId ? (objects[obj.endPointId] as { x?: number; y?: number } | undefined) : undefined;
+    if (startPt?.x !== undefined && startPt.y !== undefined && endPt?.x !== undefined && endPt.y !== undefined) {
+      const p0 = { x: startPt.x, y: startPt.y };
+      const p1 = { x: endPt.x, y: endPt.y };
+      const t0 = edge.startParameter ?? 0;
+      const t1 = edge.endParameter ?? 1;
+      const dx = p1.x - p0.x;
+      const dy = p1.y - p0.y;
+      if (edge.direction === "reverse") {
+        startCoord = { x: p0.x + dx * t1, y: p0.y + dy * t1 };
+        endCoord = { x: p0.x + dx * t0, y: p0.y + dy * t0 };
+      } else {
+        startCoord = { x: p0.x + dx * t0, y: p0.y + dy * t0 };
+        endCoord = { x: p0.x + dx * t1, y: p0.y + dy * t1 };
+      }
+    }
+  } else if (obj?.type === "arc" || obj?.type === "circle") {
+    const geom = obj.type === "arc" ? getArcGeometry(obj as any, objects) : getCircleGeometry(obj as any, objects);
+    if (geom && geom.center && geom.radius) {
+      const t0 = edge.startParameter ?? 0;
+      const t1 = edge.endParameter ?? 360;
+      const p0 = {
+        x: geom.center.x + Math.cos((t0 * Math.PI) / 180) * geom.radius,
+        y: geom.center.y + Math.sin((t0 * Math.PI) / 180) * geom.radius,
+      };
+      const p1 = {
+        x: geom.center.x + Math.cos((t1 * Math.PI) / 180) * geom.radius,
+        y: geom.center.y + Math.sin((t1 * Math.PI) / 180) * geom.radius,
+      };
+      if (edge.direction === "reverse") {
+        startCoord = p1;
+        endCoord = p0;
+      } else {
+        startCoord = p0;
+        endCoord = p1;
+      }
+    }
+  } else if (obj?.type === "elliptical-arc" || obj?.type === "ellipse") {
+    let geom: { center: Point2D; rx: number; ry: number; phi: number } | undefined;
+    if (obj.type === "elliptical-arc") {
+      geom = getEllipticalArcGeometry(obj as any, objects) ?? undefined;
+    } else {
+      const ellipse = obj as any;
+      const centerPt = objects[ellipse.dependencies[0]] as any;
+      const pointPt = objects[ellipse.dependencies[1]] as any;
+      if (centerPt && pointPt) {
+        geom = {
+          center: { x: centerPt.x, y: centerPt.y },
+          rx: Math.hypot(pointPt.x - centerPt.x, pointPt.y - centerPt.y),
+          ry: ellipse.ry,
+          phi: Math.atan2(pointPt.y - centerPt.y, pointPt.x - centerPt.x),
+        };
+      }
+    }
+    if (geom && geom.center && geom.rx && geom.ry) {
+      const t0 = edge.startParameter ?? 0;
+      const t1 = edge.endParameter ?? (Math.PI * 2);
+      const getPt = (t: number) => ({
+        x: geom.center.x + geom.rx * Math.cos(t) * Math.cos(geom.phi) - geom.ry * Math.sin(t) * Math.sin(geom.phi),
+        y: geom.center.y + geom.rx * Math.cos(t) * Math.sin(geom.phi) + geom.ry * Math.sin(t) * Math.cos(geom.phi),
+      });
+      const p0 = getPt(t0);
+      const p1 = getPt(t1);
+      if (edge.direction === "reverse") {
+        startCoord = p1;
+        endCoord = p0;
+      } else {
+        startCoord = p0;
+        endCoord = p1;
+      }
+    }
+  }
+
+  const result: { startPointId: string; endPointId: string; startCoord?: Point2D; endCoord?: Point2D } = {
+    startPointId: SENTINEL,
+    endPointId: SENTINEL,
+  };
+  if (startCoord) result.startCoord = startCoord;
+  if (endCoord) result.endCoord = endCoord;
+  return result;
+}
+
+function createRegionFromBoundary(candidate: BoundaryCandidate, objects: GeometryObjectRecord): CompoundRegionObject {
   const now = Date.now();
+  const rawEdges = candidate.loopEdges;
+  const mergedEdges: BoundaryEdge[] = [];
+  
+  // Group contiguous discretized pieces of the same object
+  for (let i = 0; i < rawEdges.length; i++) {
+    const current = rawEdges[i];
+    const prev = mergedEdges[mergedEdges.length - 1];
+    if (current && prev && prev.objectId === current.objectId && (prev.edgeKind === "elliptical-arc" || prev.edgeKind === "ellipse") && (current.edgeKind === "elliptical-arc" || current.edgeKind === "ellipse")) {
+      mergedEdges[mergedEdges.length - 1] = {
+        ...prev,
+        ...(current.endParameter !== undefined ? { endParameter: current.endParameter } : {}),
+        ...(current.inlineEndCoord !== undefined ? { inlineEndCoord: current.inlineEndCoord } : {}),
+      };
+    } else if (current) {
+      mergedEdges.push(current);
+    }
+  }
+
+  // Handle wraparound for closed ellipses
+  if (mergedEdges.length > 1) {
+    const first = mergedEdges[0];
+    const last = mergedEdges[mergedEdges.length - 1];
+    if (first && last && first.objectId === last.objectId && (first.edgeKind === "elliptical-arc" || first.edgeKind === "ellipse")) {
+       mergedEdges[0] = {
+         ...first,
+         ...(last.inlineStartCoord !== undefined ? { inlineStartCoord: last.inlineStartCoord } : {}),
+         ...(last.startParameter !== undefined ? { startParameter: last.startParameter } : {}),
+       };
+       mergedEdges.pop();
+    }
+  }
+
+  const segments: import("../geometry/types").BoundarySegment[] = mergedEdges.map(edge => {
+    const obj = objects[edge.objectId];
+    const { startPointId, endPointId, startCoord, endCoord } = resolveEdgeEndpoints(edge, objects);
+
+    if (obj?.type === "arc") {
+      const arcDir = obj.direction;
+      const dir = edge.direction === "forward" ? arcDir : (arcDir === "clockwise" ? "counterclockwise" : "clockwise");
+      return {
+        type: "circle-arc" as const,
+        startPointId,
+        endPointId,
+        centerPointId: obj.centerPointId,
+        direction: dir,
+        ...(startCoord && { startCoord }),
+        ...(endCoord && { endCoord }),
+      };
+    }
+
+    if (obj?.type === "circle") {
+      const centerPointId = obj.dependencies[0] ?? "";
+      const dir = edge.direction === "forward" ? "counterclockwise" : "clockwise";
+      const radius = obj.circleKind === "center-radius" ? (obj as any).radius : undefined;
+      return {
+        type: "circle-arc" as const,
+        startPointId,
+        endPointId,
+        centerPointId,
+        direction: dir as "clockwise" | "counterclockwise",
+        ...(radius !== undefined && { radius }),
+        ...(startCoord && { startCoord }),
+        ...(endCoord && { endCoord }),
+      };
+    }
+
+    if (obj?.type === "elliptical-arc" || obj?.type === "ellipse") {
+      const arcDir = (obj as any).direction ?? "counterclockwise";
+      const dir = edge.direction === "forward" ? arcDir : (arcDir === "clockwise" ? "counterclockwise" : "clockwise");
+      
+      let radiusX = 0;
+      let radiusY = (obj as any).ry ?? 0;
+      let rotation = 0;
+      
+      if (obj.type === "elliptical-arc") {
+        const geom = getEllipticalArcGeometry(obj as any, objects);
+        if (geom) {
+          radiusX = geom.rx;
+          radiusY = geom.ry;
+          rotation = geom.phi;
+        }
+      } else {
+        const ellipse = obj as any;
+        const centerPt = objects[ellipse.dependencies[0]] as any;
+        const pointPt = objects[ellipse.dependencies[1]] as any;
+        if (centerPt && pointPt) {
+          radiusX = Math.hypot(pointPt.x - centerPt.x, pointPt.y - centerPt.y);
+          radiusY = ellipse.ry;
+          rotation = Math.atan2(pointPt.y - centerPt.y, pointPt.x - centerPt.x);
+        }
+      }
+
+      return {
+        type: "ellipse-arc" as const,
+        startPointId,
+        endPointId,
+        centerPointId: (obj as any).centerPointId ?? obj.dependencies[0] ?? "",
+        direction: dir,
+        radiusX,
+        radiusY,
+        rotation,
+        ...(startCoord && { startCoord }),
+        ...(endCoord && { endCoord }),
+      };
+    }
+
+    // Default: straight line segment
+    return {
+      type: "line" as const,
+      startPointId,
+      endPointId,
+      ...(startCoord && { startCoord }),
+      ...(endCoord && { endCoord }),
+    };
+  });
 
   return {
-    boundaryPointIds: [],
-    createdAt: now,
-    dependencies: candidate.dependencies,
+    id: candidate.id,
+    type: "compound-region",
+    closed: true,
+    metadata: { sourceLayerId: candidate.loopEdges[0]?.objectId ? objects[candidate.loopEdges[0].objectId]?.layerId : undefined },
+    dependencies: Array.from(new Set(candidate.loopEdges.flatMap((e) => [e.objectId, ...(e.startPointId ? [e.startPointId] : []), ...(e.endPointId ? [e.endPointId] : [])]))),
     dependents: [],
-    id: createRegionId(candidate.source),
-    locked: false,
-    loops: [
-      {
-        closed: true,
-        edges: candidate.loopEdges,
-      },
-    ],
-    metadata: {
-      boundaryArea: candidate.area,
-      boundaryEdgeCount: candidate.edgeCount,
-      boundaryType: candidate.id,
-    },
     name: candidate.name,
-    regionKind: "boundary",
-    style: {
-      ...DEFAULT_GEOMETRY_STYLE,
-      fill: "#7ddcff",
-      fillOpacity: 0.22,
-      stroke: candidate.source.style.stroke,
-      strokeOpacity: 0,
-      strokeWidth: 1,
-    },
-    type: "region",
-    updatedAt: now,
     visible: true,
-  };
+    locked: false,
+    layerId: candidate.source?.id ? objects[candidate.source.id]?.layerId : undefined,
+    segments,
+    style: candidate.source?.style ?? DEFAULT_GEOMETRY_STYLE,
+    createdAt: now,
+    updatedAt: now,
+  } as CompoundRegionObject;
 }
 
 export class FillTool extends BaseTool {
@@ -347,6 +580,16 @@ export class FillTool extends BaseTool {
       context.setHoveredObject(this.candidates[this.candidateIndex]?.source.id ?? null);
       event.preventDefault();
       return;
+    }
+
+    if (/^[1-9]$/.test(event.key) && this.candidates.length > 1) {
+      const index = parseInt(event.key, 10) - 1;
+      if (index >= 0 && index < this.candidates.length) {
+        this.candidateIndex = index;
+        context.setHoveredObject(this.candidates[this.candidateIndex]?.source.id ?? null);
+        event.preventDefault();
+        return;
+      }
     }
 
     if (event.key === "Enter") {
@@ -511,7 +754,7 @@ export class FillTool extends BaseTool {
       return;
     }
 
-    const region = createRegionFromBoundary(candidate);
+    const region = createRegionFromBoundary(candidate, context.objects);
 
     context.beginHistoryTransaction("create", "Create filled region");
 
@@ -582,11 +825,15 @@ function worldPathToScreenPath(path: string, context: ToolContext): string {
     }
 
     if (token === "A") {
+      // World path uses mathematical coords (Y-up). SVG uses screen coords (Y-down).
+      // The path was generated with SVG sweep conventions already baked in by regionGeometry.ts
+      // which computes sweep=1 for CW in math coords = CW in screen coords = correct.
+      // We just need to scale radii and convert endpoint coords.
       const rx = Number(tokens[index + 1]) * context.viewport.scale;
       const ry = Number(tokens[index + 2]) * context.viewport.scale;
       const rotation = tokens[index + 3] ?? "0";
       const largeArc = tokens[index + 4] ?? "0";
-      const sweep = tokens[index + 5] === "1" ? "0" : "1";
+      const sweep = tokens[index + 5] ?? "0"; // Do NOT flip: regionGeometry already uses SVG conventions
       const x = Number(tokens[index + 6]);
       const y = Number(tokens[index + 7]);
       const screen = worldToScreen({ x, y }, context.viewport);

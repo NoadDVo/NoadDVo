@@ -6,12 +6,13 @@ export type ThemeMode = "dark-arctic" | "dark" | "light" | "system";
 export type ResolvedThemeMode = Exclude<ThemeMode, "system">;
 export type AppTheme = "theme1" | "theme2";
 type SidebarPanel = "tools" | "layers" | "history" | "settings";
-type DialogId = "settings" | "export" | "help" | null;
+type DialogId = "settings" | "export" | "help" | "exportPreview" | null;
 type KeyboardModeHint = "pan" | "snap-off" | "constraint" | null;
 
 type UIState = {
   readonly appTheme: AppTheme;
   readonly theme: ThemeMode;
+  readonly exportFormat: "png" | "svg";
   readonly activeSidebar: SidebarPanel;
   readonly openDialog: DialogId;
   readonly commandPaletteOpen: boolean;
@@ -42,6 +43,7 @@ type UIState = {
 const DEFAULT_UI_STATE = {
   activeSidebar: "tools",
   appTheme: "theme1" as AppTheme,
+  exportFormat: "png" as const,
   commandPaletteOpen: false,
   hoveredToolId: null,
   keyboardModeHint: null,
@@ -68,6 +70,7 @@ const DEFAULT_UI_STATE = {
   | "isLeftPanelOpen"
   | "isRightPanelOpen"
   | "activeTopBarMenu"
+  | "exportFormat"
 >;
 
 function readStoredTheme(): ThemeMode {
@@ -108,8 +111,12 @@ export const useUiStore = create<UIState>((set) => ({
   setActiveSidebar: (activeSidebar) => {
     set({ activeSidebar });
   },
-  setOpenDialog: (openDialog) => {
-    set({ openDialog, activeTopBarMenu: null });
+  setOpenDialog: (openDialog, exportFormat) => {
+    set((state) => ({
+      openDialog,
+      activeTopBarMenu: null,
+      exportFormat: exportFormat ?? state.exportFormat,
+    }));
   },
 
   setCommandPaletteOpen: (commandPaletteOpen) => {

@@ -104,11 +104,18 @@ export function styleToTikzParts(
     return {};
   }
 
-  const draw = options.preserveColors ? colorFor(style.stroke) : null;
-  const fill =
+  let draw = options.preserveColors ? colorFor(style.stroke) : null;
+  if (options.preserveColors && style.stroke !== "transparent" && draw === null) {
+    draw = "black";
+  }
+
+  let fill =
     options.preserveColors && style.fill !== "transparent"
       ? colorFor(style.fill)
       : null;
+  if (options.preserveColors && style.fill !== "transparent" && fill === null) {
+    fill = "black";
+  }
 
   return {
     ...(draw ? { draw } : {}),
@@ -328,7 +335,7 @@ export function formatPatternFill(
   _colorFor: (color: string) => string | null,
   providedBB?: { xMin: number; xMax: number; yMin: number; yMax: number }
 ): string[] {
-  if (!style.pattern || style.pattern.type === "none" || !options.preserveStyle) {
+  if (!style.pattern || style.pattern.type === "none") {
     return [];
   }
   const patternColorStr = style.pattern.color ?? "#000000";

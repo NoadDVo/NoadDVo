@@ -26,7 +26,7 @@ import { EllipseRenderer } from "./EllipseRenderer";
 import { HyperbolaRenderer } from "./HyperbolaRenderer";
 import { PolynomialRenderer } from "./PolynomialRenderer";
 import { SliderRenderer } from "./SliderRenderer";
-
+import { CompoundRegionRenderer } from "./CompoundRegionRenderer";
 
 export type GeometryRendererContext = {
   readonly viewport: Viewport;
@@ -89,6 +89,7 @@ export const geometryRendererRegistry = new RendererRegistry();
   HyperbolaRenderer,
   PolynomialRenderer,
   SliderRenderer,
+  CompoundRegionRenderer,
 ].forEach((renderer: any) => {
   geometryRendererRegistry.register(renderer);
 });

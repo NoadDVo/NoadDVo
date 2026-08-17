@@ -36,6 +36,42 @@ export function useCanvasGestures(interactionSurfaceRef: RefObject<SVGSVGElement
     }
   }, [interactionSurfaceRef]);
 
+
+/** Drawing tools where right-click should pan instead of opening context menu */
+const DRAWING_TOOL_IDS = new Set([
+  "polygon",
+  "point",
+  "segment",
+  "line",
+  "ray",
+  "vector",
+  "circle",
+  "angle",
+  "three-point-circle",
+  "three-point-arc",
+  "semicircle",
+  "circular-sector",
+  "compass",
+  "ellipse",
+  "hyperbola",
+  "polynomial",
+  "locus",
+  "regular-polygon",
+  "midpoint",
+  "intersection",
+  "parallel",
+  "perpendicular",
+  "perpendicular-bisector",
+  "angle-bisector",
+  "median",
+  "altitude",
+  "circumcircle",
+  "incircle",
+  "elliptical-arc",
+  "angle-given-size",
+  "point-by-distance",
+]);
+
   const handlePointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       const element = interactionSurfaceRef.current;
@@ -45,13 +81,20 @@ export function useCanvasGestures(interactionSurfaceRef: RefObject<SVGSVGElement
       }
 
       const isMiddleMouse = event.button === 1;
-      const isPanTool = toolManager.getActiveTool().id === "pan";
+      const activeTool = toolManager.getActiveTool();
+      const isPanTool = activeTool.id === "pan";
       const isSpaceDrag = (useViewportStore.getState().isSpacePressed || isPanTool) && event.button === 0;
+      const isDrawingTool = DRAWING_TOOL_IDS.has(activeTool.id);
 
       if (event.button === 2) {
         event.preventDefault();
-        openContextMenu(event, element);
-
+        // Right-click pans when a drawing tool is active (instead of context menu)
+        if (isDrawingTool) {
+          element.setPointerCapture(event.pointerId);
+          useViewportStore.getState().startPan(getLocalPoint(event, element));
+        } else {
+          openContextMenu(event, element);
+        }
         return;
       }
 
@@ -69,6 +112,7 @@ export function useCanvasGestures(interactionSurfaceRef: RefObject<SVGSVGElement
     },
     [interactionSurfaceRef],
   );
+
 
   const handlePointerUp = useCallback((event: PointerEvent<HTMLElement>) => {
     const element = interactionSurfaceRef.current;

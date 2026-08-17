@@ -12,6 +12,7 @@ import {
   getCircleGeometry,
   getPolygonPoints,
   regionContainsPoint,
+  compoundRegionContainsPoint,
   getTextFontSize,
   getTextPosition,
   isPointInPolygon,
@@ -224,6 +225,12 @@ export function hitTest(
       ) <= tolerancePx
     ) {
       return { object, objectId: object.id, type: "segment" };
+    }
+  }
+
+  for (const object of visibleObjectsByType(objects, "compound-region")) {
+    if (compoundRegionContainsPoint(object, worldPoint, objects)) {
+      return { object, objectId: object.id, type: "compound-region" };
     }
   }
 

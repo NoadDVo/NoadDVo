@@ -8,6 +8,7 @@ import {
   SelectInput,
   TextInput,
   patternOptions,
+  ColorPickerButton,
 } from "./PropertyInspectorFields";
 import { useTranslation } from "../../lib/useTranslation";
 import { TextAppearanceControls } from "./TextAppearanceControls";
@@ -30,79 +31,23 @@ export function AppearancePanel({
     <Section title={t("panel.appearance")}>
       <div className="grid grid-cols-2 gap-2">
         <Field label={t("prop.strokeColor")}>
-          <TextInput
-            onChange={(event) => updateStyle({ stroke: event.target.value })}
-            type="color"
+          <ColorPickerButton
+            onChange={(color) => updateStyle({ stroke: color })}
             value={object.style.stroke}
           />
         </Field>
         <Field label={t("prop.fillColor")}>
-          <TextInput
-            onChange={(event) => {
-              const updates: any = { fill: event.target.value };
-              if (object.style.fillOpacity === 0 && event.target.value !== "transparent" && event.target.value !== "#000000") {
+          <ColorPickerButton
+            onChange={(color) => {
+              const updates: any = { fill: color };
+              if (object.style.fillOpacity === 0 && color !== "transparent" && color !== "#000000") {
                 updates.fillOpacity = 0.2;
               } else if (object.style.fillOpacity === 0 && object.style.fill === "transparent") {
                  updates.fillOpacity = 0.2;
               }
               updateStyle(updates);
             }}
-            type="color"
-            value={object.style.fill === "transparent" ? "#000000" : object.style.fill}
-          />
-        </Field>
-      </div>
-      <Field label={t("prop.strokeWidth")}>
-        <TextInput
-          min={1}
-          onChange={(event) =>
-            updateStyle({
-              strokeWidth: Math.max(
-                1,
-                parseNumber(event.target.value, object.style.strokeWidth),
-              ),
-            })
-          }
-          step={0.25}
-          type="number"
-          value={object.style.strokeWidth}
-        />
-      </Field>
-      <div className="grid grid-cols-2 gap-2">
-        <Field label={t("prop.strokeOpacity")}>
-          <TextInput
-            max={1}
-            min={0}
-            onChange={(event) =>
-              updateStyle({
-                strokeOpacity: clamp(
-                  parseNumber(event.target.value, object.style.strokeOpacity),
-                  0,
-                  1,
-                ),
-              })
-            }
-            step={0.05}
-            type="number"
-            value={object.style.strokeOpacity}
-          />
-        </Field>
-        <Field label={t("prop.fillOpacity")}>
-          <TextInput
-            max={1}
-            min={0}
-            onChange={(event) =>
-              updateStyle({
-                fillOpacity: clamp(
-                  parseNumber(event.target.value, object.style.fillOpacity),
-                  0,
-                  1,
-                ),
-              })
-            }
-            step={0.05}
-            type="number"
-            value={object.style.fillOpacity}
+            value={object.style.fill}
           />
         </Field>
       </div>
@@ -179,16 +124,15 @@ export function AppearancePanel({
           {object.style.pattern?.type && object.style.pattern.type !== "none" && (
             <>
               <Field label={t("prop.patternColor")}>
-                <TextInput
-                  onChange={(event) =>
+                <ColorPickerButton
+                  onChange={(color) =>
                     updateStyle({
                       pattern: {
                         ...(object.style.pattern ?? { type: "none", density: 0.5, size: 10 }),
-                        color: event.target.value,
+                        color: color,
                       }
                     })
                   }
-                  type="color"
                   value={object.style.pattern?.color ?? "#000000"}
                 />
               </Field>

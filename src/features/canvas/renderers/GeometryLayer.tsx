@@ -19,6 +19,7 @@ const RENDER_ORDER = {
   polynomial: 23,
   arc: 25,
   "elliptical-arc": 26,
+  "compound-region": 28,
   line: 30,
   ray: 40,
   segment: 50,

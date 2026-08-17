@@ -41,7 +41,11 @@ export const CircleExporter: TikzObjectExporter<CircleObject> = {
     if (centerExpression) {
       const path = `${centerExpression} circle (${formatNumber(geometry.radius, context.options.coordinatePrecision)})`;
       if (object.style.fill !== "transparent" && object.style.fillOpacity > 0) {
-        context.scene.sections.shapes.push(`\\fill[${context.options.preserveColors ? colorFor(object.style.fill) : "white"}, fill opacity=${object.style.fillOpacity}] ${path};`);
+        const fillStyle = { ...object.style, stroke: "transparent", strokeWidth: 0, strokeOpacity: 0 };
+        const fillOptions = formatStyleOptions(
+          styleToTikzParts(fillStyle, context.options, colorFor)
+        );
+        context.scene.sections.shapes.push(`\\fill${fillOptions} ${path};`);
       }
 
       const hasPattern = object.style.pattern && object.style.pattern.type !== "none";

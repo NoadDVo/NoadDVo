@@ -97,9 +97,16 @@ export function ExportMenu() {
             }}
           />
           <ExportOption
+            label="PNG"
+            onClick={() => {
+              setExportOpen(false);
+              useUiStore.getState().setOpenDialog("exportPreview", "png");
+            }}
+          />
+          <ExportOption
             label="JSON"
             onClick={() => {
-              const filename = promptFilename("json");
+              const filename = promptFilename("ndv");
               if (filename) {
                 runExport(() => exportManager.exportJson(createProjectSnapshot(), filename));
               }

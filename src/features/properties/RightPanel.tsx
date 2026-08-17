@@ -59,26 +59,59 @@ export function RightPanel() {
               </div>
             )}
             <GeneralPanel object={selectedObject} updateSelected={updateSelected} />
-            <Divider className="my-4" />
-            <GeometryPanel
-              object={selectedObject}
-              objects={objects}
-              updateSelected={updateSelected}
-            />
-            <Divider className="my-4" />
+            
+            {(() => {
+              let hasGeom = false;
+              if (["point", "circle", "polygon", "angle", "text", "image", "slider", "arc", "elliptical-arc", "region"].includes(selectedObject.type)) {
+                hasGeom = true;
+              } else if (selectedObject.type === "line") {
+                hasGeom = !!(
+                  selectedObject.lineKind === "perpendicular" ||
+                  selectedObject.lineKind === "perpendicular-bisector" ||
+                  selectedObject.lineKind === "angle-bisector" ||
+                  selectedObject.lineKind === "angle-bisector-4step" ||
+                  selectedObject.specialLineKind === "perpendicular-bisector-3step" ||
+                  selectedObject.specialLineKind === "angle-bisector" ||
+                  selectedObject.specialLineKind === "altitude"
+                );
+              } else if (selectedObject.type === "segment") {
+                hasGeom = !!(
+                  selectedObject.specialLineKind === "perpendicular-bisector-3step" ||
+                  selectedObject.specialLineKind === "angle-bisector" ||
+                  selectedObject.specialLineKind === "altitude"
+                );
+              }
+              return hasGeom && (
+                <>
+                  <Divider className="my-2.5" />
+                  <GeometryPanel
+                    object={selectedObject}
+                    objects={objects}
+                    updateSelected={updateSelected}
+                  />
+                </>
+              );
+            })()}
+
+            <Divider className="my-2.5" />
             <AppearancePanel
               object={selectedObject}
               updateSelected={updateSelected}
               updateStyle={updateStyle}
             />
-            <Divider className="my-4" />
+            <Divider className="my-2.5" />
             <LabelPanel
               object={selectedObject}
               updateSelected={updateSelected}
               updateStyle={updateStyle}
             />
-            <Divider className="my-4" />
-            <AdvancedPanel object={selectedObject} />
+            <Divider className="my-2.5" />
+            <AdvancedPanel 
+              object={selectedObject} 
+              objects={objects}
+              updateSelected={updateSelected} 
+              updateStyle={updateStyle} 
+            />
           </>
         )}
       </div>
