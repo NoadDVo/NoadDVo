@@ -39,6 +39,7 @@ export type EllipticalArcGeometry = {
   readonly endPoint: Point2D;
   readonly phi: number;
   readonly thetaEnd: number;
+  readonly direction: "clockwise" | "counterclockwise";
 };
 
 export function getPointObject(
@@ -201,6 +202,10 @@ export function getEllipticalArcGeometry(
   if (theta_end < 0) theta_end += 2 * Math.PI;
   if (theta_end === 0) theta_end = 2 * Math.PI;
 
+  if (object.direction === "clockwise" && theta_end > 0) {
+    theta_end -= 2 * Math.PI;
+  }
+
   const startPoint = {
     x: center.x + rx * Math.cos(phi),
     y: center.y + rx * Math.sin(phi),
@@ -222,6 +227,7 @@ export function getEllipticalArcGeometry(
     endPoint,
     phi,
     thetaEnd: theta_end,
+    direction: object.direction,
   };
 }
 

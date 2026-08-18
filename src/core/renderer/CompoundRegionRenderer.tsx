@@ -109,9 +109,14 @@ function calculateSVGPath(
       // SVG sweep=1 → clockwise (screen Y-down). Our direction "clockwise" = sweep=1.
       const sweepFlag = segment.direction === "clockwise" ? 1 : 0;
 
-      // For large-arc determination, compute angular delta
-      let startAngle = Math.atan2(dyStart, dxStart);
-      let endAngle = Math.atan2(dyEnd, dxEnd);
+      const phi = (xAxisRotation * Math.PI) / 180;
+      const localStartX = dxStart * Math.cos(phi) + dyStart * Math.sin(phi);
+      const localStartY = -dxStart * Math.sin(phi) + dyStart * Math.cos(phi);
+      const localEndX = dxEnd * Math.cos(phi) + dyEnd * Math.sin(phi);
+      const localEndY = -dxEnd * Math.sin(phi) + dyEnd * Math.cos(phi);
+
+      let startAngle = Math.atan2(localStartY / ry, localStartX / rx);
+      let endAngle = Math.atan2(localEndY / ry, localEndX / rx);
 
       if (startAngle < 0) startAngle += 2 * Math.PI;
       if (endAngle < 0) endAngle += 2 * Math.PI;
