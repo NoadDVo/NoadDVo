@@ -191,9 +191,13 @@ export function getEllipticalArcGeometry(
   }
 
   const phi = Math.atan2(startPointObj.y - center.y, startPointObj.x - center.x);
-  const absB = Math.atan2(endPointObj.y - center.y, endPointObj.x - center.x);
   
-  let theta_end = absB - phi;
+  const dx = endPointObj.x - center.x;
+  const dy = endPointObj.y - center.y;
+  const localX = dx * Math.cos(phi) + dy * Math.sin(phi);
+  const localY = -dx * Math.sin(phi) + dy * Math.cos(phi);
+  
+  let theta_end = Math.atan2(localY / ry, localX / rx);
   if (theta_end < 0) theta_end += 2 * Math.PI;
   if (theta_end === 0) theta_end = 2 * Math.PI;
 
@@ -207,6 +211,7 @@ export function getEllipticalArcGeometry(
     y: center.y + rx * Math.cos(theta_end) * Math.sin(phi) + ry * Math.sin(theta_end) * Math.cos(phi),
   };
 
+  const absB = Math.atan2(endPointObj.y - center.y, endPointObj.x - center.x);
   return {
     center,
     rx,

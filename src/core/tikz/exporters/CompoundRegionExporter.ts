@@ -77,8 +77,8 @@ export const CompoundRegionExporter: TikzObjectExporter<CompoundRegionObject> = 
           ry = rx;
         }
 
-        let startAngle = (Math.atan2(dyStart, dxStart) * 180) / Math.PI;
-        let endAngle = (Math.atan2(dyEnd, dxEnd) * 180) / Math.PI;
+        let startAngle = (Math.atan2(dyStart / ry, dxStart / rx) * 180) / Math.PI;
+        let endAngle = (Math.atan2(dyEnd / ry, dxEnd / rx) * 180) / Math.PI;
 
         if (startAngle < 0) startAngle += 360;
         if (endAngle < 0) endAngle += 360;
