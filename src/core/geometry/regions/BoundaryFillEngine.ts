@@ -254,9 +254,13 @@ function uniqueByPoint(points: readonly SplitPoint[], primitive?: BoundaryPrimit
     // Calculate proper angular distance from startAngle to p.parameter along the arc
     // normalizeAngle ensures values are 0-360, so diff + 360 is always > 0
     if (direction === "counterclockwise") {
-      return (p.parameter - startAngle + 360) % 360;
+      let delta = (p.parameter - startAngle + 360) % 360;
+      if (delta > 359.9) delta -= 360;
+      return delta;
     } else {
-      return (startAngle - p.parameter + 360) % 360;
+      let delta = (startAngle - p.parameter + 360) % 360;
+      if (delta > 359.9) delta -= 360;
+      return delta;
     }
   };
 
@@ -779,6 +783,13 @@ function computeIntersectionsWithBudget(
         { parameter: primitive.domain.max, point: pointAtCircle(primitive, primitive.domain.max) },
       );
     }
+
+    if (primitive.kind === "circular" && primitive.edgeKind === "circle") {
+      splitMap.get(primitive.id)?.push(
+        { parameter: 0, point: pointAtCircle(primitive, 0) },
+        { parameter: 180, point: pointAtCircle(primitive, 180) },
+      );
+    }
   }
 
   for (let firstIndex = 0; firstIndex < primitives.length; firstIndex += 1) {
@@ -991,16 +1002,23 @@ export function buildDirectedEdges(pieces: readonly BoundaryPiece[]): readonly D
       ? Math.atan2(forwardSamples[1]!.y - forwardSamples[0]!.y, forwardSamples[1]!.x - forwardSamples[0]!.x)
       : Math.atan2(piece.end.y - piece.start.y, piece.end.x - piece.start.x);
     
+    const from = getNodeKey(piece.start);
+    const to = getNodeKey(piece.end);
+
+    if (from === to) {
+      return [];
+    }
+
     const forward = {
       angle: forwardAngle,
       baseId: piece.id,
       dependencies: piece.dependencies,
       edge: boundaryEdgeForPiece(piece, "forward"),
-      from: getNodeKey(piece.start),
+      from,
       id: `${piece.id}:forward`,
       samples: forwardSamples,
       style: piece.style,
-      to: getNodeKey(piece.end),
+      to,
     };
     
     const reverseSamplesArray = reverseSamples(piece.samples);
@@ -1013,11 +1031,11 @@ export function buildDirectedEdges(pieces: readonly BoundaryPiece[]): readonly D
       baseId: piece.id,
       dependencies: piece.dependencies,
       edge: boundaryEdgeForPiece(piece, "reverse"),
-      from: getNodeKey(piece.end),
+      from: to,
       id: `${piece.id}:reverse`,
       samples: reverseSamplesArray,
       style: piece.style,
-      to: getNodeKey(piece.start),
+      to: from,
     };
 
     return [forward, reverse];
