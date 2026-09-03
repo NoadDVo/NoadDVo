@@ -93,7 +93,7 @@ export const SegmentExporter: TikzObjectExporter<SegmentObject> = {
 
           if (nameVertex && nameFoot && nameB && nameC && pos) {
             context.scene.sections.shapes.push(
-              `\\draw[line width=0.5pt] ($($(${nameB})!(${offLinePt})!(${nameC})$)!0.15cm!(${offLinePt})$) -- ($($($(${nameB})!(${offLinePt})!(${nameC})$)!0.15cm!(${offLinePt})$)!0.15cm!90:($(${nameB})!(${offLinePt})!(${nameC})$)$) -- ($($(${nameB})!(${offLinePt})!(${nameC})$)!0.15cm!(${nameB})$);`
+              `\\draw[line width=0.5pt] ($(${pos})!0.15cm!(${offLinePt})$) -- ($ ($(${pos})!0.15cm!(${offLinePt})$) + ($(${pos})!0.15cm!(${nameB})$) - (${pos}) $) -- ($(${pos})!0.15cm!(${nameB})$);`
             );
           }
         }
