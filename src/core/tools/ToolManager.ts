@@ -41,6 +41,7 @@ import { sliderTool } from "./SliderTool";
 import { pasteTool } from "./PasteTool";
 import { constructAngleWithGivenSizeTool } from "./ConstructAngleWithGivenSizeTool";
 import { constructPointByDistanceTool } from "./ConstructPointByDistanceTool";
+import { imageTool } from "./ImageTool";
 import {
   createToolContext,
   type ToolContext,
@@ -88,6 +89,7 @@ const defaultTools = [
   pasteTool,
   constructAngleWithGivenSizeTool,
   constructPointByDistanceTool,
+  imageTool,
 ] satisfies readonly Tool[];
 
 export class ToolManager {
